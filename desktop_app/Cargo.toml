@@ -1,0 +1,16 @@
+[package]
+name = "scientific_football_manager"
+version = "0.1.0"
+edition = "2021"
+authors = ["Scientific Football Manager Team"]
+description = "Gestionnaire d'équipes de football 5v5 avec des scientifiques"
+
+[[bin]]
+name = "scientific_football_manager"
+path = "src/main.rs"
+
+[dependencies]
+bevy = { version = "0.15", features = ["dynamic_linking"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8"
