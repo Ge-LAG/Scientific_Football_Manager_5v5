@@ -465,54 +465,54 @@ fn mettre_a_jour_ui_match(
 }
 
 fn gerer_controles_match(
-    mut interactions_pause: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<BoutonPauseMatch>)>,
-    mut interactions_reprendre: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<BoutonReprendreMatch>)>,
-    mut interactions_mitemps: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<BoutonMiTemps>)>,
-    mut interactions_nav: Query<(&Interaction, &mut BackgroundColor, &BoutonNavigation), Changed<Interaction>>,
+    mut interactions: Query<(
+        &Interaction,
+        &mut BackgroundColor,
+        Option<&BoutonPauseMatch>,
+        Option<&BoutonReprendreMatch>,
+        Option<&BoutonMiTemps>,
+        Option<&BoutonNavigation>,
+    ), (Changed<Interaction>, With<Button>)>,
     mut etat_jeu: ResMut<EtatJeu>,
     mut prochaine_etat: ResMut<NextState<EcranJeu>>,
 ) {
-    for (interaction, mut couleur) in interactions_pause.iter_mut() {
-        match interaction {
-            Interaction::Pressed => {
-                if let Some(ref mut m) = etat_jeu.match_actuel {
-                    m.pause();
+    for (interaction, mut couleur, pause, reprendre, mitemps, nav) in interactions.iter_mut() {
+        if pause.is_some() {
+            match interaction {
+                Interaction::Pressed => {
+                    if let Some(ref mut m) = etat_jeu.match_actuel {
+                        m.pause();
+                    }
                 }
+                Interaction::Hovered => *couleur = BackgroundColor(Color::srgb(0.4, 0.3, 0.1)),
+                Interaction::None => *couleur = BackgroundColor(Color::srgb(0.3, 0.2, 0.1)),
             }
-            Interaction::Hovered => *couleur = BackgroundColor(Color::srgb(0.4, 0.3, 0.1)),
-            Interaction::None => *couleur = BackgroundColor(Color::srgb(0.3, 0.2, 0.1)),
-        }
-    }
-
-    for (interaction, mut couleur) in interactions_reprendre.iter_mut() {
-        match interaction {
-            Interaction::Pressed => {
-                if let Some(ref mut m) = etat_jeu.match_actuel {
-                    m.reprendre();
+        } else if reprendre.is_some() {
+            match interaction {
+                Interaction::Pressed => {
+                    if let Some(ref mut m) = etat_jeu.match_actuel {
+                        m.reprendre();
+                    }
                 }
+                Interaction::Hovered => *couleur = BackgroundColor(Color::srgb(0.15, 0.4, 0.15)),
+                Interaction::None => *couleur = BackgroundColor(Color::srgb(0.1, 0.3, 0.1)),
             }
-            Interaction::Hovered => *couleur = BackgroundColor(Color::srgb(0.15, 0.4, 0.15)),
-            Interaction::None => *couleur = BackgroundColor(Color::srgb(0.1, 0.3, 0.1)),
-        }
-    }
-
-    for (interaction, mut couleur) in interactions_mitemps.iter_mut() {
-        match interaction {
-            Interaction::Pressed => {
-                if let Some(ref mut m) = etat_jeu.match_actuel {
-                    m.reprendre();
+        } else if mitemps.is_some() {
+            match interaction {
+                Interaction::Pressed => {
+                    if let Some(ref mut m) = etat_jeu.match_actuel {
+                        m.reprendre();
+                    }
                 }
+                Interaction::Hovered => *couleur = BackgroundColor(Color::srgb(0.15, 0.4, 0.15)),
+                Interaction::None => *couleur = BackgroundColor(Color::srgb(0.1, 0.3, 0.1)),
             }
-            Interaction::Hovered => *couleur = BackgroundColor(Color::srgb(0.15, 0.4, 0.15)),
-            Interaction::None => *couleur = BackgroundColor(Color::srgb(0.1, 0.3, 0.1)),
-        }
-    }
-
-    for (interaction, mut couleur, nav) in interactions_nav.iter_mut() {
-        match interaction {
-            Interaction::Pressed => prochaine_etat.set(nav.0),
-            Interaction::Hovered => *couleur = BackgroundColor(COULEUR_BTN_SURVOL),
-            Interaction::None => *couleur = BackgroundColor(COULEUR_BTN_NORMAL),
+        } else if let Some(nav) = nav {
+            match interaction {
+                Interaction::Pressed => prochaine_etat.set(nav.0),
+                Interaction::Hovered => *couleur = BackgroundColor(COULEUR_BTN_SURVOL),
+                Interaction::None => *couleur = BackgroundColor(COULEUR_BTN_NORMAL),
+            }
         }
     }
 }

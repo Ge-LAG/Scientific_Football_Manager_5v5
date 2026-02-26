@@ -99,8 +99,8 @@ impl EtatJeu {
         let equipe = self.equipes.iter_mut().find(|e| e.id == equipe_id)
             .ok_or("Équipe non trouvée")?;
 
-        if equipe.joueurs.len() >= 10 {
-            return Err("L'équipe est complète (10 joueurs max)".to_string());
+        if equipe.joueurs.len() >= 15 {
+            return Err("L'équipe est complète (15 joueurs max)".to_string());
         }
 
         let joueur = self.joueurs_disponibles.remove(joueur_idx);

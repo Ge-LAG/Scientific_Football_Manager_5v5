@@ -3,7 +3,6 @@ use crate::game_state::{EcranJeu, EtatJeu};
 use crate::ui::styles::*;
 use crate::ui::components::*;
 use crate::ui::menu_principal::nettoyer_ecran;
-use crate::ui::gestion_equipe::*;
 
 pub struct PreparationMatchPlugin;
 

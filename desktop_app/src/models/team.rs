@@ -213,37 +213,63 @@ impl Equipe {
     }
 
     pub fn selectionner_titulaires_auto(&mut self) {
-        // Désélectionner tout le monde
+        // Désélectionner tout le monde et réinitialiser position_actuelle
         for j in &mut self.joueurs {
             j.sur_le_terrain = false;
+            j.position_actuelle = j.position_preferee;
         }
 
         let positions = self.formation.get_positions_requises();
         let mut positions_restantes = positions.clone();
 
-        // Trier les joueurs par note décroissante
-        let mut indices_joueurs: Vec<usize> = (0..self.joueurs.len()).collect();
+        // D'abord, assigner le gardien : choisir le meilleur joueur défensif
+        // (aucun joueur n'a Position::Gardien par défaut)
+        if let Some(gk_slot) = positions_restantes.iter().position(|p| *p == Position::Gardien) {
+            // Trouver le meilleur candidat gardien (meilleure défense + jeu de tête)
+            let meilleur_gardien_idx = self.joueurs.iter()
+                .enumerate()
+                .filter(|(_, j)| j.est_disponible())
+                .max_by(|(_, a), (_, b)| {
+                    let score_a = a.stats_effectives.defense * 0.6 + a.stats_effectives.jeu_de_tete * 0.4;
+                    let score_b = b.stats_effectives.defense * 0.6 + b.stats_effectives.jeu_de_tete * 0.4;
+                    score_a.partial_cmp(&score_b).unwrap_or(std::cmp::Ordering::Equal)
+                })
+                .map(|(idx, _)| idx);
+
+            if let Some(idx) = meilleur_gardien_idx {
+                self.joueurs[idx].sur_le_terrain = true;
+                self.joueurs[idx].position_actuelle = Position::Gardien;
+                positions_restantes.remove(gk_slot);
+            }
+        }
+
+        // Trier les joueurs restants par note décroissante
+        let mut indices_joueurs: Vec<usize> = (0..self.joueurs.len())
+            .filter(|&idx| !self.joueurs[idx].sur_le_terrain)
+            .collect();
         indices_joueurs.sort_by(|&a, &b| {
             self.joueurs[b].note_globale()
                 .partial_cmp(&self.joueurs[a].note_globale())
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
 
-        // Assigner les positions
+        // Assigner les positions restantes
         for idx in indices_joueurs {
             let joueur = &self.joueurs[idx];
             if !joueur.est_disponible() { continue; }
 
-            // Chercher une position correspondante
+            // Chercher une position correspondante à la préférence du joueur
             if let Some(pos_idx) = positions_restantes.iter()
                 .position(|p| *p == joueur.position_preferee)
             {
-                positions_restantes.remove(pos_idx);
+                let pos = positions_restantes.remove(pos_idx);
                 self.joueurs[idx].sur_le_terrain = true;
+                self.joueurs[idx].position_actuelle = pos;
             } else if !positions_restantes.is_empty() {
                 // Prendre la première position disponible
-                positions_restantes.remove(0);
+                let pos = positions_restantes.remove(0);
                 self.joueurs[idx].sur_le_terrain = true;
+                self.joueurs[idx].position_actuelle = pos;
             }
 
             if positions_restantes.is_empty() { break; }

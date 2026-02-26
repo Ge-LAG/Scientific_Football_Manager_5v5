@@ -1,6 +1,6 @@
 // Scientific Football Manager 5v5
 // Application de gestion d'équipes de football avec des scientifiques !
-// Développé avec Bevy 0.13
+// Développé avec Bevy 0.15
 
 #![allow(unused_imports, dead_code)]
 
