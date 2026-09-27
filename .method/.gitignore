@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.method.lock
+.method-cache.json
+.method-dirty
+.method-tmp-*

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Contrôles clavier/souris/manette · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-011</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-011" data-title="Contrôles clavier/souris/manette" data-summary="ZQSD/WASD indépendants du clavier, souris, manette, aide aux commandes." data-tags="controls input clavier azerty manette gamepad" data-kind="work" data-watch="src/three/input.js" data-status="review" data-components="arena-input">
+<p class="eyebrow">work / W-011</p><h1>Contrôles clavier/souris/manette</h1>
+<dl><dt>Résultat attendu</dt><dd>Le joueur contrôle son scientifique au clavier (AZERTY et QWERTY), à la souris et à la manette, avec un écran d&#x27;aide bilingue.</dd>
+<dt>Périmètre / mandat</dt><dd>src/three/input.js. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-010.</dd>
+<dt>Vérification prévue</dt><dd>Vérification manuelle navigateur.</dd>
+<dt>Point d'étape</dt><dd>Livré : clavier par position physique (ZQSD/WASD), souris verrouillée, manette (API Gamepad), commandes tactiles, aide bilingue. Vérifié : déplacement, sprint, tir au clavier. Non vérifié en réel : manette et souris verrouillée (environnement de test sans périphérique). Ajouts : appel de balle (X / RB) pour que les bots servent l'humain, emotes rapides (1 à 5).</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Déplacement, sprint, passe, tir chargé, tacle, power-up fonctionnent au clavier+souris et à la manette.</p>
+<p data-evidence-for="A1" data-result="pending" data-check="Événements clavier simulés dans le navigateur intégré + tests/arena-sim.test.js (entrées humaines)" data-ref="../../tests/arena-sim.test.js" data-by="Claude (agent)" data-date="2026-09-27">Déplacement, sprint et tir chargé fonctionnent ; passe au front de bouton testée côté simulation. Manette et souris verrouillée à valider en recette.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

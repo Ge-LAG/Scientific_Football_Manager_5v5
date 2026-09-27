@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Security and data changes · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>guide · security</span></header><main>
+<article data-method data-revision="1" data-owner="CTO" id="security" data-title="Security and data changes" data-summary="Load for trust boundaries, secrets, sensitive data or recovery." data-tags="security sécurité auth permissions data secrets backup encryption migration" data-kind="guide" data-status="active">
+<p class="eyebrow">guide / security</p><h1>Security and data changes</h1>
+<p>Identify protected assets, actors, trust boundaries and concrete abuse/failure cases. Verify server-side authorization and tenant isolation; validate inputs at boundaries. Use established security libraries and repository controls. Keep secrets outside tracked code, fixtures, reports and logs.</p>
+<p>Choose protections from the actual threat model/platform. Review credentials, dependency provenance/updates, transport/storage protections, retention and least privilege where affected. Human-facing errors follow both product languages; machine codes remain stable.</p>
+<p>Logs/telemetry use minimal information. Technical IDs can still be sensitive: redact, pseudonymize or omit according to policy. Verify error/debug paths as well as success paths. Use synthetic or suitably anonymized test data.</p>
+<p>For schema/persistent-format changes, specify old/new compatibility, ordering, idempotency and interrupted execution. Test representative migrations, backup restoration and chosen rollback/forward recovery on a safe copy. Do not claim recovery without a restoration check. Destructive production recovery needs an explicit scoped mandate.</p>
+<p>For APIs/jobs, test unauthorized access, malformed inputs, timeouts and safe retries as relevant. For dependency/native-runtime changes, verify versions and behavior actually packaged. Track unresolved vulnerabilities with impact, owner and remediation or accepted exception.</p>
+<p>Put project-specific constraints in <a href="profile.html#profile">profile</a>, lasting tradeoffs in decisions, and security evidence in the relevant work/release record.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

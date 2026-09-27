@@ -1,0 +1,2915 @@
+{
+  "schema_version": 2,
+  "generated": true,
+  "entries": [
+    {
+      "id": "adoption",
+      "path": "docs/adoption.html",
+      "title": "Adopt V6 in a project",
+      "summary": "Install once, configure real constraints and choose HTML discovery or an existing adapter.",
+      "tags": [
+        "adoption",
+        "setup",
+        "install",
+        "bootstrap",
+        "agents",
+        "html",
+        "fallback",
+        "configure",
+        "adaptation"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "92e48c4ba0ccc19ce6f25c2ccbd6679fac16a4996749df10b24fc1d7eb2823c8",
+      "chars": 3561,
+      "size": 4673,
+      "mtime_ns": 1790462916009002000,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "ed982b11096f495bba9b362a6d351982b634084a08fd24b820167b70b2386fba",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "migration.html#migration",
+        "profile.html#profile",
+        "roadmap.html#roadmap",
+        "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+        "durability.html#durability",
+        "evidence.html#evidence"
+      ],
+      "anchors": [
+        "adoption"
+      ]
+    },
+    {
+      "id": "core",
+      "path": "docs/core.html",
+      "title": "Operating contract",
+      "summary": "Always-loaded kernel: scope, evidence, state and language.",
+      "tags": [
+        "core",
+        "kernel",
+        "workflow",
+        "scope",
+        "languages",
+        "français",
+        "english"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "742bb64e17d8f95755fcb7723cb922c97d6eacd3ea49aa6440eb123e62d3c801",
+      "chars": 1654,
+      "size": 2554,
+      "mtime_ns": 1790462916021003100,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "7bc5193e6beceaae1ca53cdcf9812a442acd04b3f07ced8f221281497af93bfa",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "governance.html#governance",
+        "handoff.html#handoff",
+        "quality.html#quality",
+        "release.html#release",
+        "shared-edits.html#shared-edits",
+        "durability.html#durability",
+        "language.html#language"
+      ],
+      "anchors": [
+        "core"
+      ]
+    },
+    {
+      "id": "durability",
+      "path": "docs/durability.html",
+      "title": "Keep the method healthy",
+      "summary": "Exception-based maintenance, ownership, scoped constraints and immutable history.",
+      "tags": [
+        "maintenance",
+        "durability",
+        "lifecycle",
+        "review",
+        "supersedes",
+        "history",
+        "archive",
+        "scale",
+        "pérennité"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "7b5f514d8e50aac23d27122147faf62cb640a46935592f52752f7d99c3806bca",
+      "chars": 4524,
+      "size": 5465,
+      "mtime_ns": 1790462916032300900,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "631663e10971d8e2aa418ce75959f077510f2f7635c2ae20a828cc4ef685b54d",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "evidence.html#evidence",
+        "shared-edits.html#shared-edits"
+      ],
+      "anchors": [
+        "durability"
+      ]
+    },
+    {
+      "id": "evidence",
+      "path": "docs/evidence.html",
+      "title": "Bind acceptance to current evidence",
+      "summary": "Machine-checkable closure fields and invalidation when criteria, code or dependencies change.",
+      "tags": [
+        "evidence",
+        "proof",
+        "acceptance",
+        "gates",
+        "validation",
+        "fingerprint",
+        "candidate",
+        "audit"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "f719ed4cbd96823dbb1f1ec2dd472bd9ad16a2597802f40db91f94f48e1cfc74",
+      "chars": 2670,
+      "size": 3589,
+      "mtime_ns": 1790462915868133800,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "b7b3dd214f27c80f772f66f5a722a489c50dcf7b93261ba30e492dd4e0d48208",
+      "has_placeholder": true,
+      "links": [
+        "../assets/method.css",
+        "../index.html"
+      ],
+      "anchors": [
+        "evidence"
+      ]
+    },
+    {
+      "id": "governance",
+      "path": "docs/governance.html",
+      "title": "Authority and decisions",
+      "summary": "PO authority, CTO mandate, durable authorization and targeted escalation.",
+      "tags": [
+        "authority",
+        "governance",
+        "mandat",
+        "permissions",
+        "consent",
+        "push",
+        "merge",
+        "deploy",
+        "po",
+        "cto"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "33040b98808b3c6121067b4ea61cec4ae63a5be26d90f3c2eaabb1a38bdcbc5e",
+      "chars": 2286,
+      "size": 3325,
+      "mtime_ns": 1790462916095147200,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "384b4f5b03de45cb70af0e048577d396bf244f46d94ee133d80cc33964ee8243",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../templates/authorization.html#tpl-authorization",
+        "../templates/decision.html#tpl-decision"
+      ],
+      "anchors": [
+        "governance"
+      ]
+    },
+    {
+      "id": "handoff",
+      "path": "docs/handoff.html",
+      "title": "CTO ↔ Codex handoff",
+      "summary": "Compact English delegation and verified computer-use delivery, with French PO reports.",
+      "tags": [
+        "cto",
+        "robertson",
+        "andersen",
+        "chatgpt",
+        "work",
+        "computer",
+        "use",
+        "handoff",
+        "mission",
+        "passation"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "658d03b4c4f1e0ab024e4e91fc225112c6e34d686047716649443868903c3f82",
+      "chars": 2258,
+      "size": 3190,
+      "mtime_ns": 1790462915884942600,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "f484042da9575daa654c46a9caf22c382dc09b751daa05a406ada6426c830cb0",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "language.html#language"
+      ],
+      "anchors": [
+        "handoff"
+      ]
+    },
+    {
+      "id": "language",
+      "path": "docs/language.html",
+      "title": "Language and localization",
+      "summary": "French and English software, French default; audience-specific reporting.",
+      "tags": [
+        "language",
+        "languages",
+        "localization",
+        "i18n",
+        "l10n",
+        "français",
+        "french",
+        "anglais",
+        "english",
+        "traduction"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "7619f9054cfff1cd74b38635bd87e14a362739e2ad529d17719bd8c495ce703d",
+      "chars": 2059,
+      "size": 3134,
+      "mtime_ns": 1790462915932137400,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "5438bc9979bfe48666dac43598563204f064b631a5ee87da9f69f61dfee0705a",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html"
+      ],
+      "anchors": [
+        "language"
+      ]
+    },
+    {
+      "id": "migration",
+      "path": "docs/migration.html",
+      "title": "V5 → V6 decisions",
+      "summary": "What was retained, replaced or removed, and how to preserve project history.",
+      "tags": [
+        "migration",
+        "v5",
+        "v6",
+        "audit",
+        "removed",
+        "json",
+        "markdown",
+        "mistral",
+        "changement"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "0955c31ff8e7cd4b718beab6ed73726300660f348b3022eb34ef01008758f204",
+      "chars": 2975,
+      "size": 4166,
+      "mtime_ns": 1790462915950146900,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "b5f952d1f2967d9343898dce9df235a8441fc434df3d5110d28cf81ff6fb7d35",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html"
+      ],
+      "anchors": [
+        "migration"
+      ]
+    },
+    {
+      "id": "profile",
+      "path": "docs/profile.html",
+      "title": "Project profile",
+      "summary": "Lab League : faits projet, stack, commandes, contraintes.",
+      "tags": [
+        "profile",
+        "architecture",
+        "stack",
+        "commands",
+        "constraints",
+        "source",
+        "tests",
+        "build",
+        "local"
+      ],
+      "kind": "project",
+      "status": "active",
+      "sha256": "6d4055dfd0bca9baef18df4bcc0eedf5ca27a1e61b782571b88ae453e5cb9bde",
+      "chars": 1878,
+      "size": 3162,
+      "mtime_ns": 1790476994942570000,
+      "revision": 3,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "bbcde2b0a4e61f253ac4f004570c21a48e4260276b476b208e2224f0035396ae",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "profile"
+      ]
+    },
+    {
+      "id": "quality",
+      "path": "docs/quality.html",
+      "title": "Verification proportional to risk",
+      "summary": "Behavioral checks, risk triggers and strict evidence without ritual test loops.",
+      "tags": [
+        "quality",
+        "test",
+        "tests",
+        "verification",
+        "risk",
+        "production",
+        "regression",
+        "build",
+        "ci",
+        "lint"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "8c0896b664d29a3882966eed73b6e2a533687028dc907a9af7bc5ed8426cc61e",
+      "chars": 2557,
+      "size": 3639,
+      "mtime_ns": 1790462916058314300,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "f71ea2786bf73787746a0923c9f2e956ea991206d74cefee3fbfb76a12642e64",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "release.html#release",
+        "language.html#language",
+        "evidence.html#evidence"
+      ],
+      "anchors": [
+        "quality"
+      ]
+    },
+    {
+      "id": "release",
+      "path": "docs/release.html",
+      "title": "Release and operate",
+      "summary": "Promote a tested candidate with explicit authority, recovery and operational checks.",
+      "tags": [
+        "release",
+        "deploy",
+        "deployment",
+        "livraison",
+        "production",
+        "rollback",
+        "monitoring",
+        "incident"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "75958982ebf6b5883110a84c55952950be6f03f1570b9cccae021373793438cf",
+      "chars": 1872,
+      "size": 2892,
+      "mtime_ns": 1790462915974956800,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "bae3cc8cf561cc0a84ba0003863444c4fa6326705750a200eb6ed40fb723e5d1",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../templates/release.html#tpl-release",
+        "profile.html#profile",
+        "../templates/incident.html#tpl-incident"
+      ],
+      "anchors": [
+        "release"
+      ]
+    },
+    {
+      "id": "retrieval",
+      "path": "docs/retrieval.html",
+      "title": "Selective context, not full reloads",
+      "summary": "Search metadata, extract selected HTML and detect stale references.",
+      "tags": [
+        "retrieval",
+        "tokens",
+        "index",
+        "search",
+        "read",
+        "context",
+        "html",
+        "efficiency",
+        "efficience",
+        "recherche"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "9cb3eb95e5923fb0832ccf9dd0d0410c9ab89732708647785218a8b3f13b962d",
+      "chars": 2940,
+      "size": 3877,
+      "mtime_ns": 1790462915986274600,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "30fc45bf538da58c75ac013c6adeba7ce312bfc64c6eb7240894061f791523a8",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "durability.html#durability"
+      ],
+      "anchors": [
+        "retrieval"
+      ]
+    },
+    {
+      "id": "roadmap",
+      "path": "docs/roadmap.html",
+      "title": "Product roadmap",
+      "summary": "Plan d'implémentation Lab League v3 : jalons M0–M3 et lots W-001…W-016.",
+      "tags": [
+        "roadmap",
+        "milestones",
+        "plan",
+        "phases",
+        "dependencies",
+        "produit",
+        "jalons",
+        "implementation"
+      ],
+      "kind": "project",
+      "status": "active",
+      "sha256": "f44a5af35612a5c6dfb5ab74c025895a2e21ee69fecdff21f8e8975f76f2c0bb",
+      "chars": 2011,
+      "size": 3256,
+      "mtime_ns": 1790463499688634800,
+      "revision": 2,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "34b9039e30703ac29da06017cb374358b772a391caf0584786430e1999a69184",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../work/W-001.html#W-001",
+        "../work/W-002.html#W-002",
+        "../work/W-003.html#W-003",
+        "../work/W-004.html#W-004",
+        "../work/W-005.html#W-005",
+        "../work/W-006.html#W-006",
+        "../work/W-007.html#W-007",
+        "../work/W-008.html#W-008",
+        "../work/W-009.html#W-009",
+        "../work/W-010.html#W-010",
+        "../work/W-011.html#W-011",
+        "../work/W-012.html#W-012",
+        "../work/W-013.html#W-013",
+        "../work/W-014.html#W-014",
+        "../work/W-015.html#W-015",
+        "../work/W-016.html#W-016"
+      ],
+      "anchors": [
+        "roadmap"
+      ]
+    },
+    {
+      "id": "security",
+      "path": "docs/security.html",
+      "title": "Security and data changes",
+      "summary": "Load for trust boundaries, secrets, sensitive data or recovery.",
+      "tags": [
+        "security",
+        "sécurité",
+        "auth",
+        "permissions",
+        "data",
+        "secrets",
+        "backup",
+        "encryption",
+        "migration"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "e8be615232d300a0058935718cbda4f38a987a5f014c0edba594eb1f141af47f",
+      "chars": 1617,
+      "size": 2489,
+      "mtime_ns": 1790462916105982900,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "3b91ad08d28919e9f48f9f310ec925d8ff781cdef5fb4972fe933b08d3b23c30",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "profile.html#profile"
+      ],
+      "anchors": [
+        "security"
+      ]
+    },
+    {
+      "id": "shared-edits",
+      "path": "docs/shared-edits.html",
+      "title": "Protect shared edits",
+      "summary": "Atomic replacement with expected hash, revision checks and interrupted-publication recovery.",
+      "tags": [
+        "concurrency",
+        "lock",
+        "revision",
+        "conflict",
+        "cas",
+        "atomic",
+        "replace",
+        "shared",
+        "collaboration"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "3a6e838b1a1ae2f836cbc784bf58f87a33e016b47215a1a8c3dbb8ff59bf421e",
+      "chars": 2095,
+      "size": 2950,
+      "mtime_ns": 1790462916068760200,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "c152a00e025204c988c5cb2eb78cbf973c5242bd7e4e2a3f3f8faecb4ddca744",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html"
+      ],
+      "anchors": [
+        "shared-edits"
+      ]
+    },
+    {
+      "id": "sources",
+      "path": "docs/sources.html",
+      "title": "Design basis and measurement",
+      "summary": "Official guidance and a reproducible, qualified efficiency comparison.",
+      "tags": [
+        "sources",
+        "references",
+        "gpt6",
+        "astra",
+        "model",
+        "measurement",
+        "benchmark",
+        "tokens",
+        "metrics"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "f6d37bafbea2e3b4e1e842efe65f4238de5c0e72d3d704d35c7feed03cb72e51",
+      "chars": 2507,
+      "size": 3457,
+      "mtime_ns": 1790462916083116600,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "55b0dea6e914f406e1a7305770fb508ac52fd94294acd52eca37cbbdcbd85f00",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "https://developers.openai.com/api/docs/guides/latest-model",
+        "https://learn.chatgpt.com/docs/agent-configuration/agents-md"
+      ],
+      "anchors": [
+        "sources"
+      ]
+    },
+    {
+      "id": "tracking",
+      "path": "docs/tracking.html",
+      "title": "Track a large project",
+      "summary": "Roadmap, independent work, typed findings and compact active state.",
+      "tags": [
+        "tracking",
+        "roadmap",
+        "portfolio",
+        "plan",
+        "backlog",
+        "audit",
+        "test",
+        "dev",
+        "feedback",
+        "acceptance",
+        "suivi",
+        "projet"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "c73f24eb7f8e24208e75008ecae84c1331e530b11800fbb907cf9949414e0fa5",
+      "chars": 2191,
+      "size": 3109,
+      "mtime_ns": 1790462916115516600,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "0c29c6167e3c95606f42b81e17990077f3226e9cbe26f2a193551ca261026908",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../templates/acceptance.html#tpl-acceptance",
+        "durability.html#durability"
+      ],
+      "anchors": [
+        "tracking"
+      ]
+    },
+    {
+      "id": "workflow",
+      "path": "docs/workflow.html",
+      "title": "Work in verifiable increments",
+      "summary": "Minimal task loop, evidenced completion and resumption after interruptions.",
+      "tags": [
+        "workflow",
+        "task",
+        "lot",
+        "work",
+        "package",
+        "checkpoint",
+        "resume",
+        "compaction",
+        "scope"
+      ],
+      "kind": "guide",
+      "status": "active",
+      "sha256": "9820541bdd1a5fa4d5b473ff2a7faf7696921b4e386cab5c80b446074a92ade8",
+      "chars": 2064,
+      "size": 3104,
+      "mtime_ns": 1790462915999184700,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "5db323b76e1cd0f970c98f9887600df777efe190fd2cb6471bd0c560bf84a34a",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../templates/work.html#tpl-work",
+        "quality.html#quality",
+        "evidence.html#evidence"
+      ],
+      "anchors": [
+        "workflow"
+      ]
+    },
+    {
+      "id": "AC-001",
+      "path": "records/AC-001.html",
+      "title": "Audit de sécurité serveur et temps réel",
+      "summary": "Relecture de sécurité avant mise en ligne : 1 critique, 2 hautes, 4 moyennes, corrigées et testées.",
+      "tags": [
+        "audit",
+        "securite",
+        "security",
+        "ac",
+        "finding",
+        "websocket",
+        "api"
+      ],
+      "kind": "finding",
+      "status": "review",
+      "sha256": "6d7a5ebba8b01a58182cd605405682dddf0084e46550fde746dcafb00a655255",
+      "chars": 1726,
+      "size": 3287,
+      "mtime_ns": 1790486448466069200,
+      "revision": 1,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "auth",
+        "manager-online",
+        "arena-online",
+        "deploy"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Les scénarios d'attaque décrits n'ont plus d'effet (tests/security.test.js, tests/api.test.js)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/security.test.js",
+          "check": "node --test tests/api.test.js tests/security.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "12 tests réussis : modes et places hostiles sans effet, tables sans prototype, file bornée, révocation des sessions, limiteurs."
+        }
+      ],
+      "body_digest": "3f7c01cfc9ebd08811bc166ac1076902a702013ff9c9eda42da45e206c2db6c1",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../work/W-013.html#W-013",
+        "../work/W-007.html#W-007",
+        "../work/W-012.html#W-012",
+        "../work/W-015.html#W-015",
+        "../../tests/security.test.js"
+      ],
+      "anchors": [
+        "AC-001"
+      ]
+    },
+    {
+      "id": "UAT-001",
+      "path": "records/UAT-001.html",
+      "title": "Recette PO — Lab League v3",
+      "summary": "Fiche de recette produit : parcours Manager, Arène, comptes, langues, mise en ligne.",
+      "tags": [
+        "recette",
+        "acceptance",
+        "uat",
+        "po",
+        "test",
+        "manuel"
+      ],
+      "kind": "acceptance",
+      "status": "ready",
+      "sha256": "86605949d6b0556d654c92d464063bb7125339a757ee6b7c828abe24a888cdff",
+      "chars": 2676,
+      "size": 3853,
+      "mtime_ns": 1790481279871044700,
+      "revision": 2,
+      "owner": "Guillaume (PO)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Les 10 étapes ci-dessus donnent le résultat attendu en français et en anglais."
+        },
+        {
+          "id": "PO",
+          "text": "Décision d'acceptation produit de Guillaume."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "4deebb971d5074c7399532ef256fb94b375f4bc703524a2eaceead6cd223cbed",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html"
+      ],
+      "anchors": [
+        "UAT-001"
+      ]
+    },
+    {
+      "id": "start",
+      "path": "START.html",
+      "title": "Start here",
+      "summary": "Minimal Codex entry point; selective context and language defaults.",
+      "tags": [
+        "bootstrap",
+        "start",
+        "codex",
+        "instructions",
+        "language",
+        "langue",
+        "démarrage"
+      ],
+      "kind": "entry",
+      "status": "active",
+      "sha256": "f819810589746cf0b53dc79682ee96b315665496116d05c67360482e92a9a2fc",
+      "chars": 893,
+      "size": 1784,
+      "mtime_ns": 1790462915693316900,
+      "revision": 1,
+      "owner": "CTO",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "e538e1cb400b61e47b32f22305ae1bcacac605aa492ae412a6db3a44a0ff477a",
+      "has_placeholder": false,
+      "links": [
+        "assets/method.css",
+        "index.html",
+        "docs/core.html#core",
+        "project.json",
+        "docs/profile.html#profile",
+        "docs/adoption.html#adoption"
+      ],
+      "anchors": [
+        "start"
+      ]
+    },
+    {
+      "id": "tpl-acceptance",
+      "path": "templates/acceptance.html",
+      "title": "Manual acceptance template",
+      "summary": "User checks with actual tester and observed result.",
+      "tags": [
+        "template",
+        "acceptance",
+        "recette",
+        "test",
+        "dev",
+        "validation",
+        "po",
+        "french"
+      ],
+      "kind": "template",
+      "status": "draft",
+      "sha256": "e31351065b2d2824ef919a582f2cde04434d9bac60fdbb95df3ff6456d72da24",
+      "chars": 1080,
+      "size": 2072,
+      "mtime_ns": 1790462915711611500,
+      "revision": 1,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "TO_CONFIGURE: observable acceptance criterion."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "b49f31e7921ee5c7d4941817d25dc2920dd43b7ea10ea1efed52a47575b47299",
+      "has_placeholder": true,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/evidence.html#evidence"
+      ],
+      "anchors": [
+        "tpl-acceptance"
+      ]
+    },
+    {
+      "id": "tpl-authorization",
+      "path": "templates/authorization.html",
+      "title": "Scoped authorization template",
+      "summary": "Real user authority, limits and revocation.",
+      "tags": [
+        "template",
+        "authorization",
+        "authority",
+        "permission",
+        "mandat",
+        "consent"
+      ],
+      "kind": "template",
+      "status": "draft",
+      "sha256": "2dfbc86089058954537f4b9ed98194a6189a96299f24db5cc22db2210274b4c0",
+      "chars": 1158,
+      "size": 2145,
+      "mtime_ns": 1790462915720603700,
+      "revision": 1,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "TO_CONFIGURE: observable acceptance criterion."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "fb543bc585284d1d1b8ab8e07a7b10548f2f2ac0e450e5775ae7e1515d90296e",
+      "has_placeholder": true,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/evidence.html#evidence"
+      ],
+      "anchors": [
+        "tpl-authorization"
+      ]
+    },
+    {
+      "id": "tpl-constraint",
+      "path": "templates/constraint.html",
+      "title": "Scoped constraint template",
+      "summary": "Mandatory rule linked to components, paths and an applicability review.",
+      "tags": [
+        "template",
+        "constraint",
+        "component",
+        "invariant",
+        "dependency",
+        "scope"
+      ],
+      "kind": "template",
+      "status": "draft",
+      "sha256": "8af9372bbd916e0ef6b2103a7caf3e9c9882245b7e91117aea0daf481368e3b9",
+      "chars": 580,
+      "size": 1388,
+      "mtime_ns": 1790462915729231600,
+      "revision": 1,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [],
+      "evidence": [],
+      "body_digest": "62a9f02d7f39635e6a2d72b006dfada60fd1c2d1e22a771cb031d16bcfc4e84d",
+      "has_placeholder": true,
+      "links": [
+        "../assets/method.css",
+        "../index.html"
+      ],
+      "anchors": [
+        "tpl-constraint"
+      ]
+    },
+    {
+      "id": "tpl-decision",
+      "path": "templates/decision.html",
+      "title": "Decision template",
+      "summary": "Enduring tradeoffs and scope without a session transcript.",
+      "tags": [
+        "template",
+        "adr",
+        "decision",
+        "architecture",
+        "tradeoff"
+      ],
+      "kind": "template",
+      "status": "draft",
+      "sha256": "dfe6467915f63142efc979da2b7954a087baeaf025288976a56ed6d99eb07eb8",
+      "chars": 948,
+      "size": 1911,
+      "mtime_ns": 1790462915771584800,
+      "revision": 1,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "TO_CONFIGURE: observable acceptance criterion."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "f96e622f4d518bef3bc9c69d955b55e9a9b128a39c7ae07e9d4526a72534b151",
+      "has_placeholder": true,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/evidence.html#evidence"
+      ],
+      "anchors": [
+        "tpl-decision"
+      ]
+    },
+    {
+      "id": "tpl-finding",
+      "path": "templates/finding.html",
+      "title": "Feedback or audit finding",
+      "summary": "Distinct manual-feedback and code-audit provenance.",
+      "tags": [
+        "template",
+        "finding",
+        "td",
+        "ac",
+        "feedback",
+        "audit",
+        "test",
+        "dev",
+        "defect",
+        "bug"
+      ],
+      "kind": "template",
+      "status": "draft",
+      "sha256": "5dbdbe37eeb7e26b82d01a135c7beecdb503777ff81f446177a99ce3d73b153a",
+      "chars": 1009,
+      "size": 1993,
+      "mtime_ns": 1790462915749572800,
+      "revision": 1,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "TO_CONFIGURE: observable acceptance criterion."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "376892a8aa34028ca7f0e7a7ec12fc5759eb59f45aa4a60e760b7dcbd93e08e9",
+      "has_placeholder": true,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/evidence.html#evidence"
+      ],
+      "anchors": [
+        "tpl-finding"
+      ]
+    },
+    {
+      "id": "tpl-incident",
+      "path": "templates/incident.html",
+      "title": "Incident record template",
+      "summary": "Impact, stabilization, recovery evidence and prevention.",
+      "tags": [
+        "template",
+        "incident",
+        "outage",
+        "production",
+        "recovery",
+        "postmortem"
+      ],
+      "kind": "template",
+      "status": "draft",
+      "sha256": "60e7ea5c23291c2f9a90e3fd4eea25f181034edba9a2ab6386bf4bc1b383f012",
+      "chars": 980,
+      "size": 1967,
+      "mtime_ns": 1790462915703449000,
+      "revision": 1,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "TO_CONFIGURE: observable acceptance criterion."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "fe1cbb00c3cfbaed657e9d746bae3084064af9045facfdbfae5e0767e2ef9ae4",
+      "has_placeholder": true,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/evidence.html#evidence"
+      ],
+      "anchors": [
+        "tpl-incident"
+      ]
+    },
+    {
+      "id": "tpl-release",
+      "path": "templates/release.html",
+      "title": "Release record template",
+      "summary": "Candidate, gates, authority, recovery and deployment outcome.",
+      "tags": [
+        "template",
+        "release",
+        "deployment",
+        "artifact",
+        "rollback",
+        "smoke",
+        "production"
+      ],
+      "kind": "template",
+      "status": "draft",
+      "sha256": "e9cdd8d0f6407fe15b3f20ca2c726ddacab2c21531f8f644c66a8141dc81c05d",
+      "chars": 1141,
+      "size": 2136,
+      "mtime_ns": 1790462915762191900,
+      "revision": 1,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "TO_CONFIGURE: observable acceptance criterion."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "8b2f1ad5f5f69e092dc937f1d2be7aadbbc4f4ab31a01d40d5dbc2462ddedf08",
+      "has_placeholder": true,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/evidence.html#evidence"
+      ],
+      "anchors": [
+        "tpl-release"
+      ]
+    },
+    {
+      "id": "tpl-work",
+      "path": "templates/work.html",
+      "title": "Work package template",
+      "summary": "One outcome, acceptance criteria, scope and concise evidence.",
+      "tags": [
+        "template",
+        "work",
+        "w",
+        "task",
+        "lot",
+        "feature",
+        "bug"
+      ],
+      "kind": "template",
+      "status": "draft",
+      "sha256": "7c63a1de795c323942f75ae1a4714ded30639eb48c09a792bd59d13b3e4d64fd",
+      "chars": 1615,
+      "size": 2652,
+      "mtime_ns": 1790462915737909800,
+      "revision": 1,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "TO_CONFIGURE: observable acceptance criterion."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "e25c4bf042ce81935995b48eb345d6489c68a77f22a5390695ad1da38fe2430d",
+      "has_placeholder": true,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "decision.html#tpl-decision",
+        "acceptance.html#tpl-acceptance",
+        "release.html#tpl-release",
+        "../docs/evidence.html#evidence"
+      ],
+      "anchors": [
+        "tpl-work"
+      ]
+    },
+    {
+      "id": "W-001",
+      "path": "work/W-001.html",
+      "title": "Méthode V6, Vision et plan",
+      "summary": "Installer la méthode, rédiger la vision PO et le plan d'implémentation.",
+      "tags": [
+        "method",
+        "vision",
+        "plan",
+        "roadmap"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "597066cb8446b8e913313fc5b938780c2b9611e289a1bf8c3faf674886a3e568",
+      "chars": 1217,
+      "size": 2932,
+      "mtime_ns": 1790486778132399700,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "method"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "Vision/Vision.md",
+        ".method/project.json",
+        ".method/docs/roadmap.html"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Vision/Vision.md décrit en langage PO les deux modes, les personnages conservés et les critères de réussite."
+        },
+        {
+          "id": "A2",
+          "text": "validate --project-ready passe sur .method/."
+        },
+        {
+          "id": "A3",
+          "text": "La roadmap relie chaque jalon à ses lots de travail."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../Vision/Vision.md",
+          "check": "Relecture de Vision/Vision.md",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Vision PO non technique : deux modes, personnages conservés, compte sans donnée personnelle, critères de réussite, hors périmètre."
+        },
+        {
+          "result": "pass",
+          "ref": "../../.method/project.json",
+          "check": "python3.11 .method/tools/method.py validate --project-ready",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "OK : enregistrements, liens, états et vues générées vérifiés."
+        },
+        {
+          "result": "pass",
+          "ref": "../../.method/docs/roadmap.html",
+          "check": "Relecture de .method/docs/roadmap.html",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A3",
+          "text": "Jalons M0–M3 reliés aux lots W-001…W-016."
+        }
+      ],
+      "body_digest": "93899f62850714090d13fccdaf456cd4ac340b2d90b71c5ec2a869e77216be6b",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../Vision/Vision.md",
+        "../../.method/project.json",
+        "../../.method/docs/roadmap.html"
+      ],
+      "anchors": [
+        "W-001"
+      ]
+    },
+    {
+      "id": "W-002",
+      "path": "work/W-002.html",
+      "title": "Restructuration du dépôt et archivage Rust",
+      "summary": "Archiver Rust/mobile/tests Python, créer le socle Node + Vite + React.",
+      "tags": [
+        "repo",
+        "archive",
+        "rust",
+        "vite",
+        "node",
+        "structure"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "329bca594d4847da7929406779741129c9388952be1dde2a216d494d2fd23daa",
+      "chars": 1207,
+      "size": 3026,
+      "mtime_ns": 1790486778147420800,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "repo"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "package.json",
+        "vite.config.js",
+        "index.html",
+        "archive/README.md",
+        "server/index.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "desktop_app, mobile_app, tests Python et prototype .md sont déplacés sous archive/ avec un README d'archive."
+        },
+        {
+          "id": "A2",
+          "text": "npm install puis npm run build produit dist/ sans erreur."
+        },
+        {
+          "id": "A3",
+          "text": "npm start sert le client construit et répond sur /api/health."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../archive/README.md",
+          "check": "git status ; lecture de archive/README.md",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "desktop_app, mobile_app, tests Python, journal et guide Rust archivés ; prototype app.jsx sous archive/prototype-react."
+        },
+        {
+          "result": "pass",
+          "ref": "../../vite.config.js",
+          "check": "npx vite build",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Build réussi (bundle principal ~505 Ko, vue 3D chargée à la demande ~620 Ko)."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/server.test.js",
+          "check": "npm test (tests/server.test.js « santé et fichiers statiques ») + curl http://localhost:8787/api/health",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A3",
+          "text": "Réponse {\"ok\":true} ; le site construit est servi par le même port."
+        }
+      ],
+      "body_digest": "327a3b1afa37f805821382023a99b850361140ab2891db85dfb842db44b7b6f2",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../archive/README.md",
+        "../../vite.config.js",
+        "../../tests/server.test.js"
+      ],
+      "anchors": [
+        "W-002"
+      ]
+    },
+    {
+      "id": "W-003",
+      "path": "work/W-003.html",
+      "title": "Données partagées, enrichissement et i18n FR/EN",
+      "summary": "Personnages, power-ups et narration partagés client/serveur ; interface bilingue FR par défaut.",
+      "tags": [
+        "data",
+        "roster",
+        "i18n",
+        "langue",
+        "français",
+        "english",
+        "enrichment",
+        "reflexes"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "0c2cee1118cdc69de7c5afc82c1569c4f4775520c5bb5959d421427e178f2c5d",
+      "chars": 1534,
+      "size": 3364,
+      "mtime_ns": 1790486778161984300,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "data",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/data/roster.js",
+        "shared/data/enrichment.js",
+        "shared/data/content.js",
+        "src/i18n/fr.js",
+        "src/i18n/en.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Test automatisé : ROSTER et POWER_UPS sont identiques aux valeurs d'app.jsx (noms, stats, bios)."
+        },
+        {
+          "id": "A2",
+          "text": "Chaque clé du catalogue FR existe en EN et inversement (test)."
+        },
+        {
+          "id": "A3",
+          "text": "Premier lancement en français même sur navigateur anglais ; le choix EN survit au rechargement."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/data.test.js",
+          "check": "node --test tests/data.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "ROSTER et POWER_UPS strictement égaux aux tableaux du prototype app.jsx (deepEqual)."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/i18n.test.js",
+          "check": "node --test tests/i18n.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Mêmes clés et mêmes paramètres FR/EN ; toutes les clés utilisées présentes ; FR par défaut sans détection navigateur."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "node scripts/smoke-browser.mjs (Chrome sans interface)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A3",
+          "text": "Accueil en français au premier lancement ; bascule EN effective. Persistance au rechargement : vérifiée par lecture du code (localStorage ll.lang), à confirmer en recette."
+        }
+      ],
+      "body_digest": "b159627e2904e4e0e21b5ccd1879326a984af67bbeedfac2c2502e849b198252",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/data.test.js",
+        "../../tests/i18n.test.js",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-003"
+      ]
+    },
+    {
+      "id": "W-004",
+      "path": "work/W-004.html",
+      "title": "Moteur de simulation Manager v3",
+      "summary": "Moteur déterministe : gardiens, xG, mi-temps, remplacements, cartons, synergies, notes.",
+      "tags": [
+        "engine",
+        "simulation",
+        "manager",
+        "xg",
+        "gardien",
+        "remplacement",
+        "synergie"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "e0734ef3997f06a509ef671100707f9de71d8f96e0108af6d500691bee92cfbb",
+      "chars": 1515,
+      "size": 3321,
+      "mtime_ns": 1790486778177446700,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "manager-engine"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/manager/engine.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Même graine + mêmes commandes ⇒ même score et mêmes événements (test)."
+        },
+        {
+          "id": "A2",
+          "text": "Sur 200 matchs équipe forte vs faible, l'équipe forte gagne nettement plus souvent ; moyenne de buts entre 2 et 9 par match (test)."
+        },
+        {
+          "id": "A3",
+          "text": "Les 6 stratégies d'origine et les 16 power-ups agissent sur la simulation (test)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/manager-engine.test.js",
+          "check": "node --test tests/manager-engine.test.js (déterminisme)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Même graine + même commande ⇒ rapports et événements identiques."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/manager-engine.test.js",
+          "check": "node --test tests/manager-engine.test.js (équipe bien construite)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "L'équipe bien construite gagne > 1,5 × plus ; moyenne de buts dans [2 ; 9]."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/manager-engine.test.js",
+          "check": "node --test tests/manager-engine.test.js (stratégies et power-ups)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A3",
+          "text": "Modificateurs de stratégie et bonus des 16 power-ups appliqués, recharge respectée."
+        }
+      ],
+      "body_digest": "88117dad1666c6b027d10bdcd8ae4652f7c65b39f3fbbb529bd58da6b1215fb4",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/manager-engine.test.js",
+        "../../tests/manager-engine.test.js",
+        "../../tests/manager-engine.test.js"
+      ],
+      "anchors": [
+        "W-004"
+      ]
+    },
+    {
+      "id": "W-005",
+      "path": "work/W-005.html",
+      "title": "Manager virtuel (bot) à 3 niveaux",
+      "summary": "IA de manager : composition, stratégie adaptative, power-ups, remplacements.",
+      "tags": [
+        "bot",
+        "ai",
+        "manager",
+        "difficulte"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "1db3a9c8fbc1c813724ca69aa56339305959c51b7d35274db831c87dd9f2a1cc",
+      "chars": 1042,
+      "size": 2472,
+      "mtime_ns": 1790486778199418500,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "manager-ai"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/manager/ai.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Prix Nobel bat Stagiaire dans une majorité nette de matchs simulés (test)."
+        },
+        {
+          "id": "A2",
+          "text": "Le bot n'émet que des commandes valides (test)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/manager-engine.test.js",
+          "check": "node --test tests/manager-engine.test.js (Prix Nobel > Stagiaire)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Sur 14 matchs, Prix Nobel gagne plus souvent que Stagiaire."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/manager-engine.test.js",
+          "check": "idem",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Chaque commande émise par les bots est acceptée par le moteur."
+        }
+      ],
+      "body_digest": "6551be64315464ed188336d4e10518716a97a7fe61849cba2dee3f9c0d4de2a4",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/manager-engine.test.js",
+        "../../tests/manager-engine.test.js"
+      ],
+      "anchors": [
+        "W-005"
+      ]
+    },
+    {
+      "id": "W-006",
+      "path": "work/W-006.html",
+      "title": "Interface Manager : club, composition, match, rapport",
+      "summary": "Création de club, composition, match en direct (vue tactique néon) et rapport d'après-match.",
+      "tags": [
+        "ui",
+        "manager",
+        "club",
+        "composition",
+        "match",
+        "rapport",
+        "canvas"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "51df63763c52d7cf100e0393e74410e1e12065550a63bca3c67893d644399234",
+      "chars": 1436,
+      "size": 3147,
+      "mtime_ns": 1790486778214626200,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "manager-ui"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/pages/manager/MatchView.jsx",
+        "src/pages/manager/DraftView.jsx",
+        "src/pages/manager/SetupView.jsx",
+        "src/pages/manager/ReportView.jsx",
+        "src/render2d/pitch.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Parcours complet club → match → rapport jouable sans compte contre un bot."
+        },
+        {
+          "id": "A2",
+          "text": "Vue tactique fluide (canvas) avec ballon, joueurs, effets de power-up et fil du match narratif FR/EN."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "Parcours dans le navigateur intégré (localhost:5173) puis node scripts/smoke-browser.mjs",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Accueil → draft → composition → match → rapport (score, stats, notes, homme du match, conseils) sans compte ni erreur console."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "Captures 11-match-2d / 12-match-3d du smoke test",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Vue tactique animée (ballon, traînée, auras, particules) ; vue Stade 3D fonctionnelle après correction de la caméra (pas de temps négatif)."
+        }
+      ],
+      "body_digest": "7302d0dbe11df52a7a27887eeef3740c26f3868954c00a3f2c85410b7bb4d45a",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../scripts/smoke-browser.mjs",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-006"
+      ]
+    },
+    {
+      "id": "W-007",
+      "path": "work/W-007.html",
+      "title": "Manager 1v1 en ligne",
+      "summary": "Salons, draft tour par tour, match en direct piloté par deux managers, bot en remplacement.",
+      "tags": [
+        "online",
+        "multiplayer",
+        "manager",
+        "draft",
+        "salon",
+        "websocket"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "1145a2990cbdb610fc8946b6fbf92cbc5359f52ac3020c9d67664b4cc8c5ec89",
+      "chars": 1159,
+      "size": 2667,
+      "mtime_ns": 1790486778229449200,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "manager-online"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/rooms/managerRoom.js",
+        "shared/lobby.js",
+        "server/index.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Deux clients WebSocket jouent un match complet via le serveur (test d'intégration)."
+        },
+        {
+          "id": "A2",
+          "text": "Partie rapide sans adversaire humain ⇒ match contre bot après délai."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/server.test.js",
+          "check": "node --test tests/server.test.js (Manager 1v1 en ligne)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Deux clients WebSocket authentifiés : draft, composition, match, rapport ; ELO des deux managers mis à jour, somme nulle."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/server.test.js",
+          "check": "node --test tests/server.test.js (partie rapide)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Seul en partie rapide : un manager virtuel occupe la place adverse."
+        }
+      ],
+      "body_digest": "24db11884143680c0005df74eddee2fd328f4d97f54abf317e505d30f63db8f3",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/server.test.js",
+        "../../tests/server.test.js"
+      ],
+      "anchors": [
+        "W-007"
+      ]
+    },
+    {
+      "id": "W-008",
+      "path": "work/W-008.html",
+      "title": "Simulation physique de l'Arène 5v5",
+      "summary": "Physique joueurs/ballon, murs, tirs chargés, passes, tacles, gardiens, power-ups actifs.",
+      "tags": [
+        "arena",
+        "action",
+        "physics",
+        "simulation",
+        "ballon",
+        "tir",
+        "passe",
+        "tacle"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "8aab4d6cca5a78b713ae6842338508fc047a99564c567d700ce30f64a0355a1a",
+      "chars": 1211,
+      "size": 2848,
+      "mtime_ns": 1790486778245985700,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-sim"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/action/sim.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Un tir puissant cadré entre les poteaux compte un but ; le ballon rebondit sur les parois (test)."
+        },
+        {
+          "id": "A2",
+          "text": "Un joueur rapide (Médéric) distance un joueur lent (Patrice) sur 20 m (test)."
+        },
+        {
+          "id": "A3",
+          "text": "Le power-up applique ses bonus/malus et son cooldown (test)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/arena-sim.test.js",
+          "check": "node --test tests/arena-sim.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Tir cadré ⇒ but ; rebond sur la paroi latérale."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/arena-sim.test.js",
+          "check": "idem",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Médéric parcourt 20 m nettement avant Patrice."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/arena-sim.test.js",
+          "check": "idem",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A3",
+          "text": "Protocole de Triage : bonus, endurance d'équipe, recharge."
+        }
+      ],
+      "body_digest": "30a0542c4de05b1476bf986faf959afda2753fc7b197fba3e14196a10ea8436e",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/arena-sim.test.js",
+        "../../tests/arena-sim.test.js",
+        "../../tests/arena-sim.test.js"
+      ],
+      "anchors": [
+        "W-008"
+      ]
+    },
+    {
+      "id": "W-009",
+      "path": "work/W-009.html",
+      "title": "Bots de l'Arène",
+      "summary": "IA des joueurs virtuels : placement, pressing, passes, tirs, gardien.",
+      "tags": [
+        "bot",
+        "ai",
+        "arena",
+        "gardien"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "f0236f30a3ea59e1e829b97ca3d8375a7021dee0c60ce90df984398f7dbd94cb",
+      "chars": 931,
+      "size": 2128,
+      "mtime_ns": 1790486778269375800,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-ai"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/action/bot.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Match 5 bots contre 5 bots : buts marqués des deux côtés, pas de blocage du ballon plus de 10 s (test)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/arena-sim.test.js",
+          "check": "node --test tests/arena-sim.test.js (match complet de bots)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Des buts, aucun blocage du ballon > 10 s, mi-temps et fin propres."
+        }
+      ],
+      "body_digest": "e1e89d93ad0e27ef596af91a3a00fb858dbdee2147b0ecb2e310c44f9fce9c11",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/arena-sim.test.js"
+      ],
+      "anchors": [
+        "W-009"
+      ]
+    },
+    {
+      "id": "W-010",
+      "path": "work/W-010.html",
+      "title": "Rendu 3D de l'Arène (Three.js)",
+      "summary": "Stade néon, avatars procéduraux, caméra 3e personne, effets, HUD, sons.",
+      "tags": [
+        "3d",
+        "three",
+        "rendu",
+        "graphisme",
+        "camera",
+        "hud",
+        "audio"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "2c9632bee815b4e995b0fd8590ef061e8eda01283437f24f490513cbaea22f16",
+      "chars": 1568,
+      "size": 3200,
+      "mtime_ns": 1790486778309080700,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-render"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/three/arenaView.js",
+        "src/three/visual/stadium.js",
+        "src/three/visual/avatar.js",
+        "src/pages/arena/ArenaGame.jsx"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "60 images/s visées sur portable ordinaire ; pas d'erreur console."
+        },
+        {
+          "id": "A2",
+          "text": "Chaque personnage est identifiable (nom, couleur, silhouette)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pending",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "Mesure images/s dans le navigateur intégré et Chrome SwiftShader",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Aucune erreur console. 60 images/s non démontrées faute de GPU dans l'environnement de test : à confirmer en recette PO."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "Captures 15/16-arene du smoke test et du navigateur intégré",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Personnages identifiables : étiquette nom + numéro, couleur de domaine, coiffures/accessoires distincts, maillot d'équipe."
+        }
+      ],
+      "body_digest": "59d7d8e43ee054160c90a8bd460ea91df91943cdea6edcd7d6f99770f81d706f",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../scripts/smoke-browser.mjs",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-010"
+      ]
+    },
+    {
+      "id": "W-011",
+      "path": "work/W-011.html",
+      "title": "Contrôles clavier/souris/manette",
+      "summary": "ZQSD/WASD indépendants du clavier, souris, manette, aide aux commandes.",
+      "tags": [
+        "controls",
+        "input",
+        "clavier",
+        "azerty",
+        "manette",
+        "gamepad"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "c89dc7c2414437ad15e3b81db7e7e5ace7a4ff9e9db8783a7f4bcc36526b2603",
+      "chars": 1111,
+      "size": 2417,
+      "mtime_ns": 1790486778351645000,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-input"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/three/input.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Déplacement, sprint, passe, tir chargé, tacle, power-up fonctionnent au clavier+souris et à la manette."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pending",
+          "ref": "../../tests/arena-sim.test.js",
+          "check": "Événements clavier simulés dans le navigateur intégré + tests/arena-sim.test.js (entrées humaines)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Déplacement, sprint et tir chargé fonctionnent ; passe au front de bouton testée côté simulation. Manette et souris verrouillée à valider en recette."
+        }
+      ],
+      "body_digest": "f778c48385cbcabfc4ba28efe70e216c781e4ce1d6ecaa4fd4f61903f8d481f6",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/arena-sim.test.js"
+      ],
+      "anchors": [
+        "W-011"
+      ]
+    },
+    {
+      "id": "W-012",
+      "path": "work/W-012.html",
+      "title": "Arène 5v5 en ligne",
+      "summary": "Salons, partie rapide, entrée/sortie en cours de match, interpolation et prédiction.",
+      "tags": [
+        "online",
+        "multiplayer",
+        "arena",
+        "websocket",
+        "netcode",
+        "interpolation"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "912bf3c620cdb5363b6628a4dba45c81e05025826e8735767321b2fd812a0719",
+      "chars": 1185,
+      "size": 2493,
+      "mtime_ns": 1790486778367559700,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-online"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/rooms/arenaRoom.js",
+        "src/net/connection.js",
+        "src/three/arenaView.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Deux clients rejoignent la même salle et reçoivent les snapshots ; un départ est remplacé par un bot (test d'intégration)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/server.test.js",
+          "check": "node --test tests/server.test.js (Arène)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Deux clients : personnages choisis, snapshots reçus, départ d'un joueur ⇒ bot, fin de match avec notes."
+        }
+      ],
+      "body_digest": "ae72d9606ccf1185bb43821d22db22cbdebe69cef9eb7fc60755034e419f0756",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/server.test.js"
+      ],
+      "anchors": [
+        "W-012"
+      ]
+    },
+    {
+      "id": "W-013",
+      "path": "work/W-013.html",
+      "title": "Comptes pseudo + mot de passe",
+      "summary": "Authentification sans donnée personnelle, sessions, suppression de compte.",
+      "tags": [
+        "auth",
+        "security",
+        "compte",
+        "pseudo",
+        "mot",
+        "de",
+        "passe",
+        "session"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "c3b3b21a1efce575c03d83cfd7bc947a8881f204336b4e3cf940b4820e730737",
+      "chars": 1273,
+      "size": 2698,
+      "mtime_ns": 1790486778384928300,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "auth"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "server/auth.js",
+        "server/db.js",
+        "server/api.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Mots de passe jamais stockés en clair ; mauvais mot de passe refusé ; limitation des tentatives (test)."
+        },
+        {
+          "id": "A2",
+          "text": "Suppression de compte efface l'utilisateur et ses sessions (test)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/auth.test.js",
+          "check": "node --test tests/auth.test.js tests/api.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Mot de passe jamais en clair dans le fichier ; mauvais mot de passe refusé ; 429 après 10 tentatives/minute."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/api.test.js",
+          "check": "idem",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Suppression du compte : utilisateur et sessions effacés."
+        }
+      ],
+      "body_digest": "495499321f618ab2ef09813a41418fae8e969eaf28f4c707e6132c560d509e20",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/auth.test.js",
+        "../../tests/api.test.js"
+      ],
+      "anchors": [
+        "W-013"
+      ]
+    },
+    {
+      "id": "W-014",
+      "path": "work/W-014.html",
+      "title": "Progression, classement, publications",
+      "summary": "XP et grades académiques, ELO, historique, succès « Publications ».",
+      "tags": [
+        "progression",
+        "xp",
+        "grade",
+        "classement",
+        "elo",
+        "leaderboard",
+        "succes"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "69d495cc68822bbb2c7e8e0242e023b5be742068e0573493011eec89c7b7f4af",
+      "chars": 1043,
+      "size": 2533,
+      "mtime_ns": 1790486778401657200,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "progression"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/progression.js",
+        "server/api.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Victoire contre un humain ⇒ ELO gagnant augmente, perdant diminue, somme conservée (test)."
+        },
+        {
+          "id": "A2",
+          "text": "Les publications se débloquent selon leurs conditions (test)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/progression.test.js",
+          "check": "node --test tests/progression.test.js tests/server.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Somme des variations ELO nulle ; vainqueur en hausse."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/progression.test.js",
+          "check": "node --test tests/progression.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Publications débloquées selon leurs conditions."
+        }
+      ],
+      "body_digest": "5e5363bf099c8ef3f59f4eb1073cc22fbf7e35fe02018fa903d770ab5bab3f5b",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/progression.test.js",
+        "../../tests/progression.test.js"
+      ],
+      "anchors": [
+        "W-014"
+      ]
+    },
+    {
+      "id": "W-015",
+      "path": "work/W-015.html",
+      "title": "Déploiement Hostinger",
+      "summary": "Serveur Node unique (statique + API + WebSocket), configuration, guide de mise en ligne.",
+      "tags": [
+        "deploy",
+        "hostinger",
+        "release",
+        "production",
+        "node"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "27698ef2f63325918cd011f97af00f9ac37d8164745a3e01e4b5921471163254",
+      "chars": 1133,
+      "size": 2638,
+      "mtime_ns": 1790486778419370300,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "deploy"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "deploy/HOSTINGER.md",
+        "server/index.js",
+        ".env.example"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "npm run build && npm start en production locale : pages, API et WebSocket fonctionnent sur un seul port."
+        },
+        {
+          "id": "A2",
+          "text": "Guide deploy/HOSTINGER.md complet (Cloud Node.js et VPS)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "npm run build && npm start ; navigation http://localhost:8787 + smoke test",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Pages, API et WebSocket servis sur un seul port en mode production local."
+        },
+        {
+          "result": "pass",
+          "ref": "../../deploy/HOSTINGER.md",
+          "check": "Relecture de deploy/HOSTINGER.md",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Guide complet Cloud Node.js et VPS ; réserve documentée sur le support WebSocket de l'offre mutualisée."
+        }
+      ],
+      "body_digest": "95c450a33aed9194096060094d287624f2cb3cebba2e1c3863b31a0ecdd4c7ec",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../scripts/smoke-browser.mjs",
+        "../../deploy/HOSTINGER.md"
+      ],
+      "anchors": [
+        "W-015"
+      ]
+    },
+    {
+      "id": "W-016",
+      "path": "work/W-016.html",
+      "title": "Qualité et tests",
+      "summary": "Suite de tests Node (données, moteur, arène, auth, salons, serveur) et smoke navigateur.",
+      "tags": [
+        "tests",
+        "qualite",
+        "ci",
+        "smoke"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "22367c4bd50760e5e98a75660935b0b5cca30935f827b9a35ec823d5dd2a9cf4",
+      "chars": 1584,
+      "size": 3091,
+      "mtime_ns": 1790486778448362400,
+      "revision": 6,
+      "owner": "Claude (Codex)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "quality"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "tests/data.test.js",
+        "tests/i18n.test.js",
+        "tests/manager-engine.test.js",
+        "tests/arena-sim.test.js",
+        "tests/server.test.js",
+        "scripts/smoke-browser.mjs"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "npm test passe intégralement."
+        },
+        {
+          "id": "A2",
+          "text": "Smoke navigateur : accueil, match Manager vs bot, Arène vs bots sans erreur console."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../package.json",
+          "check": "npm test",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "npm test : 72 tests, 72 réussis, 0 échec (2026-09-27, 07h40), dont tests/security.test.js, tests/rooms.test.js, tests/season.test.js."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "node scripts/smoke-browser.mjs http://localhost:8787",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Smoke navigateur final (07h35) : accueil FR, contenus, bascule EN, Manager contre bot (2D + 3D), Arène contre bots, mobile 390 px — tout vert, aucune erreur console."
+        }
+      ],
+      "body_digest": "69047db5a22aec74fa7592c66a2274e648372a6248af6ab85eae34365280521e",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../package.json",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-016"
+      ]
+    }
+  ]
+}

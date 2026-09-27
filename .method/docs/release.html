@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Release and operate · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>guide · release</span></header><main>
+<article data-method data-revision="1" data-owner="CTO" id="release" data-title="Release and operate" data-summary="Promote a tested candidate with explicit authority, recovery and operational checks." data-tags="release deploy deployment livraison production rollback monitoring incident" data-kind="guide" data-status="active">
+<p class="eyebrow">guide / release</p><h1>Release and operate</h1>
+<ol><li><strong>Identify.</strong> Record code revision, lockfiles, artifact identity/digest and target environment. Build reproducibly through the actual pipeline; test the packaged artifact where applicable.</li>
+<li><strong>Verify.</strong> Complete required regression/integration, critical-path smoke, security and bilingual UI checks. Verify accessibility, performance and resource limits against explicit targets where required.</li>
+<li><strong>Prepare operations.</strong> Configuration/secret references, migration order, backup/recovery, rollout, health signals, alert owner and stop/recovery criteria. Record effects and authority.</li>
+<li><strong>Promote within mandate.</strong> Implementation/preparation permission does not imply deployment permission. Finish a reviewable candidate; request only missing authority. Version/tag identifies that candidate.</li>
+<li><strong>Observe.</strong> Verify deployed revision/health, affected critical paths and migrations. Record measured outcomes. Escalate/recover at stop criteria; artifact preparation is not deployment.</li></ol>
+<p>Use a <a href="../templates/release.html#tpl-release">release record</a>. Accepted means the candidate satisfies gates; released requires observed promotion to its target. Product and technical approvals remain separate when both are required.</p>
+<p>The V6 tool validates method records, not software quality. Add <code>python .method/tools/method.py validate --project-ready</code> to existing CI alongside actual stack checks. Required promotion gates fail on errors; compile/test order follows dependencies. Configure real commands in <a href="profile.html#profile">profile</a>. No universal script supplies a project's deployment policy.</p>
+<p>For incidents, preserve evidence and stabilize within mandate, then assess impact, recover and check health. Record cause, correction and useful regression protection in <a href="../templates/incident.html#tpl-incident">incident</a>; prevention goes to owned backlog work.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

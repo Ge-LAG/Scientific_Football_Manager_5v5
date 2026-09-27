@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Simulation physique de l&#x27;Arène 5v5 · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-008</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-008" data-title="Simulation physique de l&#x27;Arène 5v5" data-summary="Physique joueurs/ballon, murs, tirs chargés, passes, tacles, gardiens, power-ups actifs." data-tags="arena action physics simulation ballon tir passe tacle" data-kind="work" data-watch="shared/action/sim.js" data-status="review" data-components="arena-sim">
+<p class="eyebrow">work / W-008</p><h1>Simulation physique de l&#x27;Arène 5v5</h1>
+<dl><dt>Résultat attendu</dt><dd>Une simulation autoritaire à 30 Hz gère 10 joueurs et un ballon 3D dans une arène vitrée ; les 9 caractéristiques modulent vitesse, contrôle, tirs, passes, tacles et arrêts ; chaque scientifique a un power-up actif spécifique.</dd>
+<dt>Périmètre / mandat</dt><dd>shared/action. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-003.</dd>
+<dt>Vérification prévue</dt><dd>npm test (tests/arena-sim.test.js).</dd>
+<dt>Point d'étape</dt><dd>Livré : simulation 30 Hz (arène vitrée, rebonds, poteaux/barre, ballon 3D), tir chargé avec visée assistée, passes/lobs, tacles et glissés, fautes, gardiens (plongeon, arrêt probabiliste), 16 power-ups avec effet Arène.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Un tir puissant cadré entre les poteaux compte un but ; le ballon rebondit sur les parois (test).</p>
+<p data-criterion="A2">Un joueur rapide (Médéric) distance un joueur lent (Patrice) sur 20 m (test).</p>
+<p data-criterion="A3">Le power-up applique ses bonus/malus et son cooldown (test).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/arena-sim.test.js" data-ref="../../tests/arena-sim.test.js" data-by="Claude (agent)" data-date="2026-09-27">Tir cadré ⇒ but ; rebond sur la paroi latérale.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="idem" data-ref="../../tests/arena-sim.test.js" data-by="Claude (agent)" data-date="2026-09-27">Médéric parcourt 20 m nettement avant Patrice.</p>
+<p data-evidence-for="A3" data-result="pass" data-check="idem" data-ref="../../tests/arena-sim.test.js" data-by="Claude (agent)" data-date="2026-09-27">Protocole de Triage : bonus, endurance d&#x27;équipe, recharge.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

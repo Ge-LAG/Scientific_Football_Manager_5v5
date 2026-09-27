@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Méthode V6, Vision et plan · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-001</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-001" data-title="Méthode V6, Vision et plan" data-summary="Installer la méthode, rédiger la vision PO et le plan d&#x27;implémentation." data-tags="method vision plan roadmap" data-kind="work" data-watch="Vision/Vision.md|.method/project.json|.method/docs/roadmap.html" data-status="review" data-components="method">
+<p class="eyebrow">work / W-001</p><h1>Méthode V6, Vision et plan</h1>
+<dl><dt>Résultat attendu</dt><dd>La méthode V6 est installée sous .method/, configurée pour le projet, la vision PO existe et le plan (roadmap + lots W-002…W-016) est rédigé.</dd>
+<dt>Périmètre / mandat</dt><dd>Documentation uniquement. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>Aucune.</dd>
+<dt>Vérification prévue</dt><dd>Relecture + python3.11 .method/tools/method.py validate --project-ready.</dd>
+<dt>Point d'étape</dt><dd>Livré : méthode installée sous <code>.method/</code> (le dossier « Méthode Template V6 » est conservé intact comme source), <code>Vision/Vision.md</code>, profil, roadmap et lots W-001…W-016. Reste : validation de la vision par le PO (UAT-001).</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Vision/Vision.md décrit en langage PO les deux modes, les personnages conservés et les critères de réussite.</p>
+<p data-criterion="A2">validate --project-ready passe sur .method/.</p>
+<p data-criterion="A3">La roadmap relie chaque jalon à ses lots de travail.</p>
+<p data-evidence-for="A1" data-result="pass" data-check="Relecture de Vision/Vision.md" data-ref="../../Vision/Vision.md" data-by="Claude (agent)" data-date="2026-09-27">Vision PO non technique : deux modes, personnages conservés, compte sans donnée personnelle, critères de réussite, hors périmètre.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="python3.11 .method/tools/method.py validate --project-ready" data-ref="../../.method/project.json" data-by="Claude (agent)" data-date="2026-09-27">OK : enregistrements, liens, états et vues générées vérifiés.</p>
+<p data-evidence-for="A3" data-result="pass" data-check="Relecture de .method/docs/roadmap.html" data-ref="../../.method/docs/roadmap.html" data-by="Claude (agent)" data-date="2026-09-27">Jalons M0–M3 reliés aux lots W-001…W-016.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

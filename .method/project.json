@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "method_version": "6.1.0",
+  "template": false,
+  "name": "Lab League — Scientific Football Manager 5v5",
+  "revision": 5,
+  "updated_at": "2026-09-27",
+  "mode": "cto",
+  "po": "Guillaume",
+  "cto": "Robertson Andersen",
+  "focus_id": "W-016",
+  "next_action": "Recette PO (UAT-001) en local : npm install && npm run build && npm start → http://localhost:8787 ; puis décision de mise en ligne Hostinger (deploy/HOSTINGER.md). Rien n'a été commité : commit/PR à la demande du PO.",
+  "profile_id": "profile",
+  "roadmap_id": "roadmap",
+  "blocked_on": [],
+  "pending_acceptance": [
+    "UAT-001"
+  ],
+  "external_authorizations": []
+}
