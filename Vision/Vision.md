@@ -49,6 +49,9 @@ power-ups au bon moment, je fais entrer un remplaçant frais quand un joueur s'�
   *Chercheur*, *Prix Nobel*.
 - **Un vrai rapport d'après-match** : score, statistiques, notes des joueurs, homme du match,
   conseils du coach, temps forts.
+- **Regarder son match en 3D comme à la télé** : je bascule de la vue tactique au stade 3D et je
+  choisis ma caméra — réalisateur automatique, latérale, tribune, derrière le but, sur le ballon,
+  sur un joueur précis, ou caméra libre que je pilote moi-même.
 
 ### Mode 2 — L'Arène (Action, 5 contre 5 à la troisième personne)
 
@@ -62,9 +65,25 @@ mon personnage au moment décisif.
 - Les caractéristiques comptent vraiment : Médéric est une fusée, Franck frappe comme un canon mais
   court lentement, Djilani est un mur, Patrice voit tout le terrain.
 - Parties courtes (2 × 3 minutes par défaut) pour enchaîner les matchs entre amis.
+- **Prise en main naturelle au clavier** : je me déplace avec les flèches (main droite) et toutes
+  les actions tombent sous la main gauche (passe, tir, lob, crochet, changer de joueur, power-ups,
+  sprint au pouce). AZERTY ou QWERTY : je choisis dans les réglages, et je peux réaffecter chaque
+  touche. La souris et la **manette USB** restent possibles.
+- **Changer de joueur en cours de match** quand mon équipe n'est pas complète en humains : je prends
+  le contrôle du coéquipier le mieux placé (jamais celui d'un autre humain), à la demande ou
+  automatiquement quand je fais une passe.
 
 ### Dans les deux modes
 
+- **4 power-ups par scientifique**, tous liés à son domaine (celui du prototype + 3 nouveaux) :
+  avant chaque match, je choisis **les 2** que chacun emporte. De quoi varier les plans de jeu.
+- **Mes scientifiques, mon style** : dans le *Vestiaire*, je personnalise leur apparence comme dans
+  un jeu de rôle — morphologie, coiffure (dont quatre mulets : moderne, rasé sur les côtés,
+  permanenté années 80, classique), barbe, lunettes, couvre-chef, tenue (footballeur, scientifique,
+  rockstar, médiéval, Renaissance, futuriste, décalé, marrant) et accessoires. **Tout le monde voit
+  mon style en ligne**, et la couleur de l'équipe reste toujours lisible.
+- **Un rendu de jeu « premium »** : style cartoon néon soigné, lumières et effets, animations
+  fluides (course, frappe, tacle glissé, plongeon, célébrations), qualité qui s'adapte à l'ordinateur.
 - **Jouer tout de suite, même seul** : les joueurs virtuels comblent toujours les places vides.
 - **Salons privés avec un code à partager** pour jouer entre amis, ou **partie rapide** pour être
   placé automatiquement.

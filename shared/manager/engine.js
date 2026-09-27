@@ -7,7 +7,7 @@
 // Terrain 100 × 60 ; « home » défend x=0 et attaque x=100.
 // ═══════════════════════════════════════════════════════════════
 import { makeRng } from "../rng.js";
-import { getPlayer, keeperRating, roleOf, narrKey, FORMATIONS, STRATEGY_BY_ID, STRATEGIES, TEAM_TALK_BY_ID } from "../data/content.js";
+import { getPlayer, getPowerUp, sanitizeLoadout, keeperRating, roleOf, narrKey, FORMATIONS, STRATEGY_BY_ID, STRATEGIES, TEAM_TALK_BY_ID } from "../data/content.js";
 import { synergyBonus, activeSynergies } from "../data/enrichment.js";
 
 export const TICKS_PER_SEC = 10;
@@ -38,7 +38,7 @@ const newStats = () => ({ goals: 0, assists: 0, shots: 0, onTarget: 0, xg: 0, pa
 export class ManagerEngine {
   /**
    * @param {{home: TeamSetup, away: TeamSetup, seed?: number, halfTicks?: number, halftimeTicks?: number}} o
-   * TeamSetup = { name, colors, crest, lineup: string[5] (0 = gardien), bench: string[], formation, strategy }
+   * TeamSetup = { name, colors, crest, lineup: string[5] (0 = gardien), bench: string[], formation, strategy, loadouts?: { id: [puId, puId] } }
    */
   constructor(o) {
     this.rng = makeRng(o.seed ?? 1);
@@ -62,7 +62,8 @@ export class ManagerEngine {
       };
       for (const id of [...lineup, ...this.teams[side].bench]) {
         const p = getPlayer(id); if (!p) throw new Error("Joueur inconnu : " + id);
-        this.pl[id] = { id, p, side, x: 50, y: 30, tx: 50, ty: 30, bx: 50, by: 30, stamina: 100, onPitch: lineup.includes(id), yellow: 0, red: false, stats: newStats(), rating: 6 };
+        const pus = sanitizeLoadout(id, s.loadouts?.[id]).map(getPowerUp); // 2 power-ups emportés
+        this.pl[id] = { id, p, side, pus, x: 50, y: 30, tx: 50, ty: 30, bx: 50, by: 30, stamina: 100, onPitch: lineup.includes(id), yellow: 0, red: false, stats: newStats(), rating: 6 };
       }
       this.refreshSynergy(side);
       this.placeFormation(side);
@@ -132,7 +133,7 @@ export class ManagerEngine {
     switch (c.type) {
       case "strategy": { const s = STRATEGY_BY_ID[c.id]; if (!s) return false; t.strategy = s; this.event("STRATEGY", c.side, null, null, { strat: s.id }); return true; }
       case "formation": { if (!FORMATIONS[c.id]) return false; t.formation = c.id; this.placeFormation(c.side); return true; }
-      case "powerup": return this.activatePowerUp(c.side, c.pid);
+      case "powerup": return this.activatePowerUp(c.side, c.pid, c.pu);
       case "sub": return this.substitute(c.side, c.out, c.in);
       case "talk": { // causerie : uniquement à la mi-temps, une fois
         const talk = TEAM_TALK_BY_ID[c.id]; if (!talk || this.phase !== "halftime" || t.talk) return false;
@@ -144,14 +145,16 @@ export class ManagerEngine {
     }
   }
 
-  activatePowerUp(side, pid) {
-    const e = this.pl[pid]; const pu = e?.p.powerUp;
-    if (!e || e.side !== side || !e.onPitch || !pu) return false;
-    if ((this.cooldowns[pid] || 0) > this.time) return false;
-    if (this.activePU.some(a => a.pid === pid && a.until > this.time)) return false;
+  // puId : l'un des 2 power-ups emportés (le premier par défaut) ; recharge propre à chaque power-up
+  activatePowerUp(side, pid, puId) {
+    const e = this.pl[pid];
+    if (!e || e.side !== side || !e.onPitch) return false;
+    const pu = (puId && e.pus.find(u => u.id === puId)) || e.pus[0]; if (!pu) return false;
+    if ((this.cooldowns[pu.id] || 0) > this.time) return false;
+    if (this.activePU.some(a => a.puId === pu.id && a.until > this.time)) return false;
     const until = this.time + pu.duree * PU_DURATION_SCALE;
     this.activePU.push({ pid, puId: pu.id, until, buffs: pu.buffs || {}, side });
-    this.cooldowns[pid] = this.time + pu.cooldown;
+    this.cooldowns[pu.id] = this.time + pu.cooldown;
     if (pu.healStamina) for (const id of this.onPitch(side)) this.pl[id].stamina = Math.min(100, this.pl[id].stamina + pu.healStamina);
     if (pu.debuffOpponents) for (const id of this.onPitch(this.opp(side))) this.activePU.push({ pid: id, puId: pu.id + "_debuff", until, buffs: pu.debuffOpponents, side: this.opp(side), debuff: true });
     e.stats.powerups++; this.teams[side].stats.powerups++;

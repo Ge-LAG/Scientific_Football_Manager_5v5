@@ -107,3 +107,37 @@ test("partie rapide Manager : un manager virtuel remplace l'adversaire absent", 
   assert.ok(st.seats.away.bot);
   A.ws.close();
 });
+
+test("en ligne : apparence visible de l'adversaire, 2 power-ups emportés, changement de joueur", { timeout: 60000 }, async () => {
+  const { getPlayer } = await import("../shared/data/content.js");
+  const med = getPlayer("mederic").powerUps.map(u => u.id);
+  const A = await connect({ name: "Ada" }), B = await connect({ name: "Grace" });
+  // B envoie son profil (apparence de Médéric, power-ups préférés ; un identifiant étranger est ignoré) avant de rejoindre
+  B.send({ t: "profile", looks: { mederic: { hairStyle: "mullet_modern", outfit: "futuristic", outfitColor: "#ff00e5" } }, loadouts: { mederic: [med[2], "pu_informatique_hotfix"] } });
+  A.send({ t: "room.create", mode: "arena", opts: { halfSeconds: 60, botLevel: "easy" } });
+  const j = await A.wait(m => m.t === "room.joined");
+  B.send({ t: "room.join", code: j.code });
+  const jb = await B.wait(m => m.t === "room.joined");
+  B.send({ t: "a.char", charId: "mederic" });
+  const st = await A.wait(m => m.t === "room.state" && m.slots.some(s => s.charId === "mederic" && s.human && s.look));
+  const sb = st.slots.find(s => s.charId === "mederic");
+  assert.equal(sb.look.hairStyle, "mullet_modern"); assert.equal(sb.look.outfit, "futuristic");
+  assert.deepEqual(sb.loadout, [med[2], med[0]], "power-up d'un autre scientifique refusé, complété par défaut");
+  // A choisit un autre second power-up pour son scientifique
+  const mine = st.slots[j.seat]; const own = getPlayer(mine.charId).powerUps.map(u => u.id);
+  A.send({ t: "a.loadout", ids: [own[2], own[3]] });
+  await B.wait(m => m.t === "room.state" && m.slots[j.seat].loadout?.[0] === own[2] && m.slots[j.seat].loadout?.[1] === own[3]);
+  A.send({ t: "a.start" });
+  const init = await B.wait(m => m.t === "a.init");
+  assert.equal(init.slots.find(s => s.charId === "mederic").look.outfit, "futuristic");
+  // changement de joueur de A vers un coéquipier bot ; jamais vers B (humain)
+  const mate = init.slots.find(s => s.team === init.slots[j.seat].team && !s.human && s.slot !== j.seat);
+  if (init.slots[jb.seat].team === init.slots[j.seat].team) { A.send({ t: "a.switch", to: jb.seat }); }
+  A.send({ t: "a.switch", to: mate.slot });
+  const sw = await A.wait(m => m.t === "room.state" && m.you.slot === mate.slot);
+  assert.equal(sw.slots[mate.slot].human, true); assert.equal(sw.slots[j.seat].human, false);
+  assert.equal(sw.slots[jb.seat].human, true, "B garde son joueur");
+  const snap = await A.wait(m => m.t === "a.snap");
+  assert.equal(snap.s.p[mate.slot].length, 13, "instantané : recharges des 2 power-ups et bits actifs");
+  A.ws.close(); B.ws.close();
+});

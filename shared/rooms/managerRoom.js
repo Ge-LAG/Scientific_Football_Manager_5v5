@@ -3,7 +3,8 @@
 import { BaseRoom } from "./base.js";
 import { ManagerEngine, DEFAULT_HALF_TICKS } from "../manager/engine.js";
 import { BotManager, pickForDraft, autoLineup, teamValue, DIFFICULTIES } from "../manager/ai.js";
-import { PLAYERS, FORMATIONS, STRATEGY_BY_ID } from "../data/content.js";
+import { PLAYERS, FORMATIONS, STRATEGY_BY_ID, getPlayer, sanitizeLoadout } from "../data/content.js";
+import { sanitizeAppearance } from "../data/appearance.js";
 import { makeRng, randomSeed } from "../rng.js";
 
 const SIDES = ["home", "away"];
@@ -21,7 +22,7 @@ export class ManagerRoom extends BaseRoom {
     const botClubOpt = this.opts.botClub && typeof this.opts.botClub === "object" ? this.opts.botClub : null;
     this.opts = { season, botClub: botClubOpt, autostart: !!this.opts.autostart, bot: DIFFICULTIES[b] ? b : null, speed: [1, 2, 4].includes(this.opts.speed) ? this.opts.speed : 1, halfTicks: Math.min(2400, Math.max(300, this.opts.halfTicks || DEFAULT_HALF_TICKS)), public: !!this.opts.public, quick: !!this.opts.quick };
     this.rng = makeRng(randomSeed());
-    this.seats = Object.fromEntries(SIDES.map(s => [s, { side: s, memberId: null, identity: null, pseudo: null, userId: null, elo: null, bot: null, club: defaultClub(s), picks: [], lineup: [], bench: [], formation: "2-2", strategy: "equilibre", ready: false, connected: false, left: false }]));
+    this.seats = Object.fromEntries(SIDES.map(s => [s, { side: s, memberId: null, identity: null, pseudo: null, userId: null, elo: null, bot: null, club: defaultClub(s), picks: [], lineup: [], bench: [], formation: "2-2", strategy: "equilibre", ready: false, connected: false, left: false, loadouts: {}, looks: {} }]));
     this.draft = null; this.engine = null; this.bots = {}; this.evSent = 0; this.paused = false; this.report = null;
   }
 
@@ -38,6 +39,7 @@ export class ManagerRoom extends BaseRoom {
       if (client.club && this.phase === "lobby") seat.club = sanitizeClub(client.club, seat.club);
       this.members.get(client.id).seat = seat.side;
       if (this.bots[seat.side] && this.phase === "playing") delete this.bots[seat.side]; // reprise en main
+      if (this.phase !== "playing" && this.phase !== "ended") this.applyLooks(seat, client);
     }
     this.broadcastState();
     if (this.engine) { this.send(client.id, { t: "m.init", setup: this.matchSetup(), events: this.engine.events }); this.send(client.id, { t: "m.snap", s: this.engine.snapshot(), ev: [] }); }
@@ -55,7 +57,7 @@ export class ManagerRoom extends BaseRoom {
     this.removeMember(clientId);
     if (seat) {
       seat.memberId = null; seat.connected = false;
-      if (this.phase === "lobby") Object.assign(seat, { identity: null, pseudo: null, userId: null, elo: null, club: defaultClub(seat.side) });
+      if (this.phase === "lobby") Object.assign(seat, { identity: null, pseudo: null, userId: null, elo: null, club: defaultClub(seat.side), looks: {} });
       else { seat.left = true; if (this.phase === "playing") this.bots[seat.side] = new BotManager(seat.side, "chercheur", this.rng); }
     }
     this.broadcastState();
@@ -73,6 +75,7 @@ export class ManagerRoom extends BaseRoom {
       case "m.autopick": if (seat && this.phase === "draft" && this.draft.order[this.draft.turn] === side) this.pick(side, this.autoPickFor(side)); break;
       case "m.autodraft": if (seat && this.phase === "draft") { seat.auto = true; if (this.draft.order[this.draft.turn] === side) this.pick(side, this.autoPickFor(side)); } break;
       case "m.setup": if (seat && this.phase === "setup") this.setup(side, msg); break;
+      case "m.loadout": if (seat && this.phase === "setup" && seat.picks.includes(msg.id)) { seat.loadouts[msg.id] = sanitizeLoadout(msg.id, msg.ids); this.broadcastState(); } break;
       case "m.cmd": if (seat && this.phase === "playing" && this.engine) this.engine.command(side, sanitizeCmd(msg.cmd)); break;
       case "m.speed": if (isHost && this.soloVsBot() && [1, 2, 4].includes(msg.speed)) { this.opts.speed = msg.speed; if (this.engine) this.engine.halftimeTicks = 100 * msg.speed; this.restartLoop(); this.broadcastState(); } break;
       case "m.pause": if (isHost && this.soloVsBot() && this.phase === "playing") { this.paused = !!msg.paused; this.broadcastState(); } break;
@@ -81,6 +84,20 @@ export class ManagerRoom extends BaseRoom {
   }
 
   soloVsBot() { return !!(this.seats.away.bot || this.seats.home.bot); }
+
+  // apparences choisies par le manager pour SES scientifiques (visibles par l'adversaire en 3D)
+  applyLooks(seat, client) {
+    const looks = {};
+    for (const id of seat.picks.length ? seat.picks : Object.keys(client?.looks || {})) if (client?.looks?.[id]) looks[id] = sanitizeAppearance(client.looks[id], id);
+    seat.looks = looks;
+  }
+  onProfile(clientId) {
+    const m = this.members.get(clientId); const seat = m?.seat ? this.seats[m.seat] : null;
+    if (!seat || this.phase === "playing" || this.phase === "ended") return;
+    this.applyLooks(seat, m.client);
+    if (this.phase === "setup") for (const id of seat.picks) if (m.client.loadouts?.[id]) seat.loadouts[id] = sanitizeLoadout(id, m.client.loadouts[id]);
+    this.broadcastState();
+  }
 
   // ── Draft ────────────────────────────────────────────────
   startDraft() {
@@ -129,6 +146,13 @@ export class ManagerRoom extends BaseRoom {
       const formation = s.bot ? Object.keys(FORMATIONS).map(f => ({ f, v: teamValue(s.picks, f) })).sort((a, b) => b.v - a.v)[0].f : "2-2";
       const { lineup, bench } = autoLineup(s.picks, formation);
       Object.assign(s, { formation, lineup, bench, strategy: s.bot === "stagiaire" ? this.rng.pick(Object.keys(STRATEGY_BY_ID)) : "equilibre", ready: !!s.bot || !s.connected });
+      // power-ups emportés : préférences du manager, sinon les 2 premiers ; les bots varient
+      const client = this.members.get(s.memberId)?.client;
+      s.loadouts = Object.fromEntries(s.picks.map(id => {
+        if (client) return [id, sanitizeLoadout(id, client.loadouts?.[id])];
+        const own = getPlayer(id).powerUps; return [id, [own[0].id, own[1 + Math.floor(this.rng() * (own.length - 1))].id]];
+      }));
+      if (client) this.applyLooks(s, client); else s.looks = {};
     }
     this.broadcastState();
     this.after(SETUP_MS, () => { if (this.phase === "setup") this.startMatch(); });
@@ -142,6 +166,7 @@ export class ManagerRoom extends BaseRoom {
     s.lineup = lineup; s.bench = s.picks.filter(id => !lineup.includes(id)).slice(0, 3);
     if (FORMATIONS[msg.formation]) s.formation = msg.formation;
     if (STRATEGY_BY_ID[msg.strategy]) s.strategy = msg.strategy;
+    if (msg.loadouts && typeof msg.loadouts === "object") for (const id of s.picks) if (Object.hasOwn(msg.loadouts, id)) s.loadouts[id] = sanitizeLoadout(id, msg.loadouts[id]);
     s.ready = msg.ready !== false;
     this.broadcastState(); this.maybeStart();
   }
@@ -149,7 +174,7 @@ export class ManagerRoom extends BaseRoom {
   maybeStart() { if (this.phase === "setup" && SIDES.every(s => this.seats[s].ready)) this.after(600, () => this.phase === "setup" && SIDES.every(s => this.seats[s].ready) && this.startMatch()); }
 
   matchSetup() {
-    return Object.fromEntries(SIDES.map(side => { const s = this.seats[side]; return [side, { name: s.club.name, colors: s.club.colors, crest: s.club.crest, lineup: s.lineup, bench: s.bench, formation: s.formation, strategy: s.strategy, pseudo: s.pseudo, bot: s.bot }]; }));
+    return Object.fromEntries(SIDES.map(side => { const s = this.seats[side]; return [side, { name: s.club.name, colors: s.club.colors, crest: s.club.crest, lineup: s.lineup, bench: s.bench, formation: s.formation, strategy: s.strategy, pseudo: s.pseudo, bot: s.bot, loadouts: s.loadouts, looks: s.looks }]; }));
   }
 
   // ── Match ────────────────────────────────────────────────
@@ -206,7 +231,7 @@ export class ManagerRoom extends BaseRoom {
   // ── État diffusé (personnalisé) ──────────────────────────
   stateFor(clientId) {
     const m = this.members.get(clientId);
-    const seats = Object.fromEntries(SIDES.map(side => { const s = this.seats[side]; return [side, { pseudo: s.pseudo, bot: s.bot, club: s.club, connected: s.connected || !!s.bot, ready: s.ready, picks: s.picks, lineup: s.lineup, bench: s.bench, formation: s.formation, strategy: s.strategy }]; }));
+    const seats = Object.fromEntries(SIDES.map(side => { const s = this.seats[side]; return [side, { pseudo: s.pseudo, bot: s.bot, club: s.club, connected: s.connected || !!s.bot, ready: s.ready, picks: s.picks, lineup: s.lineup, bench: s.bench, formation: s.formation, strategy: s.strategy, loadouts: s.loadouts, looks: s.looks }]; }));
     return {
       t: "room.state", code: this.code, mode: "manager", phase: this.phase, opts: this.publicOpts(), paused: this.paused,
       you: { seat: m?.seat || "spec", host: clientId === this.hostId }, seats,
@@ -230,7 +255,7 @@ export function sanitizeClub(c, fallback) {
 function sanitizeCmd(c) {
   if (!c || typeof c !== "object") return { type: "none" };
   const str = v => (typeof v === "string" ? v.slice(0, 32) : "");
-  return { type: str(c.type), id: str(c.id), pid: str(c.pid), out: str(c.out), in: str(c.in) };
+  return { type: str(c.type), id: str(c.id), pid: str(c.pid), pu: str(c.pu), out: str(c.out), in: str(c.in) };
 }
 
 function botClub(level, rng) {

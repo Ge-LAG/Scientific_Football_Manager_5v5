@@ -14,6 +14,8 @@ export const BOT_LEVELS = {
 export class ArenaBrain {
   constructor(sim, level = "normal") { this.sim = sim; this.cfg = BOT_LEVELS[level] || BOT_LEVELS.normal; this.mem = {}; }
 
+  forget(slot) { delete this.mem[slot]; } // changement de pilote : mémoire remise à zéro
+
   mem_(slot) { return this.mem[slot] || (this.mem[slot] = { shootHold: 0, nextThink: 0, target: null, lastInput: emptyInput(), passWait: 0 }); }
 
   // Calcule les entrées de tous les joueurs non humains.
@@ -23,14 +25,14 @@ export class ArenaBrain {
       if (p.human) {
         // gardien humain inactif : placement automatique (toute commande du joueur reprend la main)
         const hi = sim.inputs[p.slot];
-        if (sim.isKeeper(p) && sim.ball.owner !== p.slot && !hi.mx && !hi.mz && !hi.tackle && !hi.pass && !hi.shoot) {
+        if (sim.isKeeper(p) && sim.ball.owner !== p.slot && !hi.mx && !hi.mz && !hi.tackle && !hi.slide && !hi.pass && !hi.shoot) {
           const auto = this.think(p); sim.setInput(p.slot, { ...hi, mx: auto.mx, mz: auto.mz, sprint: auto.sprint });
         }
         continue;
       }
       const m = this.mem_(p.slot);
       // temps de réaction : entre deux décisions, le bot garde sa trajectoire (sans répéter les actions ponctuelles)
-      if (sim.time < m.nextThink && !m.shootHold && sim.ball.owner !== p.slot) { sim.setInput(p.slot, { ...m.lastInput, pass: false, lob: false, tackle: false, pu: false }); continue; }
+      if (sim.time < m.nextThink && !m.shootHold && sim.ball.owner !== p.slot) { sim.setInput(p.slot, { ...m.lastInput, pass: false, lob: false, tackle: false, slide: false, pu: false, pu2: false }); continue; }
       const inp = this.think(p);
       if (!sim.isKeeper(p)) { inp.mx *= this.cfg.effort; inp.mz *= this.cfg.effort; if (this.cfg.effort < 1 && p.stamina < 60) inp.sprint = false; }
       m.lastInput = inp; m.nextThink = sim.time + this.cfg.react * (0.6 + sim.rng() * 0.8);
@@ -52,14 +54,18 @@ export class ArenaBrain {
     m.shootHold = 0;
 
     // power-up : dans les situations utiles
-    if (p.char.powerUp && p.puCd <= sim.time && sim.phase === "play" && this.sim.rng() < this.cfg.puUse * 0.02) {
-      const fx = p.char.powerUp.arena.effect;
+    if (sim.phase === "play" && this.sim.rng() < this.cfg.puUse * 0.02) {
       const attacking = owner && owner.team === p.team; const nearGoal = hyp(gx - p.x, p.z) < 18;
-      const useful = { perfectShot: owner === p && nearGoal, powerShot: owner === p && nearGoal, ballGlue: owner === p, speedBoost: true, freeSprint: true,
-        tackleRange: owner && !attacking, sureTackle: owner && !attacking && hyp(owner.x - p.x, owner.z - p.z) < 4, firewall: owner && !attacking && hyp(owner.x - p.x, owner.z - p.z) < 6,
+      const dOwner = owner ? hyp(owner.x - p.x, owner.z - p.z) : 99; const dBall = hyp(b.x - p.x, b.z - p.z);
+      const oppNear = r => opps.some(q => hyp(q.x - p.x, q.z - p.z) < r);
+      const useful = fx => ({ perfectShot: owner === p && nearGoal, powerShot: owner === p && nearGoal, curlShot: owner === p && nearGoal, ballGlue: owner === p, speedBoost: true, freeSprint: true,
+        tackleRange: owner && !attacking, sureTackle: owner && !attacking && dOwner < 4, firewall: owner && !attacking && dOwner < 6,
         slowAura: owner && !attacking, tackleImmune: owner === p, perfectPass: attacking, passBoost: attacking, noStaminaDrain: p.stamina < 60,
-        teamStamina: mates.some(q => q.stamina < 50), teamAura: attacking }[fx];
-      if (useful) inp.pu = true;
+        teamStamina: mates.some(q => q.stamina < 50), teamAura: attacking, teamSpeed: true, dash: owner === p || (!owner && dBall < 8),
+        shockwave: oppNear(3.5), freezeNearest: owner && !attacking && dOwner < 6, magnet: !owner && dBall < 6,
+        keeperWall: owner && !attacking && hyp(ownX - b.x, b.z) < 14 })[fx];
+      const k = p.pus.findIndex(u => u.cd <= sim.time && u.until <= sim.time && useful(u.def.arena.effect));
+      if (k === 0) inp.pu = true; else if (k === 1) inp.pu2 = true;
     }
 
     if (sim.isKeeper(p)) return this.keeper(p, inp, owner, gx, ownX, f, mates, opps);

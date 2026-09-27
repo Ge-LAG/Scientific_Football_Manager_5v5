@@ -12,7 +12,7 @@ export default function PlayerDetail({ id, navigate }) {
   const p = getPlayer(id);
   const [cmp, setCmp] = useState("");
   if (!p) return <div className="page"><p className="muted">{t("player.notFound")}</p></div>;
-  const tx = pText(p, lang); const pu = p.powerUp; const put = puText(pu, lang);
+  const tx = pText(p, lang);
   const other = cmp ? getPlayer(cmp) : null;
   const syn = SYNERGIES.filter(s => s.match.some(m => p.domaine.includes(m)));
   const roles = ["gk", "def", "mid", "att"].map(r => ({ r, v: Math.round(ROLE_SCORE[r](p)) })).sort((a, b) => b.v - a.v);
@@ -33,7 +33,7 @@ export default function PlayerDetail({ id, navigate }) {
             <div className="tiny muted">{t("roster.overall")}</div>
           </div>
           <div className="grow" style={{ minWidth: 260 }}>
-            <div className="row"><h1 className="h1" style={{ color: "var(--white)", margin: 0 }}>{p.nom}</h1><span className="chip" style={{ color: p.color }}>#{p.numero}</span></div>
+            <div className="row"><h1 className="h1" style={{ color: "var(--white)", margin: 0 }}>{p.nom}</h1><span className="chip" style={{ color: p.color }}>#{p.numero}</span><button className="btn small ghost" onClick={() => navigate("/look/" + p.id)}>🎨 {t("look.customize")}</button></div>
             <div style={{ color: p.color, fontWeight: 700 }}>{domainName(p.domaine, lang)}</div>
             <div className="muted mb8">{tx.poste} — « {tx.slogan} » · {p.taille.toFixed(2)} m</div>
             <div className="row mb16" style={{ gap: 6 }}>{tx.traits.map(x => <span key={x} className="chip" style={{ color: p.color }}>{x}</span>)}<span className="chip" style={{ color: "var(--violet)" }}>{tx.profil}</span><span className="chip" style={{ color: "var(--gold)" }}>{t("player.tier", { n: p.tier })}</span></div>
@@ -65,13 +65,16 @@ export default function PlayerDetail({ id, navigate }) {
             <RadarChart player={p} color={p.color} size={240} compare={other} />
             {other && <div className="tiny" style={{ color: "var(--magenta)" }}>- - {other.nom} ({other.overall})</div>}
           </Card>
-          <Card style={{ borderColor: TYPE_COLORS[pu.type] }}>
-            <Kicker color="var(--magenta)">⚡ {t("player.powerup")}</Kicker>
-            <div className="h2" style={{ marginBottom: 6 }}>{put.nom}</div>
-            <div className="row mb8" style={{ gap: 6 }}><span className="chip" style={{ color: TYPE_COLORS[pu.type] }}>{typeName(pu.type, lang)}</span><span className="chip" style={{ color: "var(--muted)" }}>⏱ {pu.duree}s</span><span className="chip" style={{ color: "var(--muted)" }}>🔄 {pu.cooldown}s</span></div>
-            <div className="small" style={{ color: "var(--lime)" }}>✦ {t("player.managerEffect")} : {put.effets}</div>
-            <div className="small mt8" style={{ color: "var(--cyan)" }}>🏟️ {t("player.arenaEffect")} : {put.arena}</div>
-            <div className="tiny muted mt8">{Object.entries(pu.buffs).map(([k, v]) => `${attrName(k, lang)} ${v > 0 ? "+" : ""}${v}`).join(" · ")}</div>
+          <Card>
+            <Kicker color="var(--magenta)">⚡ {t("player.powerups")}</Kicker>
+            <p className="tiny muted mb8">{t("player.powerupsNote")}</p>
+            {p.powerUps.map((pu, i) => { const put = puText(pu, lang); return (
+              <div key={pu.id} className="pu-detail" style={{ borderColor: TYPE_COLORS[pu.type] }}>
+                <div className="row between"><b>{put.nom}{i === 0 && <span style={{ color: "var(--gold)" }} title={t("loadout.original")}> ★</span>}</b><span className="chip" style={{ color: TYPE_COLORS[pu.type] }}>{typeName(pu.type, lang)}</span></div>
+                <div className="small" style={{ color: "var(--lime)" }}>✦ {t("player.managerEffect")} : {put.effets}</div>
+                <div className="small" style={{ color: "var(--cyan)" }}>🏟️ {t("player.arenaEffect")} : {put.arena}</div>
+                <div className="tiny muted">⏱ {pu.duree}s · 🔄 {pu.cooldown}s · {Object.entries(pu.buffs).map(([k, v]) => `${attrName(k, lang)} ${v > 0 ? "+" : ""}${v}`).join(" · ")}</div>
+              </div>); })}
           </Card>
           {syn.length > 0 && <Card><Kicker color="var(--lime)">🔗 {t("player.synergies")}</Kicker>{syn.map(s => <div key={s.id} className="small mb8"><b>{s[lang]}</b> — {t("player.synergyNeed", { n: s.min })} <span className="muted">({Object.entries(s.bonus).map(([k, v]) => `${attrName(k, lang)} +${v}`).join(", ")})</span></div>)}</Card>}
           <div className="small muted">{t("player.roleHint", { role: t("role." + roleOf(p)) })}</div>

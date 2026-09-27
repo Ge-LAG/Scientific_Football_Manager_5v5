@@ -194,3 +194,24 @@ test('limite générale API (120/min)', async () => {
   assert.equal(last.status, 429);
   assert.deepEqual(last.json, { error: 'RATE_LIMITED' });
 });
+
+test('PATCH /api/me : apparences et power-ups préférés (nettoyés, profil public sans sélections)', async () => {
+  const { json: { token } } = await register('Lovelace');
+  const patch = (body) => call('PATCH', '/api/me', { token, body });
+  const own = ['pu_informatique_hotfix', 'pu_informatique_ctrlz'];
+  const r = await patch({ looks: { roland: { hairStyle: 'mullet_perm', outfit: 'rockstar', hairColor: '<script>' }, constructor: { outfit: 'x' }, hacker: {} },
+    loadouts: { roland: [own[1], 'nope', own[0]], constructor: ['x'] } });
+  assert.equal(r.status, 200);
+  assert.deepEqual(Object.keys(r.json.user.looks), ['roland']);
+  assert.equal(r.json.user.looks.roland.hairStyle, 'mullet_perm');
+  assert.equal(r.json.user.looks.roland.outfit, 'rockstar');
+  assert.match(r.json.user.looks.roland.hairColor, /^#[0-9a-f]{6}$/);
+  assert.deepEqual(r.json.user.loadouts, { roland: [own[1], own[0]] });
+  for (const body of [{ looks: [1, 2] }, { loadouts: 'x' }, { looks: { roland: { pad: 'y'.repeat(25000) } } }]) {
+    const b = await patch(body); assert.ok([400, 413].includes(b.status), JSON.stringify(body).slice(0, 60)); // refusé (invalide ou trop gros)
+  }
+  const pub = await call('GET', '/api/users/Lovelace');
+  assert.equal(pub.status, 200);
+  assert.equal(pub.json.user.loadouts, undefined, 'sélections privées');
+  assert.equal(pub.json.user.looks.roland.hairStyle, 'mullet_perm', 'apparence publique');
+});

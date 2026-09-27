@@ -621,7 +621,7 @@
       "id": "roadmap",
       "path": "docs/roadmap.html",
       "title": "Product roadmap",
-      "summary": "Plan d'implémentation Lab League v3 : jalons M0–M3 et lots W-001…W-016.",
+      "summary": "Plan d'implémentation Lab League v3 : jalons M0–M4 et lots W-001…W-022.",
       "tags": [
         "roadmap",
         "milestones",
@@ -634,11 +634,11 @@
       ],
       "kind": "project",
       "status": "active",
-      "sha256": "f44a5af35612a5c6dfb5ab74c025895a2e21ee69fecdff21f8e8975f76f2c0bb",
-      "chars": 2011,
-      "size": 3256,
-      "mtime_ns": 1790463499688634800,
-      "revision": 2,
+      "sha256": "77361e08295e0a2e079bc779faab643d986cb2621ff6d3d8d5cdbeb90bcd1e06",
+      "chars": 2541,
+      "size": 3885,
+      "mtime_ns": 1790511730129999000,
+      "revision": 3,
       "owner": "CTO",
       "reviewed": "",
       "review_by": "",
@@ -655,7 +655,7 @@
       "evidence_digest": "",
       "criteria": [],
       "evidence": [],
-      "body_digest": "34b9039e30703ac29da06017cb374358b772a391caf0584786430e1999a69184",
+      "body_digest": "b59c7ddbeb2c95579052a4df13cf39af907d546218253f93fba27355267956ee",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -675,7 +675,13 @@
         "../work/W-013.html#W-013",
         "../work/W-014.html#W-014",
         "../work/W-015.html#W-015",
-        "../work/W-016.html#W-016"
+        "../work/W-016.html#W-016",
+        "../work/W-017.html#W-017",
+        "../work/W-018.html#W-018",
+        "../work/W-019.html#W-019",
+        "../work/W-020.html#W-020",
+        "../work/W-021.html#W-021",
+        "../work/W-022.html#W-022"
       ],
       "anchors": [
         "roadmap"
@@ -1011,6 +1017,150 @@
       ]
     },
     {
+      "id": "AC-002",
+      "path": "records/AC-002.html",
+      "title": "Relecture de la vague 5 (sécurité et correction)",
+      "summary": "Relecture indépendante des contrôles, du changement de joueur, des power-ups et du profil : 3 moyennes, 4 faibles, corrigées et testées.",
+      "tags": [
+        "audit",
+        "securite",
+        "relecture",
+        "review",
+        "switch",
+        "changement",
+        "power-up",
+        "profil",
+        "controles"
+      ],
+      "kind": "finding",
+      "status": "review",
+      "sha256": "0ebee441271c3e6af728331879593ba9248d6799f59aea08f3815c8d3b2fbc5c",
+      "chars": 2262,
+      "size": 3994,
+      "mtime_ns": 1790522148551597900,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-online",
+        "arena-sim",
+        "arena-input",
+        "data"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Les scénarios décrits n'ont plus d'effet (tests automatisés)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/loadout-switch.test.js",
+          "check": "npm test (tests/loadout-switch.test.js : « actions créditées au pilote du moment », « onde de choc et gel : interdits au coup d'envoi » ; tests/server.test.js)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "96 tests réussis : place réservée refusée, but d'un tir de bot non attribué, passe décisive créditée au bon pilote, pas d'homme du match « volé », onde de choc refusée au coup d'envoi et gardien protégé."
+        }
+      ],
+      "body_digest": "c389bac1f0b460d82669a0b2205542c56c819332d7104b228f243c2720650cdc",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../work/W-019.html#W-019",
+        "../work/W-018.html#W-018",
+        "../work/W-020.html#W-020",
+        "../work/W-021.html#W-021",
+        "../../tests/loadout-switch.test.js"
+      ],
+      "anchors": [
+        "AC-002"
+      ]
+    },
+    {
+      "id": "TD-001",
+      "path": "records/TD-001.html",
+      "title": "Données partagées absentes du dépôt Git",
+      "summary": "La règle data/ du .gitignore excluait shared/data/ : le commit a9930d0 ne contenait pas les données du jeu. Règle corrigée en /data/.",
+      "tags": [
+        "git",
+        "gitignore",
+        "donnees",
+        "data",
+        "defect",
+        "bug",
+        "depot",
+        "commit"
+      ],
+      "kind": "finding",
+      "status": "review",
+      "sha256": "92395db43fd05685bb6a778bc2a61b4f650f98e68b4b5db6b5c175ea9f129717",
+      "chars": 1371,
+      "size": 2976,
+      "mtime_ns": 1790523213065464800,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "repo",
+        "data"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "git check-ignore shared/data/roster.js ne renvoie rien et git ls-files shared/data liste les 8 fichiers de données dans le commit de la vague 5."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../.gitignore",
+          "check": "git check-ignore shared/data/roster.js (code retour 1) ; git ls-files --cached shared/data ; git ls-tree -r a9930d0",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Plus ignoré ; 8 fichiers indexés (appearance, content, enrichment, narration FR/EN, powerups.extra, roster FR/EN). Constat confirmé : aucun fichier shared/data dans a9930d0 ni dans main."
+        }
+      ],
+      "body_digest": "73d14f1e3a2630f38c23ba22de72bac8fed71697d4d6c383c9c522c3616b3c42",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../work/W-021.html#W-021",
+        "../../.gitignore"
+      ],
+      "anchors": [
+        "TD-001"
+      ]
+    },
+    {
       "id": "UAT-001",
       "path": "records/UAT-001.html",
       "title": "Recette PO — Lab League v3",
@@ -1025,11 +1175,11 @@
       ],
       "kind": "acceptance",
       "status": "ready",
-      "sha256": "86605949d6b0556d654c92d464063bb7125339a757ee6b7c828abe24a888cdff",
-      "chars": 2676,
-      "size": 3853,
-      "mtime_ns": 1790481279871044700,
-      "revision": 2,
+      "sha256": "2db97cb00aba3626e8ffbf2370063d02d137fd9d58c9bc1a76b1e4f8edf1628a",
+      "chars": 4562,
+      "size": 5904,
+      "mtime_ns": 1790523034243531300,
+      "revision": 3,
       "owner": "Guillaume (PO)",
       "reviewed": "",
       "review_by": "",
@@ -1047,7 +1197,7 @@
       "criteria": [
         {
           "id": "A1",
-          "text": "Les 10 étapes ci-dessus donnent le résultat attendu en français et en anglais."
+          "text": "Les 17 étapes ci-dessus donnent le résultat attendu en français et en anglais."
         },
         {
           "id": "PO",
@@ -1055,7 +1205,7 @@
         }
       ],
       "evidence": [],
-      "body_digest": "4deebb971d5074c7399532ef256fb94b375f4bc703524a2eaceead6cd223cbed",
+      "body_digest": "798f7f36d6c43b22e7c47fd0e3e06eeb643328431211c3d599e1c4a5da5b7d5f",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -2909,6 +3059,585 @@
       ],
       "anchors": [
         "W-016"
+      ]
+    },
+    {
+      "id": "W-017",
+      "path": "work/W-017.html",
+      "title": "Caméras 3D des matchs simulés",
+      "summary": "Vue Stade 3D du Manager et spectateurs : réalisateur automatique, latérale, tribune, frontale, ballon, joueur suivi, caméra libre.",
+      "tags": [
+        "camera",
+        "3d",
+        "manager",
+        "spectateur",
+        "realisateur",
+        "libre",
+        "ballon",
+        "joueur"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "d32f8553e366cb59aec4a422bc12b3d8e6115d60e827fe92f506f074072948a6",
+      "chars": 1632,
+      "size": 3426,
+      "mtime_ns": 1790523026531553300,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-render",
+        "manager-ui"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/three/cameraRig.js",
+        "src/ui/CamBar.jsx",
+        "src/pages/manager/MatchView.jsx"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Les 7 caméras sont sélectionnables pendant un match Manager en 3D (boutons et touche C) ; la caméra joueur suit le scientifique choisi."
+        },
+        {
+          "id": "A2",
+          "text": "La caméra libre se pilote à la souris (glisser, clic droit, molette) et au clavier ; les spectateurs de l'Arène disposent des mêmes caméras."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "node scripts/smoke-browser.mjs http://localhost:8791 smoke-out (étape Manager : clic sur chaque caméra, lecture de window.__ll3d.camMode)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Les 7 caméras répondent : goal, ball, player, tactical, free, tv, auto ; captures 12-cam-goal, 12-cam-player, 12-cam-free."
+        },
+        {
+          "result": "pending",
+          "ref": "../../src/three/cameraRig.js",
+          "check": "Relecture de src/three/cameraRig.js ; manipulation souris/clavier de la caméra libre non automatisée",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Orbite, déplacement, zoom et plans spectateur implémentés ; la prise en main réelle (souris, molette) reste à valider en recette PO (UAT-001, étape caméras)."
+        }
+      ],
+      "body_digest": "bfd59b102a5ee3fc0ba188ef4f83af27415141cd3e1b05b61a04abec60905cc4",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../scripts/smoke-browser.mjs",
+        "../../src/three/cameraRig.js"
+      ],
+      "anchors": [
+        "W-017"
+      ]
+    },
+    {
+      "id": "W-018",
+      "path": "work/W-018.html",
+      "title": "Contrôles main gauche + flèches, AZERTY/QWERTY, manette",
+      "summary": "Schéma « flèches + main gauche », disposition du clavier, réaffectation, souris, manette USB et vibrations.",
+      "tags": [
+        "controls",
+        "clavier",
+        "azerty",
+        "qwerty",
+        "ergonomie",
+        "manette",
+        "gamepad",
+        "souris",
+        "reaffectation"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "52740687831d77b6db94d03f929d1b6bd497f5141ad8af5ac672d4e149580c16",
+      "chars": 2181,
+      "size": 4211,
+      "mtime_ns": 1790523027175626300,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-input"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/three/input.js",
+        "src/three/controls.js",
+        "src/ui/ControlsPanel.jsx"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Préréglage « flèches + main gauche » : rangée de repos lob/passe/tir/crochet, rangée du haut changer de joueur/appel/power-ups, pouce sur Espace pour le sprint ; touches contextuelles en défense."
+        },
+        {
+          "id": "A2",
+          "text": "Réglages : schéma, disposition (auto/AZERTY/QWERTY/QWERTZ) avec libellés corrects, clavier visuel, réaffectation clavier et manette, conflits signalés."
+        },
+        {
+          "id": "A3",
+          "text": "Manette (API Gamepad) : boutons réaffectables, libellés Xbox/PlayStation, vibrations si disponibles ; aide et HUD affichent les touches réelles."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "Smoke navigateur : flèche haut + Espace simulés (event.code), déplacement mesuré dans l'instantané",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Le joueur avance aux flèches (x -0.7 → 16.1) ; touches contextuelles (passe → tacle, tir → tacle glissé) actives seulement quand un adversaire a le ballon (AC-002)."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "Smoke navigateur : Réglages → QWERTY puis AZERTY, lecture du clavier visuel et de la table de réaffectation",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "La touche physique KeyQ (changer de joueur) s'affiche Q en QWERTY et A en AZERTY ; capture 18-reglages-controles ; npm test (i18n) vert."
+        },
+        {
+          "result": "pending",
+          "ref": "../../src/three/input.js",
+          "check": "Manette USB réelle non disponible dans l'environnement de test",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A3",
+          "text": "Lecture API Gamepad, réaffectation par capture de bouton, vibrations (vibrationActuator) implémentées ; à valider avec une manette en recette PO."
+        }
+      ],
+      "body_digest": "9505e2611070d1732494d4181be19cd66a3270511975229a3d2f73e31dba0561",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../scripts/smoke-browser.mjs",
+        "../../scripts/smoke-browser.mjs",
+        "../../src/three/input.js"
+      ],
+      "anchors": [
+        "W-018"
+      ]
+    },
+    {
+      "id": "W-019",
+      "path": "work/W-019.html",
+      "title": "Changement de joueur en cours de match",
+      "summary": "Prendre le contrôle d'un coéquipier piloté par un bot (jamais un humain), manuel ou automatique.",
+      "tags": [
+        "switch",
+        "changement",
+        "joueur",
+        "controle",
+        "bot",
+        "arene"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "af004e70de18b63ed166c6e23e06de8577de9e1f960953585c4e076c1dbcb68d",
+      "chars": 1907,
+      "size": 3765,
+      "mtime_ns": 1790523027604762700,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-sim",
+        "arena-online"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/rooms/arenaRoom.js",
+        "shared/action/sim.js",
+        "src/three/arenaView.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Changement vers un coéquipier bot accepté, vers un humain ou un adversaire refusé ; l'état de jeu est conservé (test)."
+        },
+        {
+          "id": "A2",
+          "text": "Les statistiques personnelles cumulent les joueurs contrôlés (test) ; la vue suit le nouveau joueur sans rechargement."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/loadout-switch.test.js",
+          "check": "npm test (tests/loadout-switch.test.js « actions créditées au pilote du moment », tests/server.test.js « en ligne : apparence visible de l'adversaire, 2 power-ups emportés, changement de joueur »)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Changement vers un bot accepté ; vers un humain, un adversaire, une place réservée, une clé hostile ou un nombre décimal refusé ; l'autre humain garde son joueur ; état de jeu conservé."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "npm test + smoke navigateur (touche Q physique puis clic sur le bandeau d'équipe)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Actions créditées au pilote du moment (but d'un tir de bot non attribué, pas d'homme du match « volé ») ; dans le navigateur la vue suit le nouveau joueur sans rechargement (capture 16b-arene-switch)."
+        }
+      ],
+      "body_digest": "d3b3acb7aaaf25d66ce7ba814a70c58143a94eb8bedb89355038ac5607068073",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/loadout-switch.test.js",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-019"
+      ]
+    },
+    {
+      "id": "W-020",
+      "path": "work/W-020.html",
+      "title": "Apparence RPG des scientifiques",
+      "summary": "Éditeur d'apparence détaillé (morphologie, coiffures dont 4 mulets, pilosité, lunettes, couvre-chefs, tenues, accessoires), visible de tous.",
+      "tags": [
+        "apparence",
+        "avatar",
+        "coiffure",
+        "mulet",
+        "tenue",
+        "personnalisation",
+        "rpg"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "4bd20cf21b6ec72459a30e54008d2bb577538624c9559b72723873df8c303fbc",
+      "chars": 2090,
+      "size": 4198,
+      "mtime_ns": 1790523027988920700,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-render",
+        "data"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/data/appearance.js",
+        "src/three/visual/avatar.js",
+        "src/pages/LookEditor.jsx",
+        "shared/profile.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "22 coiffures dont mulet moderne, mulet rasé sur les côtés, mulet permanenté années 80, mulet classique ; 8 styles vestimentaires (footballeur, scientifique, rockstar, médiéval, Renaissance, futuriste, décalé, marrant) ; couleurs libres."
+        },
+        {
+          "id": "A2",
+          "text": "Les apparences reçues d'un client sont nettoyées (valeurs hostiles sans effet) et transmises aux autres joueurs (test)."
+        },
+        {
+          "id": "A3",
+          "text": "Aperçu 3D en direct dans l'éditeur ; l'équipe reste identifiable par sa couleur quelle que soit la tenue."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/appearance.test.js",
+          "check": "node --test tests/appearance.test.js ; revue visuelle des options (agent, Iris Xe) ; smoke Vestiaire",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Toutes les options ont des libellés FR/EN ; mulet permanenté + tenue rockstar enregistrés et rendus (captures 19-vestiaire, 19b-vestiaire-visage)."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/server.test.js",
+          "check": "npm test (tests/loadout-switch.test.js « profil », tests/api.test.js « apparences et power-ups préférés », tests/server.test.js « en ligne : apparence visible »)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Valeurs hostiles (__proto__, constructor, couleurs invalides, corps trop gros) sans effet ; l'apparence de B est reçue par A dans room.state et a.init ; les sélections restent privées sur le profil public."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "Smoke navigateur : Vestiaire (aperçu 3D) et captures de l'Arène",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A3",
+          "text": "Aperçu 3D en direct (animations, cadrage visage) ; en match, tenues variées avec couleur d'équipe sur maillot, brassards et anneau au sol (capture 15-arene-jeu)."
+        }
+      ],
+      "body_digest": "9626f79aaed9a554c5f415516cc608fbf8e330895c21242d7b2fee17fd92d229",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/appearance.test.js",
+        "../../tests/server.test.js",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-020"
+      ]
+    },
+    {
+      "id": "W-021",
+      "path": "work/W-021.html",
+      "title": "4 power-ups par scientifique, 2 emportés par match",
+      "summary": "48 nouveaux power-ups liés aux domaines scientifiques, 7 nouveaux effets d'Arène, sélection de 2 avant le match.",
+      "tags": [
+        "power-up",
+        "pouvoir",
+        "domaine",
+        "selection",
+        "loadout"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "e8c0810331709613b5cf70016d145d9a2dd4efe2a45958b0f3d4fa90859fc615",
+      "chars": 1915,
+      "size": 3953,
+      "mtime_ns": 1790523028447963600,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "data",
+        "manager-engine",
+        "arena-sim"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/data/powerups.extra.js",
+        "shared/data/content.js",
+        "shared/manager/engine.js",
+        "shared/action/sim.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "64 power-ups (16 d'origine inchangés + 48), 4 par scientifique, effets Manager et Arène, textes FR/EN (tests)."
+        },
+        {
+          "id": "A2",
+          "text": "Nouveaux effets d'Arène : élan, onde de choc, gel, aimant, frappe enveloppée, vitesse d'équipe, mur du gardien (tests)."
+        },
+        {
+          "id": "A3",
+          "text": "Sélection nettoyée côté serveur ; deux touches (Power-up 1 / 2) en Arène, deux boutons par joueur en Manager (tests + parcours)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/powerups-extra.test.js",
+          "check": "node --test tests/powerups-extra.test.js tests/data.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "48 entrées, 3 par scientifique, domaines, bornes, effets et textes FR/EN valides ; originaux identiques au prototype."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/loadout-switch.test.js",
+          "check": "node --test tests/loadout-switch.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Élan, onde de choc, gel, aimant, frappe enveloppée, vitesse d'équipe, mur du gardien vérifiés ; bonus cumulés des 2 power-ups actifs."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "npm test (sélection hostile refusée, recharges séparées) + smoke navigateur (sélection en salle d'Arène, 2 boutons dans le HUD)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A3",
+          "text": "PU2 indépendant de PU1, recharges séparées (Arène et Manager) ; 4e power-up choisi en salle puis 2 power-ups affichés dans le HUD."
+        }
+      ],
+      "body_digest": "3b2a4019b93e2688d325fd6113ff3c098bcd2414bb23cfa8ad1981edbb2f278f",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/powerups-extra.test.js",
+        "../../tests/loadout-switch.test.js",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-021"
+      ]
+    },
+    {
+      "id": "W-022",
+      "path": "work/W-022.html",
+      "title": "Rendu 3D premium et animations",
+      "summary": "Pipeline de rendu (tonalité, bloom, anticrénelage, occlusion ambiante, étalonnage), qualité adaptative, stade, ballon, effets et animations des avatars.",
+      "tags": [
+        "rendu",
+        "3d",
+        "premium",
+        "post-processing",
+        "bloom",
+        "animation",
+        "cel-shading",
+        "performance"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "b4b9eced65c962be84d93735106587f380b73d5bd8979912d0d8e6d37933d452",
+      "chars": 2179,
+      "size": 4278,
+      "mtime_ns": 1790523028615317600,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-render"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/three/render/*",
+        "src/three/visual/*",
+        "src/three/arenaView.js",
+        "src/pages/Bench.jsx"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Niveaux de qualité faible/moyen/élevé/ultra ; ajustement automatique selon les images par seconde ; compteur de performances (F3) ; banc d'essai."
+        },
+        {
+          "id": "A2",
+          "text": "Animations : course proportionnelle à la vitesse, charge et frappe, passe, tacle glissé, plongeon, célébrations variées, étourdissement ; mouvements secondaires (cheveux, capes, blouses)."
+        },
+        {
+          "id": "A3",
+          "text": "Build de production sans erreur ; aucune erreur console lors du smoke navigateur."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../src/three/render/quality.js",
+          "check": "npx vite build ; revue des niveaux par l'agent de rendu (Intel Iris Xe : ~4 / 12 / 29 / 44 ms GPU pour low / medium / high / ultra) ; smoke navigateur",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Niveaux et qualité adaptative en place ; compteur F3 et banc d'essai opérationnels ; l'appréciation sur la machine du PO reste à faire (UAT-001)."
+        },
+        {
+          "result": "pass",
+          "ref": "../../src/three/visual/avatar/anim.js",
+          "check": "Revue visuelle de la planche d'animations (agent avatars) + captures du smoke",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Course proportionnelle à la vitesse, charge, frappe, passe, tacle glissé, plongeon, célébrations, étourdissement ; cheveux, capes et blouses avec inertie."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "npm run build ; node scripts/smoke-browser.mjs http://localhost:8791 smoke-out",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A3",
+          "text": "Build de production sans erreur ; parcours complet sans exception ni erreur console (SwiftShader, sans GPU : ~2 images/s, non représentatif des performances réelles)."
+        }
+      ],
+      "body_digest": "5443eb247c23c19e4cb773878a9317cb48c14dea467ba47889f9a89602ff0dbe",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../src/three/render/quality.js",
+        "../../src/three/visual/avatar/anim.js",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-022"
       ]
     }
   ]

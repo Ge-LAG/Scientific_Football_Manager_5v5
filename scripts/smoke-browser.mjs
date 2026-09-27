@@ -74,6 +74,17 @@ await step("Manager contre un bot : draft auto, composition, match, rapport", as
   results.push(["ℹ", "Vue Stade 3D, canevas : " + JSON.stringify(c3)]);
   const cam = await evaluate(`(() => { const v = window.__ll3d; if (!v) return null; const c = v.camera.position; return { cam: [c.x, c.y, c.z].map(n => +n.toFixed(2)), mode: v.camMode, children: v.scene.children.length, ball: v.latest && v.latest.b.slice(0, 3), p0: v.latest && v.latest.p[0].slice(0, 2) }; })()`);
   results.push(["ℹ", "Vue Stade 3D, caméra : " + JSON.stringify(cam)]);
+  // caméras du match simulé (match en pause pour qu'il ne se termine pas pendant la vérification)
+  if (!(await click("Pause"))) throw new Error("bouton Pause introuvable");
+  const modes = [];
+  for (const [label, mode] of [["Frontale", "goal"], ["Ballon", "ball"], ["Joueur", "player"], ["Tribune", "tactical"], ["Libre", "free"], ["Latérale", "tv"], ["Réalisateur", "auto"]]) {
+    if (!(await click(label))) throw new Error("bouton de caméra introuvable : " + label);
+    await sleep(900); const m = await evaluate("window.__ll3d?.camMode"); modes.push(m);
+    if (m !== mode) throw new Error(`caméra ${label} : ${m}`);
+    if (mode === "goal" || mode === "free" || mode === "player") await shot("12-cam-" + mode);
+  }
+  results.push(["ℹ", "Caméras 3D : " + modes.join(", ")]);
+  await click("Reprendre");
   await click("Vue tactique");
   await waitFor(has("Homme du match"), 150000); await sleep(500); await shot("13-rapport");
   await click("Accueil");
@@ -81,11 +92,31 @@ await step("Manager contre un bot : draft auto, composition, match, rapport", as
 await step("Arène contre les bots : lobby, match 3D, déplacement", async () => {
   await evaluate(`location.hash = "#/arena"`); await waitFor(has("Niveau des bots"));
   await click("1 min"); await click("Jouer");
-  await waitFor(has("Votre scientifique"), 15000); await sleep(300); await shot("14-arene-lobby");
+  await waitFor(has("Votre scientifique"), 15000); await sleep(300);
+  // sélection des 2 power-ups : on remplace le second par le 4e
+  const lo = await evaluate(`(() => { const b = [...document.querySelectorAll(".loadout .lo-item")]; if (b.length !== 4) return "items:" + b.length; b[3].click(); return "ok"; })()`);
+  if (lo !== "ok") throw new Error("sélection de power-ups : " + lo);
+  await waitFor(`document.querySelectorAll(".loadout .lo-item.on").length === 2 && document.querySelectorAll(".loadout .lo-item")[3].classList.contains("on")`, 5000);
+  await shot("14-arene-lobby");
   await click("Coup d'envoi");
   await waitFor(`!!document.querySelector(".arena-root canvas")`, 20000); await sleep(4000); await shot("15-arene-jeu");
-  await evaluate(`(() => { const k = (t, c) => window.dispatchEvent(new KeyboardEvent(t, { code: c, bubbles: true })); k("keydown", "KeyW"); k("keydown", "ShiftLeft"); setTimeout(() => { k("keyup", "KeyW"); k("keyup", "ShiftLeft"); }, 2500); })()`);
+  // schéma par défaut : flèches (main droite) + Espace (sprint, pouce)
+  const x0 = await evaluate(`window.__ll3d.latest.p[window.__ll3d.mySlot][0]`);
+  await evaluate(`(() => { const k = (t, c) => window.dispatchEvent(new KeyboardEvent(t, { code: c, bubbles: true })); k("keydown", "ArrowUp"); k("keydown", "Space"); setTimeout(() => { k("keyup", "ArrowUp"); k("keyup", "Space"); }, 2500); })()`);
   await sleep(3000); await shot("16-arene-course");
+  const x1 = await evaluate(`window.__ll3d.latest.p[window.__ll3d.mySlot][0]`);
+  results.push(["ℹ", `Flèche haut : x ${x0.toFixed(1)} → ${x1.toFixed(1)}`]);
+  if (!(Math.abs(x1 - x0) > 1)) throw new Error("le joueur n'avance pas aux flèches");
+  // 2 power-ups dans le HUD, bandeau d'équipe, changement de joueur (Q physique)
+  const hudPu = await evaluate(`document.querySelectorAll(".hud-pus .hud-pu").length`);
+  if (hudPu !== 2) throw new Error("HUD power-ups : " + hudPu);
+  const s0 = await evaluate(`window.__ll3d.mySlot`);
+  await evaluate(`(() => { const k = (t, c) => window.dispatchEvent(new KeyboardEvent(t, { code: c, bubbles: true })); k("keydown", "KeyQ"); setTimeout(() => k("keyup", "KeyQ"), 120); })()`);
+  await waitFor(`window.__ll3d.mySlot !== ${s0}`, 6000); await sleep(1200);
+  const s1 = await evaluate(`window.__ll3d.mySlot`);
+  results.push(["ℹ", `Changement de joueur : ${s0} → ${s1}`]); await shot("16b-arene-switch");
+  await evaluate(`document.querySelectorAll(".hud-team .hud-mate:not(.cur):not(:disabled)")[0]?.click()`);
+  await waitFor(`window.__ll3d.mySlot !== ${s1}`, 6000);
   const fps = await evaluate(`new Promise(r => { let n = 0; const t0 = performance.now(); const f = () => { n++; if (performance.now() - t0 < 2000) requestAnimationFrame(f); else r(Math.round(n / 2)); }; requestAnimationFrame(f); })`);
   results.push(["ℹ", `Arène : ${fps} images/s (rendu logiciel SwiftShader, sans GPU)`]);
   // menu pause (Échap) puis sortie propre (la fin de match est couverte par tests/server.test.js)
@@ -94,9 +125,28 @@ await step("Arène contre les bots : lobby, match 3D, déplacement", async () =>
   await click("Quitter"); await waitFor(has("Niveau des bots"), 20000);
 });
 
+await step("Réglages : contrôles (schéma, disposition, clavier visuel, réaffectation)", async () => {
+  await evaluate(`location.hash = "#/settings"`); await waitFor(has("Schéma de contrôle")); await sleep(400);
+  await click("QWERTY");
+  await waitFor(`[...document.querySelectorAll(".kb-key.on .kb-cap")].some(e => e.textContent === "Q")`, 5000);
+  await click("AZERTY");
+  // sur AZERTY, la touche physique KeyQ (changer de joueur) s'affiche « A »
+  await waitFor(`[...document.querySelectorAll(".bind-table tr")].some(tr => tr.textContent.includes("Changer de joueur") && tr.querySelector(".kbd.bind")?.textContent === "A")`, 5000);
+  await shot("18-reglages-controles");
+});
+await step("Vestiaire : apparence (mulet permanenté, tenue rockstar), aperçu 3D", async () => {
+  await evaluate(`location.hash = "#/look/loic"`); await waitFor(`!!document.querySelector(".look-canvas canvas")`, 20000); await sleep(1500);
+  await click("Cheveux et barbe"); await sleep(200); await click("Mulet permanenté");
+  await click("Tenue"); await sleep(200); await click("Rockstar"); await sleep(2500);
+  const saved = await evaluate(`JSON.parse(localStorage.getItem("ll.looks") || "{}").loic`);
+  if (saved?.hairStyle !== "mullet_perm" || saved?.outfit !== "rockstar") throw new Error("apparence non enregistrée : " + JSON.stringify(saved));
+  await shot("19-vestiaire");
+  await click("Visage"); await sleep(2000); await shot("19b-vestiaire-visage");
+});
+
 await step("Affichage mobile (390 px) sans défilement horizontal", async () => {
   await cmd("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
-  for (const [hash, name] of [["#/", "20-mobile-accueil"], ["#/manager", "21-mobile-manager"], ["#/player/mederic", "22-mobile-fiche"], ["#/club", "23-mobile-club"]]) {
+  for (const [hash, name] of [["#/", "20-mobile-accueil"], ["#/manager", "21-mobile-manager"], ["#/player/mederic", "22-mobile-fiche"], ["#/club", "23-mobile-club"], ["#/look/roland", "24-mobile-vestiaire"], ["#/settings", "25-mobile-reglages"]]) {
     await evaluate(`location.hash = ${JSON.stringify(hash)}`); await sleep(900); await shot(name);
     const over = await evaluate(`document.documentElement.scrollWidth - window.innerWidth`);
     if (over > 2) throw new Error(`${hash} déborde de ${over}px`);

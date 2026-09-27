@@ -20,6 +20,8 @@ import ArenaHub from "./pages/arena/ArenaHub.jsx";
 import { reloadOnChunkError } from "./net/reload.js";
 // Three.js chargé à la demande ; si les fichiers ont changé (nouvelle version déployée), on recharge la page une fois.
 const ArenaRoomPage = lazy(() => import("./pages/arena/ArenaRoomPage.jsx").catch(reloadOnChunkError));
+const LookEditor = lazy(() => import("./pages/LookEditor.jsx").catch(reloadOnChunkError));
+const Bench = lazy(() => import("./pages/Bench.jsx").catch(reloadOnChunkError));
 
 // Routeur minimal par ancre (#/chemin) : liens partageables, rechargement sûr.
 function useHashRoute() {
@@ -42,6 +44,7 @@ function Shell({ path, navigate }) {
     { to: "/roster", label: t("nav.roster"), match: p => p.startsWith("/roster") || p.startsWith("/player") },
     { to: "/powerups", label: t("nav.powerups"), match: p => p === "/powerups" },
     { to: "/club", label: t("nav.club"), match: p => p === "/club" },
+    { to: "/look", label: t("nav.look"), match: p => p.startsWith("/look") },
     { to: "/leaderboard", label: t("nav.leaderboard"), match: p => p === "/leaderboard" || p.startsWith("/u/") },
     { to: "/help", label: t("nav.help"), match: p => p === "/help" },
   ];
@@ -60,6 +63,8 @@ function Shell({ path, navigate }) {
     case "leaderboard": page = <Leaderboard navigate={navigate} />; break;
     case "help": page = <Help navigate={navigate} />; break;
     case "settings": page = <Settings navigate={navigate} />; break;
+    case "look": page = <Suspense fallback={<Spinner label={t("common.loading")} />}><LookEditor id={seg[1]} navigate={navigate} /></Suspense>; break;
+    case "bench": page = <Suspense fallback={<Spinner label={t("common.loading")} />}><Bench navigate={navigate} /></Suspense>; break;
     case "manager": page = seg[1] === "play" ? <ManagerRoomPage navigate={navigate} /> : seg[1] === "season" ? <SeasonPage navigate={navigate} /> : <ManagerHub navigate={navigate} />; break;
     case "arena": page = seg[1] === "play" ? <Suspense fallback={<Spinner label={t("common.loading")} />}><ArenaRoomPage navigate={navigate} /></Suspense> : <ArenaHub navigate={navigate} />; break;
     case "join": page = <Spinner label={t("common.joining")} />; break;

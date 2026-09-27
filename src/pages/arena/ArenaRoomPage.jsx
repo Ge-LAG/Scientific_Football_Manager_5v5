@@ -4,7 +4,8 @@ import { useI18n } from "../../i18n/index.jsx";
 import { useSession } from "../../store/session.jsx";
 import { useGame } from "../../game/GameProvider.jsx";
 import { Card, Kicker, Avatar, Spinner, Seg, useToast } from "../../ui/components.jsx";
-import { PLAYERS, getPlayer, pText, puText, keeperRating } from "../../../shared/data/content.js";
+import { PLAYERS, getPlayer, pText, keeperRating, sanitizeLoadout } from "../../../shared/data/content.js";
+import { LoadoutPicker } from "../../ui/LoadoutPicker.jsx";
 import { BOT_LEVELS } from "../../../shared/action/bot.js";
 import { ArenaGame } from "./ArenaGame.jsx";
 
@@ -14,13 +15,14 @@ export default function ArenaRoomPage({ navigate }) {
   useEffect(() => { if (!game.joined && !room && !game.pending) navigate("/arena"); }, [game.joined, room, game.pending]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!room || room.mode !== "arena") return <div className="page"><Spinner label={t("common.joining")} /></div>;
   const leave = () => { game.leave(); navigate("/arena"); };
-  if ((room.phase === "playing" || room.phase === "ended") && init) return <ArenaGame key={`${room.code}:${room.you.slot ?? "spec"}`} room={room} init={init} end={end} onLeave={leave} navigate={navigate} />;
+  // la vue n'est recréée qu'au passage spectateur ↔ joueur (pas lors d'un changement de joueur en cours de match)
+  if ((room.phase === "playing" || room.phase === "ended") && init) return <ArenaGame key={`${room.code}:${room.you.slot == null ? "spec" : "play"}`} room={room} init={init} end={end} onLeave={leave} navigate={navigate} />;
   if (room.phase !== "lobby") return <div className="page"><Spinner label={t("common.loading")} /></div>;
-  return <ArenaLobby room={room} onLeave={leave} />;
+  return <ArenaLobby room={room} onLeave={leave} navigate={navigate} />;
 }
 
-function ArenaLobby({ room, onLeave }) {
-  const { t, lang } = useI18n(); const game = useGame(); const toast = useToast(); const { club } = useSession();
+function ArenaLobby({ room, onLeave, navigate }) {
+  const { t, lang } = useI18n(); const game = useGame(); const toast = useToast(); const { club, loadouts, setLoadout } = useSession();
   const mySlot = room.you.slot; const me = mySlot != null ? room.slots[mySlot] : null;
   const sentTeams = useRef(null);
   useEffect(() => {
@@ -76,15 +78,17 @@ function ArenaLobby({ room, onLeave }) {
               <Kicker>{t("ah.chooseChar")}</Kicker>
               <div className="grid" style={{ gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
                 {PLAYERS.map(p => { const taken = takenByHuman.has(p.id); const sel = me.charId === p.id; return (
-                  <button key={p.id} disabled={taken} title={`${p.nom} — ${pText(p, lang).poste}`} onClick={() => game.send({ t: "a.char", charId: p.id })} style={{ background: sel ? p.color + "33" : "rgba(255,255,255,.03)", border: `1px solid ${sel ? p.color : "rgba(255,255,255,.08)"}`, borderRadius: 10, padding: 6, cursor: taken ? "not-allowed" : "pointer", opacity: taken ? 0.3 : 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                  <button key={p.id} disabled={taken} title={`${p.nom} — ${pText(p, lang).poste}`} onClick={() => game.send({ t: "a.char", charId: p.id, loadout: loadouts[p.id] })} style={{ background: sel ? p.color + "33" : "rgba(255,255,255,.03)", border: `1px solid ${sel ? p.color : "rgba(255,255,255,.08)"}`, borderRadius: 10, padding: 6, cursor: taken ? "not-allowed" : "pointer", opacity: taken ? 0.3 : 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                     <Avatar player={p} size={34} showNum={false} /><span className="tiny" style={{ fontWeight: 700 }}>{p.nom}</span>
                   </button>); })}
               </div>
               {me.charId && (() => { const p = getPlayer(me.charId); return (
                 <div className="mt16 small" style={{ lineHeight: 1.5 }}>
-                  <b style={{ color: p.color }}>{p.nom}</b> · {pText(p, lang).poste} · ⚡ <b>{puText(p.powerUp, lang).nom}</b>
-                  <div className="tiny muted">{puText(p.powerUp, lang).arena}</div>
+                  <div className="row between"><span><b style={{ color: p.color }}>{p.nom}</b> · {pText(p, lang).poste}</span>{navigate && <button className="btn small ghost" onClick={() => navigate("/look/" + p.id)}>🎨 {t("look.customize")}</button>}</div>
                   <div className="tiny muted mt8">🏃 {p.attributs.Vitesse} · 🎯 {p.attributs.Finition} · 🪄 {p.attributs.Dribble} · 🛡️ {p.attributs.Tacle} · 🧤 {keeperRating(p)}</div>
+                  <Kicker color="var(--magenta)">⚡ {t("ah.loadout")}</Kicker>
+                  <p className="tiny muted mb8">{t("ah.loadoutHelp")}</p>
+                  <LoadoutPicker charId={p.id} value={me.loadout} mode="arena" onChange={ids => { const v = sanitizeLoadout(p.id, ids); setLoadout(p.id, v); game.send({ t: "a.loadout", ids: v }); }} />
                 </div>); })()}
             </Card>
           )}

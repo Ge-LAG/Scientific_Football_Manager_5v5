@@ -14,6 +14,36 @@ causerie de mi-temps, courbe xG, vue Stade 3D du match Manager ; dans l'Arène, 
 appel de balle (vos coéquipiers bots vous servent), crochet, mini-carte, entraînement guidé ; commentaire vocal
 des buts, grades académiques, ELO, 18 « publications » (succès), récompenses cosmétiques de club.
 
+**Nouveautés (vague premium)** :
+
+- **64 power-ups** (4 par scientifique, liés à son domaine : celui du prototype + 3 nouveaux, 7 nouveaux effets d'Arène) ;
+  **2 emportés par match**, choisis avant le coup d'envoi (Manager et Arène).
+- **Vestiaire** : apparence détaillée façon RPG de chaque scientifique (morphologie, 22 coiffures dont 4 mulets, pilosité,
+  lunettes, couvre-chefs, 8 styles de tenue, accessoires, couleurs libres), enregistrée sur le compte et **visible de tous en ligne**.
+- **Caméras du match Manager en 3D** : réalisateur automatique, latérale, tribune, frontale, ballon, joueur suivi, caméra libre, plein écran.
+- **Contrôles** : flèches (main droite) + actions sous la main gauche, disposition AZERTY / QWERTY / QWERTZ (détection
+  automatique), réaffectation clavier et manette, souris optionnelle, manette USB (vibrations).
+- **Changement de joueur** en cours de match vers un coéquipier piloté par un bot (manuel ou automatique).
+- **Rendu premium** : post-traitements (bloom, anticrénelage, occlusion ambiante, étalonnage), qualité adaptative,
+  avatars cel-shading animés (machine à états, transitions, célébrations), stade vivant ; compteur F3 et banc d'essai `#/bench`.
+
+### Commandes par défaut (schéma « flèches + main gauche »)
+
+| Action | Clavier (position physique, libellé AZERTY / QWERTY) | Manette |
+| --- | --- | --- |
+| Se déplacer | Flèches | Stick gauche |
+| Sprint (maintenir) | Espace (pouce) / Maj | RT |
+| Tir (maintenir = charger) · sans ballon : tacle glissé | D | B |
+| Passe · sans ballon : tacle | S | A |
+| Lob | Q / A | X |
+| Crochet | F | Y |
+| Changer de joueur | A / Q | LB |
+| Appel de balle | Z / W | R3 |
+| Power-up 1 / 2 | E / R | RB / LT |
+| Caméra · Tableau · Menu | C · Tab · Échap | View · ↓ · Menu |
+
+Schéma « clavier + souris » (ZQSD / WASD, souris pour la caméra) disponible dans les réglages ; toutes les commandes sont réaffectables.
+
 Les **16 personnages**, leurs caractéristiques, postes, slogans, biographies et power-ups sont repris à l'identique
 du prototype (`archive/prototype-react/app.jsx`) — vérifié par test automatique — et enrichis (Réflexes de gardien,
 apparence 3D, effets Arène, synergies). Interface **français / anglais** (français par défaut). Comptes **sans donnée
@@ -52,7 +82,8 @@ node scripts/smoke-online.mjs http://localhost:8787 smoke-out
 
 ```
 shared/             code isomorphe (serveur ET navigateur)
-  data/             personnages, power-ups, narration FR/EN, enrichissements, formations, stratégies
+  data/             personnages, power-ups (64), apparences, narration FR/EN, enrichissements, formations, stratégies
+  profile.js        apparences et sélections de power-ups d'un joueur (nettoyées)
   manager/          moteur de match Manager v3 (déterministe) + manager virtuel
   action/           simulation physique de l'Arène (30 Hz) + bots
   rooms/            salles Manager / Arène (draft, composition, match, entrée en cours de partie)
@@ -62,7 +93,8 @@ server/             Node.js : HTTP statique + API REST + WebSocket (ws), comptes
 src/                client React 19 + Vite
   pages/            accueil, scientifiques, power-ups, club, compte, profil, classement, aide, réglages, Manager, Arène
   render2d/         vue tactique canvas
-  three/            vue 3D (stade, avatars procéduraux, ballon, effets), contrôles, adaptateur Manager → 3D
+  three/            vue 3D : stade, avatars procéduraux animés, ballon, effets, caméras (cameraRig), contrôles
+                    (controls + input), pipeline de rendu et qualité adaptative (render/), adaptateur Manager → 3D
   audio/            sons synthétisés (WebAudio)
   i18n/             catalogues FR / EN
 tests/              node:test

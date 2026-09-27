@@ -5,8 +5,7 @@
 // Les 9 caractéristiques des scientifiques pilotent vitesse, contrôle, tirs, passes, tacles et arrêts.
 // ═══════════════════════════════════════════════════════════════
 import { makeRng } from "../rng.js";
-import { getPlayer, narrKey } from "../data/content.js";
-import { ARENA_EFFECTS } from "../data/enrichment.js";
+import { getPlayer, getPowerUp, sanitizeLoadout, narrKey } from "../data/content.js";
 
 export const TICK_HZ = 30;
 export const DT = 1 / TICK_HZ;
@@ -20,13 +19,25 @@ const hyp = Math.hypot;
 export const BASE = [{ x: -18.3, z: 0 }, { x: -12, z: 0 }, { x: -7, z: -6 }, { x: -7, z: 6 }, { x: -2.2, z: 0 }];
 export const ROLES = ["gk", "def", "mid", "mid", "att"];
 
-export const emptyInput = () => ({ mx: 0, mz: 0, aim: 0, sprint: false, shoot: false, pass: false, lob: false, tackle: false, pu: false, call: false, skill: false });
+export const emptyInput = () => ({ mx: 0, mz: 0, aim: 0, sprint: false, shoot: false, pass: false, lob: false, tackle: false, pu: false, pu2: false, call: false, skill: false, slide: false });
+
+// Effet Arène d'un power-up actif du joueur (ou null). p.pus = [{ def, until, cd }] (sélection de 2).
+export function activeFx(p, effect, sim) {
+  for (const u of p.pus) if (u.until > sim.time && u.def.arena.effect === effect) return u.def.arena;
+  return null;
+}
+// Multiplicateur d'équipe (vitesse, gardien…) : produit des auras actives de ce type.
+export function teamMul(sim, team, kind) {
+  let m = 1;
+  for (const a of sim.auras) if (a.kind === kind && a.team === team && a.until > sim.time) m *= a.value;
+  return m;
+}
 
 // Caractéristique effective (base + bonus actifs + fatigue).
 export function statOf(p, key, sim) {
   let v = p.char.attributs[key] ?? 50;
-  if (p.puUntil > sim.time) v += p.char.powerUp?.buffs?.[key] || 0;
-  for (const a of sim.auras) if (a.team === p.team && a.until > sim.time && (key === "Vision" || key === "Sang-froid")) v += a.value;
+  for (const u of p.pus) if (u.until > sim.time) v += u.def.buffs?.[key] || 0;
+  for (const a of sim.auras) if (a.kind === "mind" && a.team === p.team && a.until > sim.time && (key === "Vision" || key === "Sang-froid")) v += a.value;
   for (const a of sim.slows) if (a.team !== p.team && a.until > sim.time && key === "Sang-froid") v -= 8;
   if (p.stamina < 40) v *= 0.82 + 0.18 * (p.stamina / 40);
   return clamp(v, 1, 99);
@@ -35,13 +46,15 @@ export function statOf(p, key, sim) {
 export function maxSpeed(p, sim) {
   const vit = statOf(p, "Vitesse", sim);
   let s = 4.6 + vit / 99 * 3.0;
-  const fx = p.fx(sim);
-  if (fx === "speedBoost" || fx === "ballGlue" || fx === "freeSprint") s *= p.char.powerUp.arena.value || 1.1;
+  for (const e of SPEED_FX) { const a = activeFx(p, e, sim); if (a) s *= a.value || 1.1; }
+  s *= teamMul(sim, p.team, "speed");
   if (sim.ball.owner === p.slot) s *= 0.86 + statOf(p, "Dribble", sim) / 99 * 0.12;
   for (const a of sim.slows) if (a.team !== p.team && a.until > sim.time && hyp(a.x - p.x, a.z - p.z) < a.radius) s *= a.value;
   if (p.boostUntil > sim.time) s *= 1.18;
   return s;
 }
+
+const SPEED_FX = ["speedBoost", "ballGlue", "freeSprint"];
 
 // Intégration du déplacement d'un joueur (partagée avec la prédiction côté client).
 export function stepMovement(p, input, sim, dt = DT) {
@@ -51,10 +64,12 @@ export function stepMovement(p, input, sim, dt = DT) {
   const canSprint = input.sprint && p.stamina > 8 && !stunned && m > 0.1;
   let vmax = maxSpeed(p, sim) * (canSprint ? 1.35 : 1) * (stunned ? 0.25 : 1);
   if (p.diveUntil > sim.time) vmax = 0; // plongeon : trajectoire propre
+  const dashing = p.dashUntil > sim.time; // élan d'un power-up « dash » : on conserve la vitesse
   const acc = (16 + statOf(p, "Vitesse", sim) / 99 * 10) * (stunned ? 0.3 : 1);
   const tvx = mx * vmax, tvz = mz * vmax;
   const dvx = tvx - p.vx, dvz = tvz - p.vz, dv = hyp(dvx, dvz);
-  if (p.diveUntil <= sim.time) {
+  if (dashing && p.diveUntil <= sim.time) { p.vx *= 0.985; p.vz *= 0.985; }
+  else if (p.diveUntil <= sim.time) {
     if (dv <= acc * dt) { p.vx = tvx; p.vz = tvz; } else { p.vx += dvx / dv * acc * dt; p.vz += dvz / dv * acc * dt; }
   } else { p.vx *= 0.9; p.vz *= 0.9; }
   p.x += p.vx * dt; p.z += p.vz * dt;
@@ -62,8 +77,7 @@ export function stepMovement(p, input, sim, dt = DT) {
   if (sp > 0.3) p.facing = Math.atan2(p.vz, p.vx);
   else if (input.aimFace) p.facing = input.aim;
   // endurance
-  const fx = p.fx(sim);
-  const free = fx === "noStaminaDrain" || fx === "freeSprint";
+  const free = !!(activeFx(p, "noStaminaDrain", sim) || activeFx(p, "freeSprint", sim));
   if (canSprint && sp > 1 && !free) p.stamina = Math.max(0, p.stamina - dt * 10 * (1.3 - statOf(p, "Endurance", sim) / 99 * 0.6));
   else p.stamina = Math.min(100, p.stamina + dt * (sp < 1 ? 6 : 3.2) * (0.6 + p.char.attributs.Endurance / 99 * 0.6));
   p.sprinting = canSprint && sp > 1;
@@ -76,7 +90,7 @@ export function stepMovement(p, input, sim, dt = DT) {
 
 export class ArenaSim {
   /**
-   * @param {{ slots: {charId:string, name?:string, human?:boolean}[10], seed?:number, halfSeconds?:number }} o
+   * @param {{ slots: {charId:string, name?:string, human?:boolean, loadout?:string[]}[10], seed?:number, halfSeconds?:number }} o
    * slots 0-4 : équipe 0 (0 = gardien) ; slots 5-9 : équipe 1 (5 = gardien).
    */
   constructor(o) {
@@ -101,18 +115,28 @@ export class ArenaSim {
       slot, team, role, char, name: s.name || char.nom, human: !!s.human,
       x: 0, z: 0, vx: 0, vz: 0, facing: team === 0 ? 0 : Math.PI, stamina: 100, sprinting: false,
       charge: 0, charging: false, kickCd: 0, tackleCd: 0, stunUntil: 0, diveUntil: 0, diveDir: 0, action: "", actionUntil: 0,
-      puUntil: 0, puCd: 0, puPending: null, boostUntil: 0, protectedUntil: 0, holdUntil: 0, callUntil: 0, skillUntil: 0, skillCd: 0,
+      boostUntil: 0, dashUntil: 0, protectedUntil: 0, holdUntil: 0, callUntil: 0, skillUntil: 0, skillCd: 0,
+      // sélection de 2 power-ups (chacun avec sa durée et sa recharge)
+      pus: sanitizeLoadout(char.id, s.loadout).map(id => ({ def: getPowerUp(id), until: 0, cd: 0 })),
     };
-    p.fx = sim => (p.puUntil > sim.time ? p.char.powerUp.arena.effect : null);
+    p.fx = sim => { for (const u of p.pus) if (u.until > sim.time) return u.def.arena.effect; return null; }; // premier effet actif
     return p;
   }
 
   setSlot(slot, s) { // un humain remplace un bot (ou l'inverse) en conservant la position
     const old = this.players[slot];
-    const np = this.makePlayer(slot, s);
+    const np = this.makePlayer(slot, { loadout: old.pus.map(u => u.def.id), ...s });
     for (const k of ["x", "z", "vx", "vz", "facing", "stamina"]) np[k] = old[k];
-    if (old.char.id === np.char.id) for (const k of ["puUntil", "puCd"]) np[k] = old[k];
+    if (old.char.id === np.char.id) for (const u of np.pus) { const o = old.pus.find(x => x.def.id === u.def.id); if (o) { u.until = o.until; u.cd = o.cd; } }
     this.players[slot] = np; this.inputs[slot] = emptyInput();
+  }
+
+  // changement de joueur contrôlé : seul le pilote change (humain ↔ bot), l'état de jeu est conservé
+  setControl(slot, human, name) {
+    const p = this.players[slot]; if (!p) return;
+    p.human = !!human; p.name = name || p.char.nom;
+    p.charging = false; p.charge = 0;
+    this.inputs[slot] = emptyInput();
   }
 
   basePos(p) { const b = BASE[p.slot % 5]; return p.team === 0 ? { x: b.x, z: b.z } : { x: -b.x, z: -b.z }; }
@@ -187,7 +211,8 @@ export class ArenaSim {
       const r = Math.hypot(p.x, p.z);
       if (!kicking && r < 3.2) { const k = 3.2 / (r || 1); p.x = r ? p.x * k : (p.team === 0 ? -3.2 : 3.2); p.z *= k; }
     }
-    if (inp.pu) this.activatePowerUp(p);
+    if (inp.pu) this.activatePowerUp(p, 0);
+    if (inp.pu2) this.activatePowerUp(p, 1);
     if (inp.call && this.ball.owner !== p.slot && p.callUntil <= t) { p.callUntil = t + 1.6; this.event("CALL", p.slot); } // appel de balle
     const own = this.ball.owner === p.slot;
     // tir chargé : on charge tant que le bouton est maintenu, on frappe au relâchement
@@ -196,7 +221,7 @@ export class ArenaSim {
     else if (!own) { p.charging = false; p.charge = 0; }
     if (own && (inp.pass || inp.lob) && p.kickCd <= 0 && !p.charging) this.pass(p, inp.aim, inp.lob);
     if (own && inp.skill && p.skillCd <= t && p.stunUntil <= t) this.skillMove(p, inp);
-    if (inp.tackle && !own) {
+    if ((inp.tackle || inp.slide) && !own) {
       if (this.isKeeper(p) && this.inOwnBox(p)) this.dive(p, inp);
       else if (p.tackleCd <= 0 && p.stunUntil <= t) this.tackle(p, inp);
     }
@@ -220,8 +245,7 @@ export class ArenaSim {
     const b = this.ball; const o = this.owner();
     if (o) {
       // conduite de balle : le ballon reste devant le pied du porteur
-      const fx = o.fx(this);
-      const off = 0.5 + (fx === "ballGlue" ? -0.1 : 0);
+      const off = 0.5 + (activeFx(o, "ballGlue", this) ? -0.1 : 0);
       const tx = o.x + Math.cos(o.facing) * off, tz = o.z + Math.sin(o.facing) * off;
       b.vx = (tx - b.x) / DT * 0.6 + o.vx * 0.4; b.vz = (tz - b.z) / DT * 0.6 + o.vz * 0.4; b.vy = 0;
       b.x += (tx - b.x) * 0.6; b.z += (tz - b.z) * 0.6; b.y = BALL_R;
@@ -230,6 +254,7 @@ export class ArenaSim {
     }
     // vol libre
     const px = b.x, pz = b.z, py = b.y;
+    this.applyMagnets();
     const sp0 = hyp(b.vx, b.vy, b.vz); if (sp0 > 40) { b.vx *= 40 / sp0; b.vy *= 40 / sp0; b.vz *= 40 / sp0; }
     b.vy -= G * DT;
     if (b.curl) { const sp = hyp(b.vx, b.vz) || 1; b.vx += -b.vz / sp * b.curl * DT; b.vz += b.vx / sp * b.curl * DT; b.curl *= 0.97; }
@@ -245,6 +270,18 @@ export class ArenaSim {
     this.touchBall(px, pz);
     if (this.ball.owner >= 0) return;
     this.checkGoal(px);
+  }
+
+  // power-up « aimant » : un ballon libre à portée est attiré vers le joueur
+  applyMagnets() {
+    const b = this.ball; if (b.y > 1.6) return;
+    for (const p of this.players) {
+      const m = activeFx(p, "magnet", this); if (!m) continue;
+      const dx = p.x - b.x, dz = p.z - b.z, d = hyp(dx, dz);
+      if (d > (m.radius || 5) || d < 0.3) continue;
+      const k = 16 * DT * (1 - d / (m.radius || 5) * 0.5);
+      b.vx += dx / d * k; b.vz += dz / d * k;
+    }
   }
 
   bounceEvt(v) { if (v > 2.5 && this.rng() < 0.5) this.events.push({ id: this.events.length, t: this.time, type: "BOUNCE", slot: -1, v: Math.round(v) }); }
@@ -313,9 +350,10 @@ export class ArenaSim {
       const t = clamp(((p.x - px) * sx + (p.z - pz) * sz) / sl, 0, 1);
       const d = hyp(p.x - (px + sx * t), p.z - (pz + sz * t));
       const keeperHands = this.isKeeper(p) && this.inOwnBox(p);
-      const reachH = keeperHands ? (p.diveUntil > this.time ? 2.4 : 2.1) : 0.9;
+      const wall = keeperHands ? teamMul(this, p.team, "keeper") : 1; // power-up « mur » : allonge du gardien
+      const reachH = keeperHands ? (p.diveUntil > this.time ? 2.4 : 2.1) * Math.min(1.25, wall) : 0.9;
       if (b.y > reachH) continue;
-      const ctrl = 0.55 + statOf(p, "Dribble", this) / 99 * 0.25 + (keeperHands ? 0.25 + statOf(p, "Réflexes", this) / 99 * 0.3 : 0) + (p.diveUntil > this.time ? 0.9 : 0);
+      const ctrl = 0.55 + statOf(p, "Dribble", this) / 99 * 0.25 + (keeperHands ? 0.25 + statOf(p, "Réflexes", this) / 99 * 0.3 : 0) + (p.diveUntil > this.time ? 0.9 : 0) + (wall - 1) * 0.9;
       if (d < ctrl && (!best || d < best.d)) best = { p, d, keeperHands };
     }
     if (!best) return;
@@ -327,7 +365,8 @@ export class ArenaSim {
       if (ps.tried[p.slot] === undefined) {
         const R = statOf(p, "Réflexes", this); const diving = p.diveUntil > this.time;
         const reach = diving ? 2.1 : 1.0;
-        const pSave = clamp(1.03 - (rel - 12) / 26 * 0.5 - (best.d / reach) * 0.35 + (R - 60) / 100 * 0.6 + (diving ? 0.1 : 0) - (b.y > 1.6 ? 0.1 : 0), 0.08, 0.93);
+        const wall = teamMul(this, p.team, "keeper"); const curling = Math.abs(b.curl) > 3 && ps.curl;
+        const pSave = clamp(1.03 - (rel - 12) / 26 * 0.5 - (best.d / reach) * 0.35 + (R - 60) / 100 * 0.6 + (diving ? 0.1 : 0) - (b.y > 1.6 ? 0.1 : 0) + (wall - 1) * 0.6 - (curling ? 0.15 : 0), 0.08, 0.95);
         ps.tried[p.slot] = this.rng() < pSave;
         if (!ps.tried[p.slot]) { this.event("BEATEN", p.slot); return; }
       }
@@ -359,7 +398,7 @@ export class ArenaSim {
     if (this.pendingPass && this.pendingPass.from !== p.slot) {
       if (passer && passer.team === p.team && this.pendingPass.from === passer.slot) {
         this.stats[passer.slot].passesOk++;
-        if (passer.fx(this) === "passBoost") p.boostUntil = this.time + 2.5;
+        if (activeFx(passer, "passBoost", this)) p.boostUntil = this.time + 2.5;
       } else if (passer && passer.team !== p.team) this.event("INTERCEPT", p.slot, {}, "tacle_reussi");
     }
     this.pendingPass = null; this.pendingShot = null;
@@ -388,7 +427,7 @@ export class ArenaSim {
   }
 
   shoot(p, aim, charge) {
-    const b = this.ball; const fx = p.fx(this);
+    const b = this.ball;
     const fin = statOf(p, "Finition", this), sf = statOf(p, "Sang-froid", this), force = statOf(p, "Force", this);
     const near = this.players.filter(o => o.team !== p.team && hyp(o.x - p.x, o.z - p.z) < 2.2).length;
     const pressure = 1 + near * 0.35 * (1 - sf / 99 * 0.5);
@@ -396,18 +435,29 @@ export class ArenaSim {
     let power = (11 + charge * 17) * (0.82 + force / 99 * 0.33);
     let err = (1 - fin / 99) * 0.16 * pressure * (1.15 - p.stamina / 100 * 0.3) * (0.5 + charge * 0.7);
     let loft = 0.8 + charge * charge * 4.2 + this.rng() * 0.6;
-    if (fx === "perfectShot") { err *= 0.1; power *= 1.2; loft = Math.min(loft, 2.2); this.consumePu(p); }
-    if (fx === "powerShot") { power *= p.char.powerUp.arena.value; b.curl = (this.rng() < 0.5 ? -1 : 1) * 6; this.consumePu(p); }
+    let curl = 0;
+    if (activeFx(p, "perfectShot", this)) { err *= 0.1; power *= 1.2; loft = Math.min(loft, 2.2); this.consumePu(p, "perfectShot"); }
+    const ps = activeFx(p, "powerShot", this);
+    if (ps) { power *= ps.value || 1.3; curl = (this.rng() < 0.5 ? -1 : 1) * 6; this.consumePu(p, "powerShot"); }
+    const cs = activeFx(p, "curlShot", this);
+    if (cs) {
+      // frappe enveloppée : part vers l'extérieur puis revient dans le cadre (plus dure à arrêter)
+      const toward = Math.sign(-p.z) || 1; const dGoal = hyp(this.goalX(p.team) - p.x, p.z); const T = dGoal / power; const k = 0.914;
+      curl = (cs.value || 8) * toward * (Math.sign(Math.cos(dir)) || 1);
+      const drift = (cs.value || 8) * (T / k - (1 - Math.exp(-k * T)) / (k * k));
+      dir -= toward * (Math.sign(Math.cos(dir)) || 1) * Math.min(0.35, drift / Math.max(4, dGoal));
+      err *= 0.6; loft = Math.min(loft, 2.4); this.consumePu(p, "curlShot");
+    }
     dir += (this.rng() - 0.5) * 2 * err;
     loft += (this.rng() - 0.5) * err * 10;
     this.release(p);
-    b.vx = Math.cos(dir) * power; b.vz = Math.sin(dir) * power; b.vy = Math.max(0.5, loft);
+    b.vx = Math.cos(dir) * power; b.vz = Math.sin(dir) * power; b.vy = Math.max(0.5, loft); b.curl = curl;
     this.stats[p.slot].shots++;
     // tir cadré ? (prédiction simple à la ligne de but)
     const gx = this.goalX(p.team); const tHit = (gx - b.x) / (b.vx || 1e-6);
     const onTarget = tHit > 0 && Math.abs(b.z + b.vz * tHit) < FIELD.GOAL_HW && (b.y + b.vy * tHit - 0.5 * G * tHit * tHit) < FIELD.GOAL_H;
     if (onTarget) this.stats[p.slot].onTarget++;
-    this.pendingShot = { team: p.team, from: p.slot, t: this.time, onTarget };
+    this.pendingShot = { team: p.team, from: p.slot, t: this.time, onTarget, curl: !!cs };
     p.action = "kick"; p.actionUntil = this.time + 0.35;
     this.event("SHOT", p.slot, { power: Math.round(power), onTarget });
   }
@@ -427,7 +477,7 @@ export class ArenaSim {
   }
 
   pass(p, aim, lob) {
-    const b = this.ball; const fx = p.fx(this);
+    const b = this.ball; const perfect = !!activeFx(p, "perfectPass", this);
     const vis = statOf(p, "Vision", this);
     const tgt = this.passTarget(p, aim);
     let dir = aim, d = 12;
@@ -437,14 +487,14 @@ export class ArenaSim {
       dir = Math.atan2(tz - p.z, tx - p.x); d = hyp(tx - p.x, tz - p.z);
     }
     let err = (1 - vis / 99) * 0.12 * (1.2 - p.stamina / 100 * 0.3);
-    if (fx === "perfectPass") err = 0;
+    if (perfect) err = 0;
     dir += (this.rng() - 0.5) * 2 * err;
     this.release(p);
     if (lob) {
-      const T = clamp(d / 11, 0.6, 1.6); const v = d / T * (fx === "perfectPass" ? 1 : 1 + (this.rng() - 0.5) * err * 2);
+      const T = clamp(d / 11, 0.6, 1.6); const v = d / T * (perfect ? 1 : 1 + (this.rng() - 0.5) * err * 2);
       b.vx = Math.cos(dir) * v * 0.93; b.vz = Math.sin(dir) * v * 0.93; b.vy = G * T / 2;
     } else {
-      const v = clamp(d * 1.45 + 5, 8, 21) * (fx === "perfectPass" ? 1.15 : 1);
+      const v = clamp(d * 1.45 + 5, 8, 21) * (perfect ? 1.15 : 1);
       b.vx = Math.cos(dir) * v; b.vz = Math.sin(dir) * v; b.vy = 0.3;
     }
     this.stats[p.slot].passes++;
@@ -453,9 +503,9 @@ export class ArenaSim {
   }
 
   tackle(p, inp) {
-    const o = this.owner(); const fx = p.fx(this);
-    const slide = inp.sprint || p.sprinting;
-    let reach = (slide ? 2.3 : 1.35) * (fx === "tackleRange" ? p.char.powerUp.arena.value : 1);
+    const o = this.owner(); const tr = activeFx(p, "tackleRange", this);
+    const slide = inp.slide || inp.sprint || p.sprinting;
+    let reach = (slide ? 2.3 : 1.35) * (tr ? tr.value || 1.5 : 1);
     p.tackleCd = slide ? 1.1 : 0.55; p.action = slide ? "tackle" : "poke"; p.actionUntil = this.time + (slide ? 0.55 : 0.3);
     if (slide) { const s = 7.5; p.vx = Math.cos(p.facing) * s; p.vz = Math.sin(p.facing) * s; }
     if (!o || o.team === p.team) {
@@ -466,10 +516,9 @@ export class ArenaSim {
     }
     const d = hyp(o.x - p.x, o.z - p.z);
     if (d > reach) { if (slide) p.stunUntil = this.time + 0.6; return; }
-    const ofx = o.fx(this);
     let pr = clamp(0.42 + (statOf(p, "Tacle", this) - statOf(o, "Dribble", this)) / 100 * 0.9 + (statOf(p, "Force", this) - statOf(o, "Force", this)) / 100 * 0.25 + (slide ? 0.08 : 0), 0.12, 0.9);
-    if (fx === "sureTackle") { pr = 1; this.consumePu(p); }
-    if (ofx === "tackleImmune" || o.protectedUntil > this.time) pr = 0;
+    if (activeFx(p, "sureTackle", this)) { pr = 1; this.consumePu(p, "sureTackle"); }
+    if (activeFx(o, "tackleImmune", this) || o.protectedUntil > this.time) pr = 0;
     if (o.skillUntil > this.time) pr *= 1 - statOf(o, "Dribble", this) / 99 * 0.75; // crochet réussi
     if (this.isKeeper(o) && this.inOwnBox(o) && o.holdUntil > this.time) pr = 0;
     if (this.rng() < pr) {
@@ -509,25 +558,62 @@ export class ArenaSim {
     p.stunUntil = this.time + 0.9; p.tackleCd = 1.2; p.action = "dive"; p.actionUntil = this.time + 0.9;
   }
 
-  activatePowerUp(p) {
-    const pu = p.char.powerUp; if (!pu || p.puCd > this.time || this.phase !== "play" && this.phase !== "kickoff") return false;
-    const fx = pu.arena;
-    p.puUntil = this.time + fx.duration; p.puCd = this.time + fx.cooldown;
+  activatePowerUp(p, k = 0) {
+    const u = p.pus[k]; if (!u || u.cd > this.time || this.phase !== "play" && this.phase !== "kickoff") return false;
+    const fx = u.def.arena; const t = this.time;
+    if ((fx.effect === "shockwave" || fx.effect === "freezeNearest") && this.phase !== "play") return false; // pas pendant le coup d'envoi
+    // joueurs protégés : après une faute, ou gardien tenant le ballon dans sa surface
+    const shielded = q => q.protectedUntil > t || (this.isKeeper(q) && this.inOwnBox(q) && q.holdUntil > t && this.ball.owner === q.slot);
+    u.until = t + fx.duration; u.cd = t + fx.cooldown;
     this.stats[p.slot].powerups++;
-    if (fx.effect === "teamStamina") for (const q of this.players) if (q.team === p.team) q.stamina = Math.min(100, q.stamina + fx.value);
-    if (fx.effect === "teamAura") this.auras.push({ team: p.team, until: p.puUntil, value: fx.value });
-    if (fx.effect === "slowAura") this.slows.push({ team: p.team, until: p.puUntil, value: fx.value, radius: fx.radius, get x() { return p.x; }, get z() { return p.z; } });
-    this.event("POWERUP", p.slot, { pu: pu.id, effect: fx.effect }, "power_up");
+    const extra = { pu: u.def.id, effect: fx.effect, k };
+    switch (fx.effect) {
+      case "teamStamina": for (const q of this.players) if (q.team === p.team) q.stamina = Math.min(100, q.stamina + fx.value); break;
+      case "teamAura": this.auras.push({ kind: "mind", team: p.team, until: u.until, value: fx.value }); break;
+      case "teamSpeed": this.auras.push({ kind: "speed", team: p.team, until: u.until, value: fx.value || 1.1 }); break;
+      case "keeperWall": this.auras.push({ kind: "keeper", team: p.team, until: u.until, value: fx.value || 1.4 }); break;
+      case "slowAura": this.slows.push({ team: p.team, until: u.until, value: fx.value, radius: fx.radius, get x() { return p.x; }, get z() { return p.z; } }); break;
+      case "dash": { // élan explosif dans la direction du regard
+        const v = fx.value || 8, base = hyp(p.vx, p.vz) * 0.5;
+        p.vx = Math.cos(p.facing) * (base + v); p.vz = Math.sin(p.facing) * (base + v); p.dashUntil = t + 0.35;
+        break;
+      }
+      case "shockwave": { // onde de choc : repousse et étourdit les adversaires proches
+        const hit = [];
+        for (const q of this.players) {
+          if (q.team === p.team || shielded(q)) continue;
+          const dx = q.x - p.x, dz = q.z - p.z, d = hyp(dx, dz) || 0.01;
+          if (d > (fx.radius || 4)) continue;
+          q.vx += dx / d * 7; q.vz += dz / d * 7; q.stunUntil = Math.max(q.stunUntil, t + (fx.value || 0.8));
+          if (this.ball.owner === q.slot) { this.release(q); const b = this.ball; b.vx = dx / d * 4; b.vz = dz / d * 4; b.vy = 1; }
+          hit.push(q.slot);
+        }
+        extra.hit = hit; break;
+      }
+      case "freezeNearest": { // gel : l'adversaire le plus proche est immobilisé (et lâche le ballon)
+        let best = null;
+        for (const q of this.players) { if (q.team === p.team || shielded(q)) continue; const d = hyp(q.x - p.x, q.z - p.z); if (d <= (fx.radius || 6) && (!best || d < best.d)) best = { q, d }; }
+        if (best) {
+          const q = best.q; q.stunUntil = Math.max(q.stunUntil, t + (fx.value || 1.5)); q.vx *= 0.2; q.vz *= 0.2;
+          if (this.ball.owner === q.slot) { this.release(q); q.kickCd = 0.6; }
+          extra.victim = q.slot;
+        }
+        break;
+      }
+    }
+    this.event("POWERUP", p.slot, extra, "power_up");
     return true;
   }
 
-  consumePu(p) { p.puUntil = Math.min(p.puUntil, this.time + 0.05); }
+  // fin anticipée d'un power-up « à usage unique » (tir parfait, tacle assuré…)
+  consumePu(p, effect) { for (const u of p.pus) if (u.until > this.time && u.def.arena.effect === effect) u.until = Math.min(u.until, this.time + 0.05); }
 
   checkFirewalls() {
     const o = this.owner(); if (!o) return;
     for (const p of this.players) {
-      if (p.team === o.team || p.fx(this) !== "firewall") continue;
-      if (hyp(p.x - o.x, p.z - o.z) < p.char.powerUp.arena.radius) {
+      if (p.team === o.team) continue;
+      const fw = activeFx(p, "firewall", this); if (!fw) continue;
+      if (hyp(p.x - o.x, p.z - o.z) < (fw.radius || 3)) {
         this.release(o); o.kickCd = 0.6;
         const b = this.ball; const d = hyp(p.x - b.x, p.z - b.z) || 1;
         b.vx = (p.x - b.x) / d * 5; b.vz = (p.z - b.z) / d * 5; b.vy = 1.2;
@@ -558,13 +644,34 @@ export class ArenaSim {
   // ── Vue réseau compacte ──────────────────────────────────
   snapshot() {
     const r2 = v => Math.round(v * 100) / 100;
-    const b = this.ball;
+    const b = this.ball; const cd = u => (u ? Math.max(0, r2(u.cd - this.time)) : 0);
     return {
       k: this.tick, t: r2(this.time), ph: this.phase, h: this.half, c: Math.ceil(this.clock()), s: [...this.score],
       b: [r2(b.x), r2(b.y), r2(b.z), r2(b.vx), r2(b.vy), r2(b.vz), b.owner],
-      p: this.players.map(p => [r2(p.x), r2(p.z), r2(p.vx), r2(p.vz), r2(p.facing), Math.round(p.stamina),
-        (p.sprinting ? 1 : 0) | (p.stunUntil > this.time ? 2 : 0) | (p.diveUntil > this.time ? 4 : 0) | (p.puUntil > this.time ? 8 : 0) | (p.charging ? 16 : 0) | (p.holdUntil > this.time ? 32 : 0) | (p.callUntil > this.time ? 64 : 0),
-        r2(p.charge), p.action, Math.max(0, r2(p.puCd - this.time)), p.diveDir]),
+      // p : [x, z, vx, vz, regard, endurance, drapeaux, charge, action, recharge PU1, sens du plongeon, recharge PU2, PU actifs (bits)]
+      p: this.players.map(p => { const act = p.pus.reduce((m, u, i) => m | (u.until > this.time ? 1 << i : 0), 0); return [r2(p.x), r2(p.z), r2(p.vx), r2(p.vz), r2(p.facing), Math.round(p.stamina),
+        (p.sprinting ? 1 : 0) | (p.stunUntil > this.time ? 2 : 0) | (p.diveUntil > this.time ? 4 : 0) | (act ? 8 : 0) | (p.charging ? 16 : 0) | (p.holdUntil > this.time ? 32 : 0) | (p.callUntil > this.time ? 64 : 0) | (p.dashUntil > this.time ? 128 : 0),
+        r2(p.charge), p.action, cd(p.pus[0]), p.diveDir, cd(p.pus[1]), act]; }),
     };
   }
+}
+
+// Changement de joueur : meilleur coéquipier à contrôler (jamais un autre humain).
+// Porteur du ballon s'il est piloté par un bot, sinon le joueur de champ le mieux placé par rapport au ballon
+// (en défense, bonus à ceux placés entre le ballon et notre but).
+export function bestSwitchTarget(sim, fromSlot, exclude = null) {
+  const me = sim.players[fromSlot]; if (!me) return -1;
+  const b = sim.ball; const owner = sim.owner();
+  const cands = sim.players.filter(q => q.team === me.team && q !== me && !q.human && !exclude?.has(q.slot));
+  if (!cands.length) return -1;
+  if (owner && owner.team === me.team && cands.includes(owner)) return owner.slot;
+  const field = cands.filter(q => !sim.isKeeper(q)); const pool = field.length ? field : cands;
+  const ownX = sim.ownGoalX(me.team); const bx = b.x + b.vx * 0.4, bz = b.z + b.vz * 0.4;
+  let best = null;
+  for (const q of pool) {
+    let sc = hyp(q.x - bx, q.z - bz);
+    if (owner && owner.team !== me.team && Math.abs(q.x - ownX) < Math.abs(bx - ownX)) sc -= 2.5;
+    if (!best || sc < best.sc) best = { q, sc };
+  }
+  return best ? best.q.slot : -1;
 }

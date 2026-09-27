@@ -5,7 +5,9 @@ import { useSession, useConnMessages } from "../../store/session.jsx";
 import { useGame } from "../../game/GameProvider.jsx";
 import { Card, Kicker, Avatar, fmtSec, Seg } from "../../ui/components.jsx";
 import { createArenaView } from "../../three/arenaView.js";
-import { getPlayer, narrText, puText } from "../../../shared/data/content.js";
+import { getPlayer, getPowerUp, narrText, puText } from "../../../shared/data/content.js";
+import { CamBar } from "../../ui/CamBar.jsx";
+import { useBindings } from "../../ui/bindings.js";
 import { ACHIEVEMENTS } from "../../../shared/progression.js";
 import { speak, stopSpeaking } from "../../audio/voice.js";
 
@@ -18,16 +20,29 @@ export function ArenaGame({ room, init, end, onLeave }) {
   const [goals, setGoals] = useState({}); // entraînement guidé : objectifs atteints
   const done = k => setGoals(g => (g[k] ? g : { ...g, [k]: true }));
   const slots = room.slots; const mySlot = room.you.slot;
+  const mySlotRef = useRef(mySlot); mySlotRef.current = mySlot;
   const isTouch = typeof window !== "undefined" && matchMedia("(pointer: coarse)").matches;
+  const keys = useBindings();
+  const spectator = mySlot == null;
+  const [specCam, setSpecCam] = useState(settings.specCam || "auto"); const [follow, setFollow] = useState(-1);
+  // aide des commandes : affichée 15 s au début (schéma clavier) ou tant que la souris n'est pas verrouillée ; F1 l'affiche / la masque
+  const [helpOn, setHelpOn] = useState(true);
+  useEffect(() => {
+    const h = setTimeout(() => setHelpOn(false), 15000);
+    const k = e => { if (e.code === "F1") { e.preventDefault(); setHelpOn(v => !v); } };
+    window.addEventListener("keydown", k); return () => { clearTimeout(h); window.removeEventListener("keydown", k); };
+  }, []);
 
   useEffect(() => {
     const v = createArenaView(hostRef.current, {
-      slots: init.slots, teams: init.teams, mySlot, settings,
+      slots: init.slots, teams: init.teams, mySlot, settings: { ...settings, specCam }, interactive: !spectator,
       onInput: m => conn?.send({ t: "a.in", ...m }),
+      onSwitch: to => conn?.send({ t: "a.switch", to }),
       getRtt: () => conn?.rtt || 0,
-      onHud: h => { setHud(h); if (h.me) { if (h.players[mySlot] && (h.players[mySlot].flags & 1)) done("sprint"); if (h.me.hasBall && h.phase === "play") done("control"); } },
+      onHud: h => { setHud(h); const ms = mySlotRef.current; if (h.me) { if (h.players[ms] && (h.players[ms].flags & 1)) done("sprint"); if (h.me.hasBall && h.phase === "play") done("control"); } },
       onEvent: ev => {
-        if (ev.slot === mySlot) ({ MY_PASS: "pass", SHOT: "shoot", TACKLE: "tackle", POWERUP: "power", GOAL: "score", SKILL: "skill" })[ev.type] && done(({ MY_PASS: "pass", SHOT: "shoot", TACKLE: "tackle", POWERUP: "power", GOAL: "score", SKILL: "skill" })[ev.type]);
+        const ms = mySlotRef.current;
+        if (ev.slot === ms) ({ MY_PASS: "pass", SHOT: "shoot", TACKLE: "tackle", POWERUP: "power", GOAL: "score", SKILL: "skill" })[ev.type] && done(({ MY_PASS: "pass", SHOT: "shoot", TACKLE: "tackle", POWERUP: "power", GOAL: "score", SKILL: "skill" })[ev.type]);
         if (ev.type === "EMOTE_KEY") { game.send({ t: "emote", e: ["👏", "🔥", "😱", "😂", "GG"][ev.n - 1] }); return; }
         if (ev.local) return;
         if (ev.type === "GOAL") { setBanner({ ev, at: Date.now() }); setTimeout(() => setBanner(null), 3000); if (ev.n) speak(narrText(ev.n, { joueur: getPlayer(init.slots[ev.slot]?.charId)?.nom || "" }, lang), lang, settingsRef.current.voice); }
@@ -39,6 +54,9 @@ export function ArenaGame({ room, init, end, onLeave }) {
     return () => { window.removeEventListener("pointerdown", unlock); window.removeEventListener("keydown", unlock); v.dispose(); viewRef.current = null; stopSpeaking(); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { viewRef.current?.setSlots(slots); }, [slots]);
+  // changement de joueur (validé par le serveur) : la vue suit le nouveau joueur contrôlé
+  const firstSlot = useRef(mySlot);
+  useEffect(() => { viewRef.current?.setMySlot(mySlot); if (mySlot !== firstSlot.current) done("switch"); }, [mySlot]); // eslint-disable-line react-hooks/exhaustive-deps
   const settingsRef = useRef(settings); settingsRef.current = settings;
   useEffect(() => { viewRef.current?.setSettings(settings); }, [settings]);
   useConnMessages(conn, m => {
@@ -51,7 +69,7 @@ export function ArenaGame({ room, init, end, onLeave }) {
   const nameOf = s => (slots[s]?.human ? slots[s].pseudo : getPlayer(slots[s]?.charId)?.nom) || "?";
   const evText = ev => {
     const p = ev.slot >= 0 ? getPlayer(slots[ev.slot]?.charId) : null;
-    if (ev.n) return narrText(ev.n, { joueur: p?.nom || "", pu: ev.pu ? puText(p.powerUp, lang).nom : "" }, lang);
+    if (ev.n) return narrText(ev.n, { joueur: p?.nom || "", pu: ev.pu ? puText(getPowerUp(ev.pu) || p.powerUp, lang).nom : "" }, lang);
     if (ev.type === "GOAL" && ev.own) return t("arena.ownGoal");
     if (ev.type === "FIREWALL") return t("arena.firewall", { name: p?.nom });
     if (ev.type === "POST") return t("ev.post", { name: p?.nom || "" });
@@ -60,6 +78,10 @@ export function ArenaGame({ room, init, end, onLeave }) {
   const myChar = mySlot != null ? getPlayer(slots[mySlot].charId) : null;
   const me = hud?.me; const menu = hud?.menu; const ended = room.phase === "ended";
   const T = init.teams;
+  // coéquipiers pilotés par un bot : on peut en prendre le contrôle
+  const mates = mySlot != null ? slots.filter(s => s.team === slots[mySlot].team) : [];
+  const canSwitch = mates.some(s => !s.human && !s.left);
+  const puKeys = [keys.keyOf("pu1"), keys.keyOf("pu2")];
 
   return (
     <div className="arena-root">
@@ -78,22 +100,44 @@ export function ArenaGame({ room, init, end, onLeave }) {
           </div>
         )}
         {me && myChar && (
-          <div className={"hud-pu" + (me.puCd <= 0 && !me.puActive ? " ready" : "")} style={{ borderColor: me.puActive ? "var(--lime)" : myChar.color, color: me.puActive ? "var(--lime)" : me.puCd > 0 ? "var(--muted)" : myChar.color }} onClick={() => { if (viewRef.current) viewRef.current.touch.btn.add("pu"); }}>
-            <div style={{ fontSize: 22 }}>⚡</div>
-            <div>{puText(myChar.powerUp, lang).nom}</div>
-            <div className="num" style={{ fontSize: 13 }}>{me.puActive ? t("mr.active") : me.puCd > 0 ? `${Math.ceil(me.puCd)}s` : "R"}</div>
+          <div className="hud-pus">
+            {(me.pus || []).map((u, k) => { const pu = getPowerUp(u.id); if (!pu) return null; const ready = u.cd <= 0 && !u.active; const cdMax = pu.arena?.cooldown || 45;
+              return (
+                <button key={u.id} type="button" className={"hud-pu" + (ready ? " ready" : "") + (u.active ? " active" : "")} style={{ "--pc": myChar.color, "--pct": u.active ? 1 : ready ? 1 : 1 - u.cd / cdMax }} title={puText(pu, lang).arena} onClick={() => viewRef.current?.touch.btn.add(k === 0 ? "pu1" : "pu2")}>
+                  <span className="hud-pu-name">{puText(pu, lang).nom}</span>
+                  <span className="num hud-pu-state">{u.active ? t("mr.active") : u.cd > 0 ? `${Math.ceil(u.cd)}s` : "⚡"}</span>
+                  {!isTouch && <span className="kbd hud-pu-key">{hud?.usingPad ? keys.padOf(k === 0 ? "pu1" : "pu2") : puKeys[k]}</span>}
+                </button>
+              ); })}
           </div>
         )}
+        {me && canSwitch && !ended && (
+          <div className="hud-team" role="group" aria-label={t("arena.switchTitle")}>
+            {mates.map(s => { const p = getPlayer(s.charId); const cur = s.slot === mySlot; const st = hud?.players?.[s.slot];
+              return (
+                <button key={s.slot} type="button" className={"hud-mate" + (cur ? " cur" : "") + (s.human && !cur ? " human" : "")} disabled={s.human || s.left} title={s.human && !cur ? `👤 ${s.pseudo}` : s.left ? t("arena.reserved") : cur ? t("arena.youControl") : t("arena.switchTo", { name: p.nom })} onClick={() => viewRef.current?.switchTo(s.slot)} style={{ "--pc": p.color }}>
+                  <Avatar player={p} size={30} showNum={false} ring={cur ? "#fff" : undefined} />
+                  <span className="hud-mate-bar"><span style={{ width: `${st?.stamina ?? 100}%` }} /></span>
+                  {hud?.owner === s.slot && <span className="hud-mate-ball">⚽</span>}
+                </button>
+              ); })}
+            {!isTouch && <span className="tiny muted hud-team-hint"><span className="kbd">{hud?.usingPad ? keys.padOf("switch") : keys.keyOf("switch")}</span> {t("arena.switchHint")}</span>}
+          </div>
+        )}
+        {spectator && !ended && <CamBar mode={specCam} follow={follow} slots={slots} onMode={m => { setSpecCam(m); viewRef.current?.setCam(m); setSettings({ specCam: m }); }} onFollow={s => { setFollow(s); viewRef.current?.setFollow(s); if (s >= 0) setSpecCam("player"); }} onZoom={d => viewRef.current?.zoomCam(d)} />}
         {hud && <MiniMap hud={hud} slots={slots} teams={T} mySlot={mySlot} />}
-        {room.opts.training && !ended && <Training goals={goals} t={t} />}
+        {room.opts.training && !ended && <Training goals={goals} t={t} keys={keys} pad={hud?.usingPad} />}
         {me?.charging && <div className="hud-charge" aria-label={t("arena.power")}><div style={{ width: `${me.charge * 100}%` }} /></div>}
         <div className="hud-feed" aria-live="polite">
           {feed.map(ev => <div key={ev.key} className="feed-item" style={{ borderLeftColor: ev.type === "GOAL" ? "var(--lime)" : ev.type === "POWERUP" ? "var(--gold)" : "var(--cyan)" }}><div className="meta"><span>{t("evtype." + ev.type)}</span><span className="muted">{ev.slot >= 0 ? nameOf(ev.slot) : ""}</span></div>{evText(ev)}</div>)}
         </div>
-        {settings.showHelp && hud && !hud.locked && !menu && !ended && !isTouch && (
+        {settings.showHelp && hud && (keys.mouse ? !hud.locked || helpOn : helpOn) && !menu && !ended && !isTouch && !spectator && (
           <div className="hud-help">
-            <div style={{ fontWeight: 800, color: "var(--cyan)" }}>🖱️ {t("arena.clickToPlay")}</div>
-            {["move", "sprint", "shoot", "pass", "lob", "skill", "tackle", "call", "power", "cam"].map(k => <div key={k}><span className="kbd">{t("controls." + k + ".kb")}</span> {t("controls." + k)}</div>)}
+            <div style={{ fontWeight: 800, color: "var(--cyan)" }}>{hud.usingPad ? "🎮 " + t("controls.padTitle") : keys.mouse ? "🖱️ " + t("arena.clickToPlay") : "⌨️ " + t("controls.kbTitle")}</div>
+            <div><span className="kbd">{hud.usingPad ? t("controls.leftStick") : keys.moveKeys}</span> {t("controls.move")}</div>
+            {["sprint", "shoot", "pass", "lob", "skill", "switch", "call", "pu1", "pu2", "cam"].map(k => <div key={k}><span className="kbd">{hud.usingPad ? keys.padOf(k) : keys.keyOf(k)}</span> {t("controls." + k)}</div>)}
+            {keys.controls.contextKeys && <div className="tiny muted" style={{ lineHeight: 1.4, maxWidth: 260 }}>🛡️ {t("controls.contextHint", { pass: hud.usingPad ? keys.padOf("pass") : keys.keyOf("pass"), shoot: hud.usingPad ? keys.padOf("shoot") : keys.keyOf("shoot") })}</div>}
+            <div className="tiny muted">{t("controls.helpToggle")}</div>
           </div>
         )}
         {hud?.locked && <div className="crosshair" />}
@@ -103,7 +147,7 @@ export function ArenaGame({ room, init, end, onLeave }) {
         {hud?.phase === "kickoff" && hud.clock >= room.opts.halfSeconds - 1 && <div className="hud-center"><div className="h1" style={{ animation: "pop .5s" }}>{t("arena.kickoff")}</div></div>}
         {emote && <div className="emote-float">{emote.e} <span className="small">{emote.from}</span></div>}
         {hud?.board && <Scoreboard slots={slots} hud={hud} teams={T} />}
-        {isTouch && viewRef.current && !ended && <TouchControls touch={viewRef.current.touch} t={t} />}
+        {isTouch && viewRef.current && !ended && !spectator && <TouchControls touch={viewRef.current.touch} t={t} canSwitch={canSwitch} />}
         {(menu || ended) && (
           <div className="hud-menu">
             {ended && end ? <EndScreen end={end} slots={slots} mySlot={mySlot} onLeave={onLeave} again={() => { const kind = game.joined?.kind; const o = room.opts; onLeave(); if (kind === "local") setTimeout(() => game.create("local", "arena", { botLevel: o.botLevel, halfSeconds: o.halfSeconds, training: o.training }), 50); }} />
@@ -117,7 +161,9 @@ export function ArenaGame({ room, init, end, onLeave }) {
                 <input className="range" type="range" min="0" max="1" step="0.05" value={settings.volume} onChange={e => setSettings({ volume: +e.target.value })} />
                 <div className="label mt16">{t("settings.camera")}</div>
                 <Seg value={hud?.cam || "near"} onChange={v => viewRef.current?.setCam(v)} options={[{ value: "near", label: t("settings.cam.near") }, { value: "far", label: t("settings.cam.far") }, { value: "broadcast", label: t("settings.cam.broadcast") }]} />
-                <p className="tiny muted mt8">{t("arena.camHint")}</p>
+                <p className="tiny muted mt8">{t("arena.camHint", { key: keys.keyOf("cam") })}</p>
+                <div className="label mt16">{t("settings.autoSwitch")}</div>
+                <Seg value={keys.controls.autoSwitch} onChange={v => setSettings({ controls: { ...keys.controls, autoSwitch: v } })} options={["off", "pass", "assist"].map(v => ({ value: v, label: t("settings.autoSwitch." + v) }))} />
                 <div className="row mt16">{["👏", "🔥", "😱", "😂", "GG"].map(e => <button key={e} className="btn small ghost" onClick={() => game.send({ t: "emote", e })}>{e}</button>)}</div>
                 <button className="btn danger block mt16" onClick={onLeave}>✕ {t("mr.leave")}</button>
               </Card>
@@ -130,13 +176,15 @@ export function ArenaGame({ room, init, end, onLeave }) {
 }
 
 // entraînement guidé : liste d'objectifs
-const TRAINING = ["control", "sprint", "skill", "pass", "shoot", "tackle", "power", "score"];
-function Training({ goals, t }) {
+const TRAINING = ["control", "sprint", "skill", "pass", "shoot", "tackle", "power", "switch", "score"];
+const TRAINING_ACTION = { sprint: "sprint", skill: "skill", pass: "pass", shoot: "shoot", tackle: "pass", power: "pu1", switch: "switch" };
+function Training({ goals, t, keys, pad }) {
   const n = TRAINING.filter(k => goals[k]).length;
+  const keyOf = k => (k === "control" ? (pad ? t("controls.leftStick") : keys.moveKeys) : TRAINING_ACTION[k] ? (pad ? keys.padOf(TRAINING_ACTION[k]) : keys.keyOf(TRAINING_ACTION[k])) : "");
   return (
     <div className="training">
       <div style={{ fontWeight: 800, color: "var(--lime)" }}>🎓 {t("training.title")} — {n}/{TRAINING.length}</div>
-      {TRAINING.map(k => <div key={k} style={{ opacity: goals[k] ? 0.55 : 1 }}>{goals[k] ? "✅" : "⬜"} {t("training." + k)}</div>)}
+      {TRAINING.map(k => <div key={k} style={{ opacity: goals[k] ? 0.55 : 1 }}>{goals[k] ? "✅" : "⬜"} {t("training." + k, { key: keyOf(k) })}</div>)}
       {n === TRAINING.length && <div className="mt8" style={{ color: "var(--gold)", fontWeight: 800 }}>🏆 {t("training.done")}</div>}
     </div>
   );
@@ -193,7 +241,7 @@ function EndScreen({ end, slots, mySlot, onLeave, again }) {
   );
 }
 
-function TouchControls({ touch, t }) {
+function TouchControls({ touch, t, canSwitch }) {
   const stick = useRef(null); const knob = useRef(null);
   const move = e => {
     const r = stick.current.getBoundingClientRect(); const tt = e.targetTouches[0]; if (!tt) return;
@@ -214,6 +262,7 @@ function TouchControls({ touch, t }) {
         <button {...tap("tackle")} style={{ color: "var(--violet)" }}>{t("touch.tackle")}</button>
         <button {...tap("skill")} style={{ color: "var(--magenta)" }}>{t("touch.skill")}</button>
         <button {...tap("call")} style={{ color: "var(--gold)" }}>{t("touch.call")}</button>
+        {canSwitch && <button {...tap("switch")} style={{ color: "var(--white)" }}>{t("touch.switch")}</button>}
       </div>
     </>
   );

@@ -1,8 +1,9 @@
 import { useI18n, LANGS } from "../i18n/index.jsx";
 import { useSession } from "../store/session.jsx";
 import { Card, Kicker, Seg } from "../ui/components.jsx";
+import { ControlsPanel } from "../ui/ControlsPanel.jsx";
 
-export default function Settings() {
+export default function Settings({ navigate }) {
   const { t, lang, setLang } = useI18n();
   const { settings, setSettings } = useSession();
   return (
@@ -21,16 +22,22 @@ export default function Settings() {
       </Card>
       <Card className="mb16">
         <Kicker>🖥️ {t("settings.graphics")}</Kicker>
-        <Seg value={settings.quality} onChange={v => setSettings({ quality: v })} label={t("settings.quality")} options={["low", "medium", "high"].map(q => ({ value: q, label: t("settings.q." + q) }))} />
+        <Seg value={settings.quality || "auto"} onChange={v => setSettings({ quality: v })} label={t("settings.quality")} options={["auto", "low", "medium", "high", "ultra"].map(q => ({ value: q, label: t("settings.q." + q) }))} />
         <p className="tiny muted mt8">{t("settings.qualityNote")}</p>
+        <div className="row mt8"><label className="row small"><input type="checkbox" checked={settings.adaptiveQuality !== false} onChange={e => setSettings({ adaptiveQuality: e.target.checked })} /> {t("settings.adaptive")}</label></div>
+        <div className="row mt8" style={{ gap: 8 }}>{navigate && <button className="btn small ghost" onClick={() => navigate("/bench")}>📊 {t("settings.bench")}</button>}<span className="tiny muted">{t("settings.statsHint")}</span></div>
       </Card>
       <Card>
         <Kicker>🎮 {t("settings.controls")}</Kicker>
-        <label className="label" htmlFor="sens">{t("settings.sensitivity")} — {settings.sensitivity.toFixed(1)}</label>
-        <input id="sens" className="range mb16" type="range" min="0.3" max="2.5" step="0.1" value={settings.sensitivity} onChange={e => setSettings({ sensitivity: +e.target.value })} />
-        <div className="row mb16"><label className="row small"><input type="checkbox" checked={settings.invertY} onChange={e => setSettings({ invertY: e.target.checked })} /> {t("settings.invertY")}</label></div>
+        <ControlsPanel />
+      </Card>
+      <Card className="mt16">
+        <Kicker>🎥 {t("settings.cameras")}</Kicker>
         <div className="label">{t("settings.camera")}</div>
         <Seg value={settings.camera} onChange={v => setSettings({ camera: v })} options={[{ value: "near", label: t("settings.cam.near") }, { value: "far", label: t("settings.cam.far") }, { value: "broadcast", label: t("settings.cam.broadcast") }]} />
+        <div className="label mt16">{t("settings.specCam")}</div>
+        <Seg value={settings.specCam || "auto"} onChange={v => setSettings({ specCam: v })} options={["auto", "tv", "tactical", "goal", "ball", "player", "free"].map(v => ({ value: v, label: t("cam." + v) }))} />
+        <p className="tiny muted mt8">{t("settings.specCamNote")}</p>
         <div className="row mt16"><label className="row small"><input type="checkbox" checked={settings.showHelp} onChange={e => setSettings({ showHelp: e.target.checked })} /> {t("settings.showHelp")}</label></div>
         <div className="row mt8"><label className="row small"><input type="checkbox" checked={settings.hints !== false} onChange={e => setSettings({ hints: e.target.checked })} /> {t("settings.hints")}</label></div>
       </Card>

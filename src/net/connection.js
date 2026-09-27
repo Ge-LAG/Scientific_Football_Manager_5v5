@@ -10,11 +10,12 @@ function emitter() {
   return { subs, emit, subscribe };
 }
 
-export function createLocalConnection({ pseudo = "Joueur", club = null } = {}) {
+export function createLocalConnection({ pseudo = "Joueur", club = null, getProfile = null } = {}) {
   const ev = emitter();
   const lobby = new Lobby({ closeDelayMs: 1000 });
   const client = { id: "local", pseudo, guestId: "local0000", club, send: m => queueMicrotask(() => ev.emit(m)) };
   lobby.connect(client);
+  if (getProfile) lobby.handle("local", JSON.parse(JSON.stringify({ t: "profile", ...getProfile() })));
   queueMicrotask(() => ev.emit({ t: "welcome", id: "local", pseudo, guest: true, local: true }));
   return {
     kind: "local", status: "open", rtt: 0,
@@ -25,7 +26,7 @@ export function createLocalConnection({ pseudo = "Joueur", club = null } = {}) {
   };
 }
 
-export function createWsConnection({ token = null, guestId = null, name = "", onStatus } = {}) {
+export function createWsConnection({ token = null, guestId = null, name = "", onStatus, getProfile = null } = {}) {
   const ev = emitter();
   const url = `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`;
   let ws = null, closed = false, retry = 0, queue = [], welcome = null, rejoin = null;
@@ -43,6 +44,7 @@ export function createWsConnection({ token = null, guestId = null, name = "", on
       if (m.t === "welcome") {
         welcome = m; retry = 0; setStatus("open");
         if (m.guestId) { guestId = m.guestId; try { localStorage.setItem("ll.guestId", m.guestId); } catch { /* stockage indisponible */ } }
+        if (getProfile) ws.send(JSON.stringify({ t: "profile", ...getProfile() })); // avant de (re)joindre une salle
         if (rejoin) ws.send(JSON.stringify({ t: "room.join", code: rejoin }));
         for (const q of queue) ws.send(JSON.stringify(q)); queue = [];
       }

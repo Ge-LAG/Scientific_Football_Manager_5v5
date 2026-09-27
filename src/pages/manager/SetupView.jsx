@@ -3,12 +3,13 @@ import { useI18n } from "../../i18n/index.jsx";
 import { useGame } from "../../game/GameProvider.jsx";
 import { useSession } from "../../store/session.jsx";
 import { Card, Kicker, Avatar, Crest } from "../../ui/components.jsx";
-import { getPlayer, pText, FORMATIONS, STRATEGIES, attrName, keeperRating } from "../../../shared/data/content.js";
+import { LoadoutPicker } from "../../ui/LoadoutPicker.jsx";
+import { getPlayer, pText, FORMATIONS, STRATEGIES, attrName, keeperRating, sanitizeLoadout } from "../../../shared/data/content.js";
 import { activeSynergies } from "../../../shared/data/enrichment.js";
 import { autoLineup } from "../../../shared/manager/ai.js";
 
 export function SetupView({ room }) {
-  const { t, lang } = useI18n(); const game = useGame(); const { club } = useSession();
+  const { t, lang } = useI18n(); const game = useGame(); const { club, setLoadout } = useSession();
   const me = room.you.seat; const seat = me !== "spec" ? room.seats[me] : null; const opp = room.seats[me === "home" ? "away" : "home"];
   // on reprend l'état connu du serveur (reconnexion) ; la formation préférée du club ne s'applique qu'avant toute synchronisation
   const useClub = !!seat && !seat.ready && seat.formation === "2-2" && (club.formation || "2-2") !== "2-2";
@@ -17,6 +18,9 @@ export function SetupView({ room }) {
   const syncTimer = useRef(null);
   const [strategy, setStrategy] = useState(club.strategy || seat?.strategy || "equilibre");
   const [sel, setSel] = useState(null);
+  const [loadouts, setLoadouts] = useState(() => ({ ...(seat?.loadouts || {}) }));
+  const [puOpen, setPuOpen] = useState(null); // scientifique dont on règle les power-ups
+  const chooseLoadout = (id, ids) => { const v = sanitizeLoadout(id, ids); setLoadouts(l => ({ ...l, [id]: v })); setLoadout(id, v); game.send({ t: "m.loadout", id, ids: v }); };
   const [left, setLeft] = useState(Math.ceil(room.setupRemainingMs / 1000));
   useEffect(() => { const h = setInterval(() => setLeft(x => Math.max(0, x - 1)), 1000); return () => clearInterval(h); }, []);
   const syn = useMemo(() => activeSynergies(lineup.map(getPlayer)), [lineup]);
@@ -58,6 +62,22 @@ export function SetupView({ room }) {
           <Kicker>{t("club.formation")}</Kicker>
           <div className="row">{Object.entries(FORMATIONS).map(([k, f]) => <button key={k} className={"btn small " + (formation === k ? "primary" : "ghost")} onClick={() => { setFormation(k); setLineup(autoLineup(lineup, k).lineup.length === 5 ? autoLineup(lineup, k).lineup : lineup); }}>{f.label[lang]}</button>)}</div>
           <button className="linkbtn mt8" onClick={() => setLineup(autoLineup(seat.picks, formation).lineup)}>✨ {t("setup.auto")}</button>
+        </Card>
+        <Card>
+          <Kicker color="var(--magenta)">⚡ {t("setup.loadouts")}</Kicker>
+          <p className="tiny muted mb8">{t("setup.loadoutsHelp")}</p>
+          <div className="col" style={{ gap: 6 }}>
+            {[...lineup, ...bench].map(id => { const p = getPlayer(id); const open = puOpen === id; const lo = sanitizeLoadout(id, loadouts[id]);
+              return (
+                <div key={id} className={"lo-row" + (open ? " open" : "")}>
+                  <button type="button" className="lo-head" aria-expanded={open} onClick={() => setPuOpen(open ? null : id)}>
+                    <Avatar player={p} size={26} showNum={false} /><b className="grow" style={{ textAlign: "left" }}>{p.nom}</b>
+                    <span className="tiny muted" style={{ textAlign: "right" }}>{lo.map(x => p.powerUps.findIndex(u => u.id === x) + 1).map(n => "⚡" + n).join(" ")}</span><span aria-hidden="true">{open ? "▴" : "▾"}</span>
+                  </button>
+                  {open && <LoadoutPicker charId={id} value={lo} mode="manager" onChange={ids => chooseLoadout(id, ids)} />}
+                </div>
+              ); })}
+          </div>
         </Card>
         <Card>
           <Kicker color="var(--gold)">{t("setup.strategy")}</Kicker>

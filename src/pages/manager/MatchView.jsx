@@ -5,7 +5,8 @@ import { useGame } from "../../game/GameProvider.jsx";
 import { Card, Kicker, Crest, Avatar } from "../../ui/components.jsx";
 import { createPitchRenderer } from "../../render2d/pitch.js";
 import { createSfx } from "../../audio/sfx.js";
-import { getPlayer, narrText, puText, STRATEGIES, STRATEGY_BY_ID, pText, attrName, TEAM_TALKS, TEAM_TALK_BY_ID } from "../../../shared/data/content.js";
+import { getPlayer, getPowerUp, defaultLoadout, narrText, puText, STRATEGIES, STRATEGY_BY_ID, pText, attrName, TEAM_TALKS, TEAM_TALK_BY_ID } from "../../../shared/data/content.js";
+import { CamBar } from "../../ui/CamBar.jsx";
 import { matchupFactor, TICKS_PER_MIN } from "../../../shared/manager/engine.js";
 import { bestResponse } from "../../../shared/manager/ai.js";
 import { useToast } from "../../ui/components.jsx";
@@ -18,7 +19,7 @@ const SHOWN = new Set(["TALK", "GOAL", "MISS", "SAVE", "TACKLE", "INTERCEPT", "F
 
 export function eventText(ev, t, lang) {
   const p = ev.pid ? getPlayer(ev.pid) : null; const p2 = ev.pid2 ? getPlayer(ev.pid2) : null;
-  if (ev.n) return narrText(ev.n, { joueur: p?.nom || "", pu: ev.pu ? puText(getPlayer(ev.pid).powerUp, lang).nom : "" }, lang) + (ev.type === "GOAL" && p2 ? ` (${t("ev.assist", { name: p2.nom })})` : "");
+  if (ev.n) return narrText(ev.n, { joueur: p?.nom || "", pu: ev.pu ? puText(getPowerUp(ev.pu) || getPlayer(ev.pid).powerUp, lang).nom : "" }, lang) + (ev.type === "GOAL" && p2 ? ` (${t("ev.assist", { name: p2.nom })})` : "");
   switch (ev.type) {
     case "SUB": return t("ev.sub", { in: p?.nom, out: p2?.nom });
     case "STRATEGY": return t("ev.strategy", { strat: STRATEGY_BY_ID[ev.strat]?.nom[lang] });
@@ -47,6 +48,12 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
   const [feed, setFeed] = useState(() => init.events.filter(e => SHOWN.has(e.type)));
   const [banner, setBanner] = useState(null);
   const [subOut, setSubOut] = useState(null);
+  const [cam, setCam] = useState(settings.specCam || "auto"); const [follow, setFollow] = useState(-1); const [slots3d, setSlots3d] = useState([]);
+  const [fs, setFs] = useState(false); const wrapRef = useRef(null);
+  const chooseCam = m => { setCam(m); v3Ref.current?.setCam(m); setSettings({ specCam: m }); if (m !== "player") setFollow(-1); };
+  const chooseFollow = s => { setFollow(s); v3Ref.current?.setFollow(s); if (s >= 0) setCam("player"); };
+  useEffect(() => { const f = () => setFs(document.fullscreenElement === wrapRef.current); document.addEventListener("fullscreenchange", f); return () => document.removeEventListener("fullscreenchange", f); }, []);
+  const toggleFs = () => { if (document.fullscreenElement) document.exitFullscreen?.(); else wrapRef.current?.requestFullscreen?.().catch(() => {}); };
   const lastUi = useRef(0); const lastScore = useRef("0-0");
 
   const meta = useMemo(() => {
@@ -56,8 +63,9 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
   }, [setup]);
 
   useEffect(() => {
-    rendRef.current = createPitchRenderer(canvasRef.current); rendRef.current.setMeta(meta);
-    sfxRef.current = createSfx(); sfxRef.current.setVolume(settings.volume); sfxRef.current.whistle("start");
+    // salle déjà terminée (rechargement pendant le rapport) : pas de vue tactique à créer
+    if (canvasRef.current) { rendRef.current = createPitchRenderer(canvasRef.current); rendRef.current.setMeta(meta); }
+    sfxRef.current = createSfx(); sfxRef.current.setVolume(settings.volume); if (room.phase !== "ended") sfxRef.current.whistle("start");
     const unlock = () => sfxRef.current?.unlock(); window.addEventListener("pointerdown", unlock, { once: true });
     return () => { rendRef.current?.destroy(); sfxRef.current?.dispose(); window.removeEventListener("pointerdown", unlock); stopSpeaking(); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -68,10 +76,13 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
     let cancelled = false;
     Promise.all([import("../../three/arenaView.js"), import("../../three/managerAdapter.js")]).catch(reloadOnChunkError).then(([{ createArenaView }, { createManagerAdapter }]) => {
       if (cancelled || !box3dRef.current) return;
-      adapterRef.current = createManagerAdapter();
+      adapterRef.current = createManagerAdapter(setup);
       const teams = [{ name: setup.home.name, color: setup.home.colors[0] }, { name: setup.away.name, color: setup.away.colors[0] }];
-      const slots = [...setup.home.lineup, ...setup.away.lineup].map((charId, i) => ({ slot: i, team: i < 5 ? 0 : 1, charId }));
-      v3Ref.current = createArenaView(box3dRef.current, { slots, teams, mySlot: null, settings: { ...settings, sensitivity: 1 }, interactive: false, replays: false, onInput: () => {} });
+      const side = i => (i < 5 ? "home" : "away");
+      const slots = [...setup.home.lineup, ...setup.away.lineup].map((charId, i) => ({ slot: i, team: i < 5 ? 0 : 1, charId, look: setup[side(i)].looks?.[charId] || null, loadout: setup[side(i)].loadouts?.[charId] || null }));
+      setSlots3d(slots);
+      v3Ref.current = createArenaView(box3dRef.current, { slots, teams, mySlot: null, settings: { ...settings, sensitivity: 1, specCam: cam }, interactive: false, replays: false, onInput: () => {} });
+      if (follow >= 0) v3Ref.current.setFollow(follow);
     });
     return () => { cancelled = true; v3Ref.current?.dispose(); v3Ref.current = null; adapterRef.current = null; };
   }, [view3d, room.phase === "ended"]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -83,7 +94,7 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
     // les compositions évoluent (remplacements, exclusions)
     for (const side of ["home", "away"]) { meta[side].keeper = s.teams[side].lineup[0]; for (const id of s.teams[side].lineup) meta[side].ids.add(id); }
     rendRef.current?.push(s, 100 / (room.opts.speed || 1));
-    if (v3Ref.current && adapterRef.current) { const r = adapterRef.current.convert(s, m.ev, 0.1 / (room.opts.speed || 1)); if (r.changed) v3Ref.current.setSlots(r.slots); v3Ref.current.pushSnapshot(r.snap, r.events); }
+    if (v3Ref.current && adapterRef.current) { const r = adapterRef.current.convert(s, m.ev, 0.1 / (room.opts.speed || 1)); if (r.changed) { v3Ref.current.setSlots(r.slots); setSlots3d(r.slots); } v3Ref.current.pushSnapshot(r.snap, r.events); }
     if (m.ev?.length) {
       for (const ev of m.ev) {
         rendRef.current?.fx(ev);
@@ -110,7 +121,9 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
   // raccourcis : 1–6 = stratégies, Espace = pause (solo)
   useEffect(() => {
     const onKey = e => {
-      if (e.repeat || e.target?.tagName === "INPUT" || e.target?.tagName === "SELECT" || room.phase !== "playing" || me === "spec") return;
+      if (e.repeat || e.target?.tagName === "INPUT" || e.target?.tagName === "SELECT" || room.phase !== "playing") return;
+      if (e.code === "KeyC" && v3Ref.current) { const L = ["auto", "tv", "tactical", "goal", "ball", "player", "free"]; setCam(c => { const n = L[(L.indexOf(c) + 1) % L.length]; v3Ref.current?.setCam(n); return n; }); return; }
+      if (me === "spec") return;
       const n = +(/^(Digit|Numpad)(\d)$/.exec(e.code)?.[2] || 0); if (n >= 1 && n <= STRATEGIES.length) game.send({ t: "m.cmd", cmd: { type: "strategy", id: STRATEGIES[n - 1].id } });
       if (e.code === "Space" && (room.seats.home.bot || room.seats.away.bot)) { e.preventDefault(); game.send({ t: "m.pause", paused: !room.paused }); }
     };
@@ -147,9 +160,10 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
         <div className="grid split" style={{ gridTemplateColumns: "1fr 340px" }}>
           <div>
             <div className="row mb8"><div className="seg" role="radiogroup" aria-label={t("mr.view")}>{["2d", "3d"].map(v => <button key={v} role="radio" aria-checked={(view3d ? "3d" : "2d") === v} className={(view3d ? "3d" : "2d") === v ? "on" : ""} onClick={() => setSettings({ managerView: v })}>{t("mr.view." + v)}</button>)}</div></div>
-            <div className="pitch-wrap" style={{ position: "relative" }}>
+            <div className="pitch-wrap" style={{ position: "relative" }} ref={wrapRef}>
               <canvas ref={canvasRef} aria-label={t("mr.pitchLabel")} style={view3d ? { visibility: "hidden" } : undefined} />
               {view3d && <div ref={box3dRef} style={{ position: "absolute", inset: 0 }} />}
+              {view3d && <CamBar mode={cam} follow={follow} slots={slots3d} onMode={chooseCam} onFollow={chooseFollow} fullscreen={fs} onFullscreen={toggleFs} onZoom={d => v3Ref.current?.zoomCam(d)} />}
               {banner && <div className="overlay-center"><div className="goal-flash">{t("mr.goal")}</div><div className="h2" style={{ color: setup[banner.side].colors[0] }}>{getPlayer(banner.pid)?.nom} · {setup[banner.side].name}</div></div>}
               {s?.phase === "halftime" && (
                 <div className="overlay-center" style={{ background: "rgba(0,0,0,.6)", pointerEvents: "auto" }}>
@@ -186,11 +200,17 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
                 <Card>
                   <Kicker color="var(--magenta)">⚡ {t("mr.powerups")}</Kicker>
                   <div className="col" style={{ gap: 6 }}>
-                    {myTeam.lineup.map(id => { const p = getPlayer(id); const pu = p.powerUp; const act = s.pu.find(a => a.pid === id); const cd = s.cd[id] || 0; const ready = cd <= s.t && !act; const pct = ready ? 0 : act ? (act.until - s.t) / (pu.duree * 2) : (cd - s.t) / pu.cooldown;
-                      return <button key={id} className="pu-btn" disabled={!ready} style={{ color: act ? "var(--lime)" : p.color, borderColor: (act ? "#B8FF00" : p.color) + "66" }} onClick={() => cmd({ type: "powerup", pid: id })} title={puText(pu, lang).effets}>
-                        <Avatar player={p} size={24} showNum={false} /><span className="grow" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{puText(pu, lang).nom}</span><span className="tiny">{act ? t("mr.active") : ready ? "⚡" : `${Math.ceil((cd - s.t) / 10)}s`}</span>
-                        {!ready && <span className="cd" style={{ width: `${Math.min(100, pct * 100)}%` }} />}
-                      </button>; })}
+                    {myTeam.lineup.map(id => { const p = getPlayer(id); const lo = (setup[me].loadouts?.[id] || defaultLoadout(id)).map(getPowerUp).filter(Boolean);
+                      return (
+                        <div key={id} className="row nowrap" style={{ gap: 6 }}>
+                          <Avatar player={p} size={26} showNum={false} />
+                          {lo.map(pu => { const act = s.pu.find(a => a.id === pu.id); const cd = s.cd[pu.id] || 0; const ready = cd <= s.t && !act; const pct = ready ? 0 : act ? (act.until - s.t) / (pu.duree * 2) : (cd - s.t) / pu.cooldown;
+                            return <button key={pu.id} className="pu-btn grow" disabled={!ready} style={{ color: act ? "var(--lime)" : p.color, borderColor: (act ? "#B8FF00" : p.color) + "66" }} onClick={() => cmd({ type: "powerup", pid: id, pu: pu.id })} title={`${puText(pu, lang).nom} — ${puText(pu, lang).effets}`}>
+                              <span className="grow" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{puText(pu, lang).nom}</span><span className="tiny">{act ? t("mr.active") : ready ? "⚡" : `${Math.ceil((cd - s.t) / 10)}s`}</span>
+                              {!ready && <span className="cd" style={{ width: `${Math.min(100, pct * 100)}%` }} />}
+                            </button>; })}
+                        </div>
+                      ); })}
                   </div>
                 </Card>
                 <Card style={{ gridColumn: "1 / -1" }}>

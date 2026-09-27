@@ -18,6 +18,13 @@ const STYLE = {
   perfectShot:    { kind: "ballGlow", color: "#FF6B35" },
   powerShot:      { kind: "ballGlow", color: "#FF3366" },
   teamStamina:    { kind: "ring", radius: 1.2, color: "#66FF66" },
+  magnet:         { kind: "field", radius: 5.5, color: "#8B5CF6" },
+  keeperWall:     { kind: "dome", radius: 1.5, color: "#00F0FF" },
+  teamSpeed:      { kind: "trail", color: "#B8FF00" },
+  curlShot:       { kind: "ballGlow", color: "#FFD700" },
+  dash:           { kind: "trail", color: "#FF6B35" },
+  shockwave:      { kind: "ring", radius: 3.8, color: "#FFFFFF" },
+  freezeNearest:  { kind: "ring", radius: 1.6, color: "#9FE8FF" },
 };
 
 export function createPuVisuals(scene, effects) {

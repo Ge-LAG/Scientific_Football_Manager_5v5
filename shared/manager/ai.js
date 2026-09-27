@@ -96,11 +96,13 @@ export class BotManager {
 
     // 2) Power-ups : déclenchés quand ils servent (ballon dans la bonne zone) pour les meilleurs niveaux
     const ball = eng.ball; const attackingThird = this.side === "home" ? ball.x > 62 : ball.x < 38; const defThird = this.side === "home" ? ball.x < 38 : ball.x > 62;
-    for (const id of eng.onPitch(this.side)) {
-      const pu = eng.pl[id].p.powerUp; if (!pu) continue;
-      if ((eng.cooldowns[id] || 0) > eng.time || eng.activePU.some(a => a.pid === id)) continue;
-      const useful = this.level === "stagiaire" || (pu.type === "attaque" && attackingThird) || (pu.type === "défense" && defThird) || pu.type === "contrôle" || (pu.type === "mental" && (pu.healStamina ? eng.onPitch(this.side).some(x => eng.pl[x].stamina < 55) : true));
-      if (useful && this.rng() < this.cfg.puChance) { out.push({ type: "powerup", pid: id }); break; }
+    pus: for (const id of eng.onPitch(this.side)) {
+      if (eng.activePU.some(a => a.pid === id)) continue;
+      for (const pu of eng.pl[id].pus || []) {
+        if ((eng.cooldowns[pu.id] || 0) > eng.time) continue;
+        const useful = this.level === "stagiaire" || (pu.type === "attaque" && attackingThird) || (pu.type === "défense" && defThird) || pu.type === "contrôle" || (pu.type === "mental" && (pu.healStamina ? eng.onPitch(this.side).some(x => eng.pl[x].stamina < 55) : true));
+        if (useful && this.rng() < this.cfg.puChance) { out.push({ type: "powerup", pid: id, pu: pu.id }); break pus; }
+      }
     }
 
     // 3) Remplacements : le plus fatigué sort pour un profil similaire

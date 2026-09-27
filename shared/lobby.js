@@ -2,6 +2,7 @@
 import { ManagerRoom } from "./rooms/managerRoom.js";
 import { ArenaRoom } from "./rooms/arenaRoom.js";
 import { makeCode } from "./rooms/base.js";
+import { sanitizeProfile } from "./profile.js";
 
 const ROOM_TYPES = new Map([["manager", ManagerRoom], ["arena", ArenaRoom]]);
 const MAX_FAILED_JOINS = 20; // codes erronés par connexion
@@ -20,6 +21,7 @@ export class Lobby {
 
   disconnect(clientId) {
     const c = this.clients.get(clientId); if (!c) return;
+    clearTimeout(c.profileTimer);
     if (c.room) c.room.leave(clientId);
     this.clients.delete(clientId);
   }
@@ -47,6 +49,14 @@ export class Lobby {
       case "room.leave": if (c.room) { c.room.leave(clientId); c.room = null; reply({ t: "room.left" }); } break;
       case "room.list": reply({ t: "room.list", rooms: this.publicRooms() }); break;
       case "ping": reply({ t: "pong", c: Number(msg.c) || 0 }); break;
+      case "profile": { // apparences et power-ups de SES scientifiques (nettoyés) ; au plus 2 fois par seconde, le dernier gagne
+        const apply = m => { Object.assign(c.client, sanitizeProfile(m)); c.room?.onProfile?.(clientId); };
+        const now = Date.now(), wait = 500 - (now - (c.lastProfile || 0));
+        if (wait <= 0) { c.lastProfile = now; apply(msg); break; }
+        c.pendingProfile = msg;
+        if (!c.profileTimer) { c.profileTimer = setTimeout(() => { c.profileTimer = null; c.lastProfile = Date.now(); if (this.clients.get(clientId) === c) apply(c.pendingProfile); }, wait); c.profileTimer.unref?.(); }
+        break;
+      }
       default: if (c.room) c.room.handle(clientId, msg);
     }
   }

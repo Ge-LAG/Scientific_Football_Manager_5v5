@@ -4,10 +4,10 @@ import { useSession } from "../../store/session.jsx";
 import { useGame } from "../../game/GameProvider.jsx";
 import { Card, Kicker, Seg, GuestName } from "../../ui/components.jsx";
 import { BOT_LEVELS } from "../../../shared/action/bot.js";
-import { CONTROLS } from "../Help.jsx";
+import { useBindings } from "../../ui/bindings.js";
 
 export default function ArenaHub({ navigate }) {
-  const { t, lang } = useI18n();
+  const { t, lang } = useI18n(); const keys = useBindings();
   const { serverUp, api } = useSession();
   const game = useGame();
   const [level, setLevel] = useState("normal");
@@ -51,8 +51,10 @@ export default function ArenaHub({ navigate }) {
         </Card>
         <Card>
           <Kicker color="var(--gold)">🎮 {t("help.controls")}</Kicker>
-          {CONTROLS.slice(0, 9).map(([k]) => <div key={k} className="row between small mb8"><span>{t("controls." + k)}</span><span className="kbd">{t("controls." + k + ".kb")}</span></div>)}
+          <div className="row between small mb8"><span>{t("controls.move")}</span><span className="kbd">{keys.moveKeys}</span></div>
+          {["sprint", "shoot", "pass", "lob", "skill", "switch", "call", "pu1", "pu2"].map(k => <div key={k} className="row between small mb8"><span>{t("controls." + k)}</span><span className="kbd">{keys.keyOf(k)}</span></div>)}
           <p className="tiny muted mt8">{t("help.controlsNote")}</p>
+          <button className="linkbtn mt8" onClick={() => navigate("/settings")}>⚙️ {t("help.customize")}</button>
           <button className="linkbtn mt8" onClick={() => navigate("/help")}>{t("ah.fullHelp")} →</button>
         </Card>
       </div>

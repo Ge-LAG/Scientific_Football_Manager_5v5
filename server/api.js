@@ -1,5 +1,7 @@
 // API REST JSON (/api/*) : comptes, profil, classements, salons.
 import { publicUser } from './db.js';
+import { sanitizeLooks, plain } from '../shared/profile.js';
+import { sanitizeLoadouts } from '../shared/data/content.js';
 import { rateLimiter } from './ratelimit.js';
 import { applyMatchResult } from '../shared/progression.js';
 
@@ -106,13 +108,22 @@ function sanitizePatch(body) {
     patch.settings = JSON.parse(JSON.stringify(body.settings));
   }
   if (body.club !== undefined) patch.club = sanitizeClub(body.club);
+  // apparences (visibles de tous) et power-ups préférés de chaque scientifique : valeurs nettoyées
+  if (body.looks !== undefined) {
+    if (!isObj(body.looks) || jsonSize(body.looks) > 24576) throw bad();
+    patch.looks = plain(sanitizeLooks(body.looks));
+  }
+  if (body.loadouts !== undefined) {
+    if (!isObj(body.loadouts) || jsonSize(body.loadouts) > 8192) throw bad();
+    patch.loadouts = plain(sanitizeLoadouts(body.loadouts));
+  }
   if (!Object.keys(patch).length) throw bad();
   return patch;
 }
 
 function publicProfile(user) {
   const u = publicUser(user);
-  delete u.settings;
+  delete u.settings; delete u.loadouts;
   return u;
 }
 

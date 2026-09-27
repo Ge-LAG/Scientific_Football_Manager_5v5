@@ -5,11 +5,13 @@ import { SYNERGIES, PLURI } from "../../shared/data/enrichment.js";
 import { matchupFactor } from "../../shared/manager/engine.js";
 import { attrName } from "../../shared/data/content.js";
 
-// action → manette (le libellé clavier est traduit : controls.<action>.kb)
-export const CONTROLS = [["move", "🕹️ L"], ["camera", "🕹️ R"], ["sprint", "RT / R2"], ["shoot", "X / ▢"], ["pass", "A / ✕"], ["lob", "LB / L1"], ["tackle", "B / ◯"], ["power", "Y / △"], ["call", "R3"], ["skill", "L3"], ["cam", "Select"], ["menu", "Start"]];
+import { useBindings } from "../ui/bindings.js";
 
-export default function Help() {
-  const { t, lang } = useI18n();
+// actions présentées dans l'aide (libellés selon les réglages : disposition du clavier, réaffectations, manette)
+export const CONTROLS = ["sprint", "shoot", "pass", "lob", "skill", "tackle", "slide", "switch", "call", "pu1", "pu2", "cam", "board", "menu"];
+
+export default function Help({ navigate }) {
+  const { t, lang } = useI18n(); const keys = useBindings();
   return (
     <div className="page mid">
       <h1 className="h1">{t("help.title")}</h1>
@@ -27,8 +29,13 @@ export default function Help() {
       <Card className="mt16">
         <Kicker>🎮 {t("help.controls")}</Kicker>
         <table className="table"><thead><tr><th>{t("help.action")}</th><th>{t("help.keyboard")}</th><th>{t("help.gamepad")}</th></tr></thead>
-          <tbody>{CONTROLS.map(([k, gp]) => <tr key={k}><td>{t("controls." + k)}</td><td><span className="kbd">{t("controls." + k + ".kb")}</span></td><td className="small muted">{gp}</td></tr>)}</tbody></table>
-        <p className="tiny muted mt8">{t("help.controlsNote")}</p>
+          <tbody>
+            <tr><td>{t("controls.move")}</td><td><span className="kbd">{keys.moveKeys}</span></td><td className="small muted">{t("controls.leftStick")}</td></tr>
+            <tr><td>{t("controls.camera")}</td><td><span className="kbd">{keys.mouse ? t("controls.mouse") : "—"}</span></td><td className="small muted">{t("controls.rightStick")}</td></tr>
+            {CONTROLS.map(k => <tr key={k}><td>{t("controls." + k)}</td><td><span className="kbd">{keys.keyOf(k)}</span></td><td className="small muted">{keys.padOf(k)}</td></tr>)}
+          </tbody></table>
+        <p className="tiny muted mt8">{t("help.controlsNote")} {keys.controls.contextKeys && t("controls.contextHint", { pass: keys.keyOf("pass"), shoot: keys.keyOf("shoot") })}</p>
+        {navigate && <button className="btn small ghost mt8" onClick={() => navigate("/settings")}>⚙️ {t("help.customize")}</button>}
       </Card>
       <Card className="mt16">
         <Kicker color="var(--gold)">♟️ {t("help.matrix")}</Kicker>
