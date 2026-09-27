@@ -1,6 +1,6 @@
 // Profil de jeu d'un client (apparences et sélections de power-ups de SES scientifiques).
 // Toujours nettoyé : seules les clés des 16 personnages et des valeurs valides sont conservées.
-import { PLAYERS, sanitizeLoadouts } from "./data/content.js";
+import { PLAYERS, sanitizeLoadouts, sanitizeStatsMap } from "./data/content.js";
 import { sanitizeAppearance } from "./data/appearance.js";
 
 export function sanitizeLooks(obj) {
@@ -11,7 +11,7 @@ export function sanitizeLooks(obj) {
 }
 
 export function sanitizeProfile(msg) {
-  return { looks: sanitizeLooks(msg?.looks), loadouts: sanitizeLoadouts(msg?.loadouts) };
+  return { looks: sanitizeLooks(msg?.looks), loadouts: sanitizeLoadouts(msg?.loadouts), statAlloc: sanitizeStatsMap(msg?.statAlloc) }; // répartitions des points (≠ user.stats : progression)
 }
 
 // Objet ordinaire (sérialisable) à partir d'une table sans prototype.

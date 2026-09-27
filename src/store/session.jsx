@@ -27,7 +27,9 @@ export function SessionProvider({ children }) {
   // personnalisation de SES scientifiques : apparence (visible de tous) et 2 power-ups emportés
   const [looks, setLooksState] = useState(() => ls.get("ll.looks", {}));
   const [loadouts, setLoadoutsState] = useState(() => ls.get("ll.loadouts", {}));
-  const profileRef = useRef({ looks, loadouts }); // toujours à jour (modifié par les setters, hors rendu)
+  // répartition des points de caractéristiques de chaque scientifique (budget identique pour tous)
+  const [statAlloc, setStatAllocState] = useState(() => ls.get("ll.statAlloc", {}));
+  const profileRef = useRef({ looks, loadouts, statAlloc }); // toujours à jour (modifié par les setters, hors rendu)
   const [serverUp, setServerUp] = useState(null);
   const [conn, setConn] = useState(null);
   const connRef = useRef(null);
@@ -60,12 +62,14 @@ export function SessionProvider({ children }) {
 
   // profil du compte : le serveur fait foi s'il a des données, sinon on y envoie les préférences locales
   function adoptProfile(u, tk) {
-    const hasLooks = u.looks && Object.keys(u.looks).length, hasLo = u.loadouts && Object.keys(u.loadouts).length;
+    const hasLooks = u.looks && Object.keys(u.looks).length, hasLo = u.loadouts && Object.keys(u.loadouts).length, hasSt = u.statAlloc && Object.keys(u.statAlloc).length; // (u.stats = progression, à ne pas confondre)
     const body = {}; if (!hasLooks && Object.keys(profileRef.current.looks).length) body.looks = profileRef.current.looks; if (!hasLo && Object.keys(profileRef.current.loadouts).length) body.loadouts = profileRef.current.loadouts;
+    if (!hasSt && Object.keys(profileRef.current.statAlloc || {}).length) body.statAlloc = profileRef.current.statAlloc;
+    if (hasSt) { profileRef.current = { ...profileRef.current, statAlloc: u.statAlloc }; setStatAllocState(u.statAlloc); ls.set("ll.statAlloc", u.statAlloc); }
     if (hasLooks) { profileRef.current = { ...profileRef.current, looks: u.looks }; setLooksState(u.looks); ls.set("ll.looks", u.looks); }
     if (hasLo) { profileRef.current = { ...profileRef.current, loadouts: u.loadouts }; setLoadoutsState(u.loadouts); ls.set("ll.loadouts", u.loadouts); }
     if (Object.keys(body).length) api("/api/me", { method: "PATCH", token: tk, body }).catch(() => {});
-    if (hasLooks || hasLo) connRef.current?.send({ t: "profile", ...profileRef.current }); // connexion déjà ouverte
+    if (hasLooks || hasLo || hasSt) connRef.current?.send({ t: "profile", ...profileRef.current }); // connexion déjà ouverte
   }
   // envoi différé (dernier état gagnant) : connexion de jeu après 300 ms de calme, compte après 800 ms
   const wsTimer = useRef(null), apiTimer = useRef(null);
@@ -78,6 +82,11 @@ export function SessionProvider({ children }) {
     const n = { ...profileRef.current.looks }; if (look) n[charId] = look; else delete n[charId];
     profileRef.current = { ...profileRef.current, looks: n };
     setLooksState(n); ls.set("ll.looks", n); pushProfile();
+  }, [pushProfile]);
+  const setCharStats = useCallback((charId, st) => {
+    const n = { ...(profileRef.current.statAlloc || {}) }; if (st) n[charId] = st; else delete n[charId];
+    profileRef.current = { ...profileRef.current, statAlloc: n };
+    setStatAllocState(n); ls.set("ll.statAlloc", n); pushProfile();
   }, [pushProfile]);
   const setLoadout = useCallback((charId, ids) => {
     const n = { ...profileRef.current.loadouts, [charId]: ids };
@@ -99,8 +108,8 @@ export function SessionProvider({ children }) {
     return c;
   }, [user, guestName, club, token]);
 
-  const value = useMemo(() => ({ token, user, club, settings, guestName, serverUp, online, conn, looks, loadouts, setLook, setLoadout, login, logout, deleteAccount, changePassword, refreshUser, setClub, setSettings, setGuestName, saveLang, openConnection, closeConnection: dropConn, api: (p, o = {}) => api(p, { ...o, token }) }),
-    [token, user, club, settings, guestName, serverUp, online, conn, looks, loadouts, setLook, setLoadout, login, logout, deleteAccount, changePassword, refreshUser, setClub, setSettings, setGuestName, saveLang, openConnection]);
+  const value = useMemo(() => ({ token, user, club, settings, guestName, serverUp, online, conn, looks, loadouts, statAlloc, setLook, setLoadout, setCharStats, login, logout, deleteAccount, changePassword, refreshUser, setClub, setSettings, setGuestName, saveLang, openConnection, closeConnection: dropConn, api: (p, o = {}) => api(p, { ...o, token }) }),
+    [token, user, club, settings, guestName, serverUp, online, conn, looks, loadouts, statAlloc, setLook, setLoadout, setCharStats, login, logout, deleteAccount, changePassword, refreshUser, setClub, setSettings, setGuestName, saveLang, openConnection]);
   return <SessionCtx.Provider value={value}>{children}</SessionCtx.Provider>;
 }
 

@@ -7,7 +7,7 @@
 // Terrain 100 × 60 ; « home » défend x=0 et attaque x=100.
 // ═══════════════════════════════════════════════════════════════
 import { makeRng } from "../rng.js";
-import { getPlayer, getPowerUp, sanitizeLoadout, keeperRating, roleOf, narrKey, FORMATIONS, STRATEGY_BY_ID, STRATEGIES, TEAM_TALK_BY_ID } from "../data/content.js";
+import { getPlayer, getPowerUp, sanitizeLoadout, withStats, keeperRating, roleOf, narrKey, FORMATIONS, STRATEGY_BY_ID, STRATEGIES, TEAM_TALK_BY_ID } from "../data/content.js";
 import { synergyBonus, activeSynergies } from "../data/enrichment.js";
 
 export const TICKS_PER_SEC = 10;
@@ -38,7 +38,7 @@ const newStats = () => ({ goals: 0, assists: 0, shots: 0, onTarget: 0, xg: 0, pa
 export class ManagerEngine {
   /**
    * @param {{home: TeamSetup, away: TeamSetup, seed?: number, halfTicks?: number, halftimeTicks?: number}} o
-   * TeamSetup = { name, colors, crest, lineup: string[5] (0 = gardien), bench: string[], formation, strategy, loadouts?: { id: [puId, puId] } }
+   * TeamSetup = { name, colors, crest, lineup: string[5] (0 = gardien), bench: string[], formation, strategy, loadouts?: { id: [puId, puId] }, stats?: { id: répartition } }
    */
   constructor(o) {
     this.rng = makeRng(o.seed ?? 1);
@@ -61,7 +61,7 @@ export class ManagerEngine {
         stats: { shots: 0, onTarget: 0, xg: 0, passes: 0, passesOk: 0, tackles: 0, fouls: 0, yellow: 0, red: 0, saves: 0, powerups: 0, subs: 0, corners: 0 },
       };
       for (const id of [...lineup, ...this.teams[side].bench]) {
-        const p = getPlayer(id); if (!p) throw new Error("Joueur inconnu : " + id);
+        const p = withStats(getPlayer(id), s.stats?.[id]); if (!p) throw new Error("Joueur inconnu : " + id); // répartition du manager
         const pus = sanitizeLoadout(id, s.loadouts?.[id]).map(getPowerUp); // 2 power-ups emportés
         this.pl[id] = { id, p, side, pus, x: 50, y: 30, tx: 50, ty: 30, bx: 50, by: 30, stamina: 100, onPitch: lineup.includes(id), yellow: 0, red: false, stats: newStats(), rating: 6 };
       }
@@ -514,7 +514,9 @@ export class ManagerEngine {
     const pTackle = clamp(0.38 + (this.attr(def, "Tacle") - this.attr(att, "Dribble")) / 100 * 0.8 + (this.attr(def, "Force") - this.attr(att, "Force")) / 100 * 0.3 + (afterDribble ? 0.15 : 0), 0.1, 0.85);
     if (this.rng() > pTackle) return;
     const st = this.teams[D.side].strategy.id;
-    const pFoul = (0.1 + (st === "pressing" ? 0.1 : 0) + (st === "park_bus" ? 0.03 : 0) + (this.attr(def, "Sang-froid") < 60 ? 0.04 : 0)) * (this.teams[D.side].talk?.fouls || 1);
+    // discipline : plus les caractéristiques défensives sont élevées, moins le défenseur commet de fautes
+    const discipline = clamp(1.4 - (this.attr(def, "Tacle") * 0.6 + this.attr(def, "Sang-froid") * 0.3 + this.attr(def, "Vision") * 0.1) / 99 * 1.05, 0.3, 1.3);
+    const pFoul = (0.1 + (st === "pressing" ? 0.1 : 0) + (st === "park_bus" ? 0.03 : 0)) * discipline * (this.teams[D.side].talk?.fouls || 1);
     if (this.rng() < pFoul) return this.foul(def, att);
     D.stats.tackles++; this.teams[D.side].stats.tackles++;
     this.gainBall(def);
@@ -525,9 +527,7 @@ export class ManagerEngine {
     const D = this.pl[def], V = this.pl[victim]; const t = this.teams[D.side];
     D.stats.fouls++; t.stats.fouls++;
     this.event("FOUL", D.side, def, victim, {}, "faute");
-    const r = this.rng();
-    if (r < 0.025 || (r < 0.24 && D.yellow >= 1)) this.sendOff(def);
-    else if (r < 0.24) { D.yellow++; D.stats.yellow++; t.stats.yellow++; this.event("YELLOW", D.side, def); }
+    // pas de cartons : la faute donne un coup franc, ou un penalty dans la surface
     const inBox = Math.abs(V.x - this.ownGoalX(D.side)) < 14 && V.y > 12 && V.y < 48;
     this.gainBall(victim);
     if (inBox) { this.phase = "penalty"; this.phaseTimer = 25; this.penaltySide = V.side; this.event("PENALTY", V.side, victim); return; }
@@ -536,17 +536,6 @@ export class ManagerEngine {
     this.freeKickShot = dGoal < 30 ? victim : null;
   }
 
-  sendOff(id) {
-    const e = this.pl[id]; const t = this.teams[e.side];
-    e.red = true; e.onPitch = false; e.stats.red++; t.stats.red++;
-    if (this.ball.owner === id) this.ball.owner = null;
-    t.excluded.push({ id, until: this.time + EXCLUSION_TICKS, done: false });
-    this.event("RED", e.side, id);
-    if (id === t.lineup[0]) { // gardien exclu : un joueur de champ prend les gants
-      const alt = this.onPitch(e.side).reduce((b, x) => (!b || keeperRating(this.pl[x].p) > keeperRating(this.pl[b].p) ? x : b), null);
-      if (alt) { const i = t.lineup.indexOf(alt); t.lineup[i] = id; t.lineup[0] = alt; this.placeFormation(e.side); }
-    }
-  }
 
   // ── Tirs ──────────────────────────────────────────────────
   shoot(id, kind = "open") {

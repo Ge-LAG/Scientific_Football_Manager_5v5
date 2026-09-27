@@ -11,7 +11,7 @@ import { useBindings } from "../../ui/bindings.js";
 import { ACHIEVEMENTS } from "../../../shared/progression.js";
 import { speak, stopSpeaking } from "../../audio/voice.js";
 
-const FEED_TYPES = new Set(["GOAL", "SAVE", "TACKLE", "POWERUP", "FOUL", "POST", "FIREWALL", "SKILL", "HALFTIME", "SECOND_HALF", "END"]);
+const FEED_TYPES = new Set(["GOAL", "SAVE", "TACKLE", "POWERUP", "FOUL", "FREEKICK", "PENALTY", "POST", "FIREWALL", "SKILL", "HALFTIME", "SECOND_HALF", "END"]);
 
 export function ArenaGame({ room, init, end, onLeave }) {
   const { t, lang } = useI18n(); const { conn, settings, setSettings } = useSession(); const game = useGame();
@@ -69,7 +69,12 @@ export function ArenaGame({ room, init, end, onLeave }) {
   const nameOf = s => (slots[s]?.human ? slots[s].pseudo : getPlayer(slots[s]?.charId)?.nom) || "?";
   const evText = ev => {
     const p = ev.slot >= 0 ? getPlayer(slots[ev.slot]?.charId) : null;
-    if (ev.n) return narrText(ev.n, { joueur: p?.nom || "", pu: ev.pu ? puText(getPowerUp(ev.pu) || p.powerUp, lang).nom : "" }, lang);
+    const skill = ev.type === "SKILL" && ev.move ? t("skill." + ev.move) + (ev.ok === false ? " ✗" : "") + " — " : "";
+    if (ev.n) return skill + narrText(ev.n, { joueur: p?.nom || "", pu: ev.pu ? puText(getPowerUp(ev.pu) || p.powerUp, lang).nom : "" }, lang);
+    if (ev.type === "SKILL") return t("skill." + (ev.move || "cut")) + (ev.ok === false ? " ✗" : "");
+    if (ev.type === "FREEKICK") return t("arena.freekickFor", { name: p?.nom || "" });
+    if (ev.type === "PENALTY") return t("arena.penaltyFor", { name: p?.nom || "" });
+    if (ev.type === "FOUL") return t("arena.foulBy", { name: p?.nom || "" });
     if (ev.type === "GOAL" && ev.own) return t("arena.ownGoal");
     if (ev.type === "FIREWALL") return t("arena.firewall", { name: p?.nom });
     if (ev.type === "POST") return t("ev.post", { name: p?.nom || "" });
@@ -135,18 +140,26 @@ export function ArenaGame({ room, init, end, onLeave }) {
           <div className="hud-help">
             <div style={{ fontWeight: 800, color: "var(--cyan)" }}>{hud.usingPad ? "🎮 " + t("controls.padTitle") : keys.mouse ? "🖱️ " + t("arena.clickToPlay") : "⌨️ " + t("controls.kbTitle")}</div>
             <div><span className="kbd">{hud.usingPad ? t("controls.leftStick") : keys.moveKeys}</span> {t("controls.move")}</div>
-            {["sprint", "shoot", "pass", "lob", "skill", "switch", "call", "pu1", "pu2", "cam"].map(k => <div key={k}><span className="kbd">{hud.usingPad ? keys.padOf(k) : keys.keyOf(k)}</span> {t("controls." + k)}</div>)}
+            {["sprint", "shoot", "pass", "lob", "skill", "tackle", "press", "switch", "call", "pu1", "pu2", "cam"].map(k => <div key={k}><span className="kbd">{hud.usingPad ? keys.padOf(k) : keys.keyOf(k)}</span> {t("controls." + k)}</div>)}
             {keys.controls.contextKeys && <div className="tiny muted" style={{ lineHeight: 1.4, maxWidth: 260 }}>🛡️ {t("controls.contextHint", { pass: hud.usingPad ? keys.padOf("pass") : keys.keyOf("pass"), shoot: hud.usingPad ? keys.padOf("shoot") : keys.keyOf("shoot") })}</div>}
             <div className="tiny muted">{t("controls.helpToggle")}</div>
           </div>
         )}
         {hud?.locked && <div className="crosshair" />}
-        {hud?.replay && <div className="replay-badge">▶ {t("arena.replay")} <span className="tiny muted">{t("arena.replaySkip")}</span></div>}
+        {hud?.replay && <div className="replay-badge">▶ {t("arena.replay")} <span className="tiny muted">{t("arena.replaySkip", { pass: hud.usingPad ? keys.padOf("pass") : keys.keyOf("pass"), menu: hud.usingPad ? keys.padOf("menu") : keys.keyOf("menu") })}</span></div>}
+        {hud?.phase === "setpiece" && hud.sp && !hud.replay && (
+          <div className="setpiece-banner" style={{ borderColor: T[hud.sp.tm].color }}>
+            <div className="h2" style={{ margin: 0, color: hud.sp.k === "penalty" ? "var(--coral)" : "var(--gold)" }}>{hud.sp.k === "penalty" ? "🎯 " + t("arena.penalty") : "🚩 " + t("arena.freekick")}</div>
+            <div className="small">{nameOf(hud.sp.p)} · <span className="num">{Math.ceil(hud.sp.r)}s</span></div>
+            {hud.sp.p === mySlot && <div className="tiny">{t("arena.spHint", { move: hud.usingPad ? t("controls.leftStick") : keys.moveKeys, shoot: hud.usingPad ? keys.padOf("shoot") : keys.keyOf("shoot"), pass: hud.usingPad ? keys.padOf("pass") : keys.keyOf("pass") })}</div>}
+            {hud.sp.k === "penalty" && mySlot != null && slots[mySlot].slot % 5 === 0 && slots[mySlot].team !== hud.sp.tm && <div className="tiny">{t("arena.penaltyKeeper", { dive: hud.usingPad ? keys.padOf("tackle") : keys.keyOf("tackle") })}</div>}
+          </div>
+        )}
         {banner && !hud?.replay && <div className="hud-center"><div className="goal-flash">{t("mr.goal")}</div><div className="h2" style={{ color: T[banner.ev.team].color }}>{banner.ev.own ? t("arena.ownGoal") : nameOf(banner.ev.slot)}{banner.ev.assist >= 0 ? ` · 🅰️ ${nameOf(banner.ev.assist)}` : ""}</div></div>}
         {hud?.phase === "halftime" && !banner && <div className="hud-center"><div className="h1">{t("mr.halftime")}</div></div>}
         {hud?.phase === "kickoff" && hud.clock >= room.opts.halfSeconds - 1 && <div className="hud-center"><div className="h1" style={{ animation: "pop .5s" }}>{t("arena.kickoff")}</div></div>}
         {emote && <div className="emote-float">{emote.e} <span className="small">{emote.from}</span></div>}
-        {hud?.board && <Scoreboard slots={slots} hud={hud} teams={T} />}
+        {hud?.board && <Scoreboard slots={slots} hud={hud} teams={T} keyBoard={hud.usingPad ? keys.padOf("board") : keys.keyOf("board")} />}
         {isTouch && viewRef.current && !ended && !spectator && <TouchControls touch={viewRef.current.touch} t={t} canSwitch={canSwitch} />}
         {(menu || ended) && (
           <div className="hud-menu">
@@ -177,10 +190,12 @@ export function ArenaGame({ room, init, end, onLeave }) {
 
 // entraînement guidé : liste d'objectifs
 const TRAINING = ["control", "sprint", "skill", "pass", "shoot", "tackle", "power", "switch", "score"];
-const TRAINING_ACTION = { sprint: "sprint", skill: "skill", pass: "pass", shoot: "shoot", tackle: "pass", power: "pu1", switch: "switch" };
+const TRAINING_ACTION = { sprint: "sprint", skill: "skill", pass: "pass", shoot: "shoot", tackle: "tackle", power: "pu1", switch: "switch" };
 function Training({ goals, t, keys, pad }) {
   const n = TRAINING.filter(k => goals[k]).length;
-  const keyOf = k => (k === "control" ? (pad ? t("controls.leftStick") : keys.moveKeys) : TRAINING_ACTION[k] ? (pad ? keys.padOf(TRAINING_ACTION[k]) : keys.keyOf(TRAINING_ACTION[k])) : "");
+  const one = a => (pad ? keys.padOf(a) : keys.keyOf(a));
+  // tacle : touche dédiée, et touche de tir quand un adversaire a le ballon (touches contextuelles)
+  const keyOf = k => (k === "control" ? (pad ? t("controls.leftStick") : keys.moveKeys) : k === "tackle" && keys.controls.contextKeys ? `${one("tackle")} / ${one("shoot")}` : TRAINING_ACTION[k] ? one(TRAINING_ACTION[k]) : "");
   return (
     <div className="training">
       <div style={{ fontWeight: 800, color: "var(--lime)" }}>🎓 {t("training.title")} — {n}/{TRAINING.length}</div>
@@ -204,13 +219,13 @@ function MiniMap({ hud, slots, teams, mySlot }) {
   );
 }
 
-function Scoreboard({ slots, hud, teams }) {
+function Scoreboard({ slots, hud, teams, keyBoard }) {
   const { t } = useI18n();
   return (
     <div className="hud-center" style={{ pointerEvents: "none" }}>
       <Card elevated style={{ width: "min(700px, 94vw)" }}>
         <div className="grid g2">{[0, 1].map(team => <div key={team}><Kicker color={teams[team].color}>{teams[team].name}</Kicker>{slots.filter(s => s.team === team).map(s => { const p = getPlayer(s.charId); return <div key={s.slot} className="row nowrap small mb8"><Avatar player={p} size={24} showNum={false} /><span className="grow">{p.nom}</span><span className="tiny muted">{s.human ? "👤 " + s.pseudo : "🤖"}</span><span className="num tiny">{hud.players[s.slot]?.stamina}%</span></div>; })}</div>)}</div>
-        <p className="tiny muted center">{t("arena.boardHint")}</p>
+        <p className="tiny muted center">{t("arena.boardHint", { key: keyBoard })}</p>
       </Card>
     </div>
   );
@@ -250,7 +265,7 @@ function TouchControls({ touch, t, canSwitch }) {
     touch.mx = x; touch.mz = -y; knob.current.style.transform = `translate(${x * 36}px, ${y * 36}px)`;
   };
   const endStick = () => { touch.mx = 0; touch.mz = 0; knob.current.style.transform = ""; };
-  const hold = name => ({ onTouchStart: e => { e.preventDefault(); touch.btn.add(name); }, onTouchEnd: e => { e.preventDefault(); touch.btn.delete(name); } });
+  const hold = name => ({ onTouchStart: e => { e.preventDefault(); touch.btn.add(name); }, onTouchEnd: e => { e.preventDefault(); touch.btn.delete(name); }, onTouchCancel: () => touch.btn.delete(name) });
   const tap = name => ({ onTouchStart: e => { e.preventDefault(); touch.btn.add(name); } });
   return (
     <>
@@ -262,6 +277,7 @@ function TouchControls({ touch, t, canSwitch }) {
         <button {...tap("tackle")} style={{ color: "var(--violet)" }}>{t("touch.tackle")}</button>
         <button {...tap("skill")} style={{ color: "var(--magenta)" }}>{t("touch.skill")}</button>
         <button {...tap("call")} style={{ color: "var(--gold)" }}>{t("touch.call")}</button>
+        <button {...hold("press")} style={{ color: "var(--cyan)" }}>{t("touch.press")}</button>
         {canSwitch && <button {...tap("switch")} style={{ color: "var(--white)" }}>{t("touch.switch")}</button>}
       </div>
     </>

@@ -90,7 +90,10 @@ test("Arène : deux humains, snapshots, départ remplacé par un bot, fin de mat
   const st = await A.wait(m => m.t === "room.state" && m.phase === "playing" && m.slots[jb.seat].human === false);
   assert.equal(st.slots[jb.seat].left, true);
   const room = app.lobby.rooms.get(j.code); room.sim.halfSeconds = 0.5; room.sim.half = 2;
-  const end = await A.wait(m => m.t === "a.end", 20000);
+  // fin forcée : on sort d'une éventuelle pause (coup de pied arrêté, but) pour que le chrono tourne
+  if (room.sim.phase === "setpiece") room.sim.endSetPiece();
+  if (room.sim.phase === "goal" || room.sim.phase === "kickoff") room.sim.phase = "play";
+  const end = await A.wait(m => m.t === "a.end", 40000);
   assert.equal(end.score.length, 2);
   assert.equal(end.ratings.length, 10);
   A.ws.close();

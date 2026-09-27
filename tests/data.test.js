@@ -3,6 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { ROSTER, POWER_UPS, PLAYERS, pText, puText, narrText, narrKey } from "../shared/data/content.js";
+import { STAT_BUDGET } from "../shared/data/stats.js";
 import { NARRATION_DOMAINE_FR } from "../shared/data/narration.fr.js";
 import { NARRATION_DOMAINE_EN } from "../shared/data/narration.en.js";
 import { EXTRA, ARENA_EFFECTS, activeSynergies } from "../shared/data/enrichment.js";
@@ -31,7 +32,9 @@ test("chaque joueur a un power-up, des Réflexes et un effet Arène", () => {
     assert.ok(EXTRA[p.id], p.id);
     assert.ok(p.powerUp && ARENA_EFFECTS[p.powerUp.id], p.id);
     assert.ok(p.attributs["Réflexes"] >= 1 && p.attributs["Réflexes"] <= 99);
-    for (const k of Object.keys(orig.attributs)) assert.equal(p.attributs[k], orig.attributs[k]);
+    // valeurs d'origine conservées comme référence ; le profil joué est ramené au budget commun
+    for (const k of Object.keys(orig.attributs)) assert.equal(p.baseAttributs[k], orig.attributs[k]);
+    assert.equal(Object.values(p.attributs).reduce((s, v) => s + v, 0), STAT_BUDGET, p.id);
   }
   assert.equal(new Set(PLAYERS.map(p => p.numero)).size, 16, "numéros uniques");
 });

@@ -3,14 +3,14 @@
 import { BaseRoom } from "./base.js";
 import { ArenaSim, TICK_HZ, ROLES, bestSwitchTarget } from "../action/sim.js";
 import { ArenaBrain, BOT_LEVELS } from "../action/bot.js";
-import { PLAYERS, getPlayer, sanitizeLoadout, defaultLoadout } from "../data/content.js";
+import { PLAYERS, getPlayer, sanitizeLoadout, defaultLoadout, sanitizeStats } from "../data/content.js";
 import { sanitizeAppearance } from "../data/appearance.js";
 import { ROLE_SCORE } from "../manager/ai.js";
 import { makeRng, randomSeed } from "../rng.js";
 
 // bits des boutons envoyés par le client
-export const BTN = { sprint: 1, shoot: 2, pass: 4, lob: 8, tackle: 16, pu: 32, aimFace: 64, call: 128, skill: 256, pu2: 512, slide: 1024 };
-const EDGE = BTN.pass | BTN.lob | BTN.tackle | BTN.pu | BTN.call | BTN.skill | BTN.pu2 | BTN.slide;
+export const BTN = { sprint: 1, shoot: 2, pass: 4, lob: 8, tackle: 16, pu: 32, aimFace: 64, call: 128, skill: 256, pu2: 512, press: 1024 };
+const EDGE = BTN.pass | BTN.lob | BTN.tackle | BTN.pu | BTN.call | BTN.skill | BTN.pu2; // press est maintenu
 const STAT_KEYS = ["goals", "assists", "saves", "tackles", "shots"];
 const SWITCH_MS = 250; // délai minimal entre deux changements de joueur
 const HALVES = [60, 120, 180, 300];
@@ -22,7 +22,7 @@ export class ArenaRoom extends BaseRoom {
     const training = !!this.opts.training && !this.opts.public;
     this.opts = { halfSeconds: training ? 300 : hs, botLevel: training ? "training" : BOT_LEVELS[this.opts.botLevel] ? this.opts.botLevel : "normal", public: !!this.opts.public, quick: !!this.opts.quick, training };
     this.rng = makeRng(randomSeed());
-    this.slots = Array.from({ length: 10 }, (_, i) => ({ slot: i, team: i < 5 ? 0 : 1, memberId: null, identity: null, pseudo: null, userId: null, charId: null, left: false, loadout: null, look: null, pick: null }));
+    this.slots = Array.from({ length: 10 }, (_, i) => ({ slot: i, team: i < 5 ? 0 : 1, memberId: null, identity: null, pseudo: null, userId: null, charId: null, left: false, loadout: null, look: null, stats: null, pick: null }));
     // statistiques par humain (identité), créditées au pilote du joueur AU MOMENT de l'action (tir, tacle, arrêt,
     // dernière touche avant un but) : changer de joueur ne permet pas de s'approprier l'action d'un bot
     this.acc = Object.create(null);
@@ -71,6 +71,7 @@ export class ArenaRoom extends BaseRoom {
   applyProfile(s, client) {
     if (!s.charId) return;
     const look = client.looks?.[s.charId]; s.look = look ? sanitizeAppearance(look, s.charId) : null;
+    if (this.phase === "lobby" || !this.sim) s.stats = client.statAlloc?.[s.charId] ? sanitizeStats(s.charId, client.statAlloc[s.charId]) : null;
     if (this.phase === "lobby" || !this.sim) s.loadout = sanitizeLoadout(s.charId, client.loadouts?.[s.charId]);
   }
   onProfile(clientId) {
@@ -108,7 +109,7 @@ export class ArenaRoom extends BaseRoom {
     this.removeMember(clientId);
     if (s) {
       s.memberId = null;
-      if (this.phase === "lobby") Object.assign(s, { identity: null, pseudo: null, userId: null, charId: null, loadout: null, look: null });
+      if (this.phase === "lobby") Object.assign(s, { identity: null, pseudo: null, userId: null, charId: null, loadout: null, look: null, stats: null });
       else { s.left = true; if (this.sim) { this.sim.setControl(s.slot, false); this.brain?.forget(s.slot); } }
       delete this.inputs[s.slot];
     }
@@ -179,7 +180,7 @@ export class ArenaRoom extends BaseRoom {
     if (!target || target.memberId) return;
     const cur = typeof m.seat === "number" ? this.slots[m.seat] : null;
     const keepChar = cur?.charId, keepLoadout = cur?.loadout;
-    if (cur) Object.assign(cur, { memberId: null, identity: null, pseudo: null, userId: null, charId: null, loadout: null, look: null });
+    if (cur) Object.assign(cur, { memberId: null, identity: null, pseudo: null, userId: null, charId: null, loadout: null, look: null, stats: null });
     this.occupy(target, m.client, BaseRoom.identity(m.client));
     if (keepChar && !this.slots.some(o => o !== target && o.charId === keepChar)) { target.charId = keepChar; this.applyProfile(target, m.client); if (keepLoadout) target.loadout = keepLoadout; }
     this.broadcastState();
@@ -201,9 +202,10 @@ export class ArenaRoom extends BaseRoom {
       // les bots emportent leur power-up d'origine + un autre au hasard
       if (!s.memberId || !s.loadout) { const own = getPlayer(s.charId).powerUps; s.loadout = s.memberId ? defaultLoadout(s.charId) : [own[0].id, own[1 + Math.floor(this.rng() * (own.length - 1))]?.id || own[0].id]; }
       s.pick = s.memberId ? s.charId : null;
+      if (!s.memberId) s.stats = null; // les bots jouent le profil par défaut
     }
     this.phase = "playing";
-    this.sim = new ArenaSim({ seed: randomSeed(), halfSeconds: this.opts.halfSeconds, slots: this.slots.map(s => ({ charId: s.charId, name: s.pseudo || undefined, human: !!s.memberId, loadout: s.loadout })) });
+    this.sim = new ArenaSim({ seed: randomSeed(), halfSeconds: this.opts.halfSeconds, slots: this.slots.map(s => ({ charId: s.charId, name: s.pseudo || undefined, human: !!s.memberId, loadout: s.loadout, stats: s.stats || undefined })) });
     this.acc = Object.create(null); this.touchBy = new Array(10).fill(null); this.lastSeen = -1;
     this.brain = new ArenaBrain(this.sim, this.opts.botLevel);
     this.evSent = 0; this.snapCount = 0;
@@ -220,7 +222,7 @@ export class ArenaRoom extends BaseRoom {
       const i = this.inputs[s.slot];
       if (!i) { sim.setInput(s.slot, {}); continue; }
       const bits = (i.b & ~EDGE) | i.edge;
-      sim.setInput(s.slot, { mx: i.mx, mz: i.mz, aim: i.aim, sprint: !!(bits & BTN.sprint), shoot: !!(i.b & BTN.shoot), pass: !!(bits & BTN.pass), lob: !!(bits & BTN.lob), tackle: !!(bits & BTN.tackle), pu: !!(bits & BTN.pu), pu2: !!(bits & BTN.pu2), slide: !!(bits & BTN.slide), aimFace: !!(bits & BTN.aimFace), call: !!(bits & BTN.call), skill: !!(bits & BTN.skill) });
+      sim.setInput(s.slot, { mx: i.mx, mz: i.mz, aim: i.aim, sprint: !!(bits & BTN.sprint), shoot: !!(i.b & BTN.shoot), pass: !!(bits & BTN.pass), lob: !!(bits & BTN.lob), tackle: !!(bits & BTN.tackle), pu: !!(bits & BTN.pu), pu2: !!(bits & BTN.pu2), press: !!(i.b & BTN.press), aimFace: !!(bits & BTN.aimFace), call: !!(bits & BTN.call), skill: !!(bits & BTN.skill) });
       i.edge = 0;
     }
     this.brain.update();
@@ -258,7 +260,7 @@ export class ArenaRoom extends BaseRoom {
     this.after(10 * 60 * 1000, () => this.lobby?.closeRoom(this));
   }
 
-  slotInfo() { return this.slots.map(s => ({ slot: s.slot, team: s.team, charId: s.charId, pseudo: s.pseudo, human: !!s.memberId, left: s.left, loadout: s.loadout, look: s.look })); }
+  slotInfo() { return this.slots.map(s => ({ slot: s.slot, team: s.team, charId: s.charId, pseudo: s.pseudo, human: !!s.memberId, left: s.left, loadout: s.loadout, look: s.look, stats: s.stats })); }
 
   stateFor(clientId) {
     const m = this.members.get(clientId);

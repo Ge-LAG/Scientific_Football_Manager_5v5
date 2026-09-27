@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import { ATTRS, attrName, pText, domainName } from "../../shared/data/content.js";
 import { useI18n } from "../i18n/index.jsx";
 import { useSession as useSessionLazy } from "../store/session.jsx";
+import { ArchetypeBadge, RoleFit } from "./profile.jsx";
 
 export function Card({ children, className = "", onClick, style, elevated, selected, tight, ...rest }) {
   const cls = ["card", onClick && "clickable", elevated && "elevated", selected && "selected", tight && "tight", className].filter(Boolean).join(" ");
@@ -53,20 +54,20 @@ export function Avatar({ player, size = 44, ring, showNum = true }) {
 }
 
 export function PlayerCard({ player, onClick, selected, extra, dim }) {
-  const { lang, t } = useI18n(); const tx = pText(player, lang);
+  const { lang } = useI18n(); const tx = pText(player, lang);
   return (
     <Card className="pcard" onClick={onClick} selected={selected} style={{ "--pc": player.color, opacity: dim ? 0.45 : 1 }}>
       <div className="row between" style={{ alignItems: "flex-start" }}>
         <span className="chip" style={{ color: player.color }}>{tx.poste}</span>
-        <div className="rating" style={{ color: player.color, textShadow: `0 0 18px ${player.color}66` }}>{player.overall}</div>
+        <ArchetypeBadge player={player} small />
       </div>
       <div style={{ display: "flex", justifyContent: "center", margin: "6px 0 10px" }}><Avatar player={player} size={70} /></div>
       <div className="name">{player.nom}</div>
       <div className="small" style={{ color: player.color, marginBottom: 4 }}>{domainName(player.domaine, lang)}</div>
+      <div className="mb8"><RoleFit player={player} /></div>
       <div className="tiny muted" style={{ fontStyle: "italic", minHeight: 30 }}>« {tx.slogan} »</div>
       <div className="row mt8" style={{ justifyContent: "center", gap: 4 }}>{tx.traits.map(x => <span key={x} className="chip" style={{ color: "#8a93a6" }}>{x}</span>)}</div>
       {extra}
-      <span className="sr-only" style={{ position: "absolute", left: -9999 }}>{t("roster.overall")} {player.overall}</span>
     </Card>
   );
 }
@@ -77,7 +78,7 @@ export function PlayerRow({ player, right, onClick, selected, sub }) {
     <Card tight className="prow" onClick={onClick} selected={selected}>
       <Avatar player={player} size={36} showNum={false} />
       <div className="grow"><div className="name">{player.nom} <span className="tiny muted">#{player.numero}</span></div><div className="tiny" style={{ color: player.color }}>{sub ?? pText(player, lang).poste}</div></div>
-      {right ?? <div className="num" style={{ color: player.color, fontSize: 18 }}>{player.overall}</div>}
+      {right ?? <RoleFit player={player} />}
     </Card>
   );
 }

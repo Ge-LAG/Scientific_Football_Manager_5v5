@@ -63,7 +63,7 @@ function Shell({ path, navigate }) {
     case "leaderboard": page = <Leaderboard navigate={navigate} />; break;
     case "help": page = <Help navigate={navigate} />; break;
     case "settings": page = <Settings navigate={navigate} />; break;
-    case "look": page = <Suspense fallback={<Spinner label={t("common.loading")} />}><LookEditor id={seg[1]} navigate={navigate} /></Suspense>; break;
+    case "look": page = <Suspense fallback={<Spinner label={t("common.loading")} />}><LookEditor id={seg[1]} tab={seg[2]} navigate={navigate} /></Suspense>; break;
     case "bench": page = <Suspense fallback={<Spinner label={t("common.loading")} />}><Bench navigate={navigate} /></Suspense>; break;
     case "manager": page = seg[1] === "play" ? <ManagerRoomPage navigate={navigate} /> : seg[1] === "season" ? <SeasonPage navigate={navigate} /> : <ManagerHub navigate={navigate} />; break;
     case "arena": page = seg[1] === "play" ? <Suspense fallback={<Spinner label={t("common.loading")} />}><ArenaRoomPage navigate={navigate} /></Suspense> : <ArenaHub navigate={navigate} />; break;

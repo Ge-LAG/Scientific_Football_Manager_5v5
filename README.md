@@ -27,16 +27,29 @@ des buts, grades académiques, ELO, 18 « publications » (succès), récompense
 - **Rendu premium** : post-traitements (bloom, anticrénelage, occlusion ambiante, étalonnage), qualité adaptative,
   avatars cel-shading animés (machine à états, transitions, célébrations), stade vivant ; compteur F3 et banc d'essai `#/bench`.
 
+**Vague 6 (gameplay et personnalisation)** :
+
+- **Caractéristiques libres** : même budget de 612 points pour chaque scientifique (25 à 95 par caractéristique),
+  réparti par le joueur dans le Vestiaire (préréglages par poste) ; profil par défaut = forme d'origine ramenée au budget ;
+  **archétype + poste idéal** à la place de la note « overall » ; **biographies adaptatives** (FR/EN, selon forces,
+  faiblesses et domaine scientifique ; bio d'origine pour le profil d'origine).
+- **Gestes techniques** (Geste + direction) : crochet, feinte de corps, roulette, passement de jambes, petit pont,
+  une-deux avec la paroi, appui mural — réussite selon le Dribble.
+- **Défense** : un seul tacle, sans étourdissement ; pressing maintenu ; fautes selon les caractéristiques défensives,
+  **coups francs et penaltys**, aucun carton (Arène et Manager). Chaque caractéristique a un effet mesurable (tests).
+- **Visages** : formes de visage, d'yeux, sourcils, nez ; têtes adultes ; coiffures réalistes (mulets dans la liste).
+
 ### Commandes par défaut (schéma « flèches + main gauche »)
 
 | Action | Clavier (position physique, libellé AZERTY / QWERTY) | Manette |
 | --- | --- | --- |
 | Se déplacer | Flèches | Stick gauche |
 | Sprint (maintenir) | Espace (pouce) / Maj | RT |
-| Tir (maintenir = charger) · sans ballon : tacle glissé | D | B |
-| Passe · sans ballon : tacle | S | A |
+| Tir (maintenir = charger) · adversaire au ballon : tacle | D | B |
+| Passe · adversaire au ballon (maintenir) : pressing | S | A |
 | Lob | Q / A | X |
-| Crochet | F | Y |
+| Geste technique (+ direction : feinte, roulette, crochet, petit pont, une-deux ou appui sur la paroi) | F | Y |
+| Tacle (touche dédiée) · Pressing (maintenir) | X · W / Z | → · ← |
 | Changer de joueur | A / Q | LB |
 | Appel de balle | Z / W | R3 |
 | Power-up 1 / 2 | E / R | RB / LT |
@@ -82,7 +95,8 @@ node scripts/smoke-online.mjs http://localhost:8787 smoke-out
 
 ```
 shared/             code isomorphe (serveur ET navigateur)
-  data/             personnages, power-ups (64), apparences, narration FR/EN, enrichissements, formations, stratégies
+  data/             personnages, power-ups (64), caractéristiques (budget), textes de profil (bios adaptatives,
+                    archétypes), apparences, narration FR/EN, enrichissements, formations, stratégies
   profile.js        apparences et sélections de power-ups d'un joueur (nettoyées)
   manager/          moteur de match Manager v3 (déterministe) + manager virtuel
   action/           simulation physique de l'Arène (30 Hz) + bots

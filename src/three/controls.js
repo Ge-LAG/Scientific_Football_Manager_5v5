@@ -2,34 +2,36 @@
 // disposition du clavier (AZERTY / QWERTY / QWERTZ, détection automatique), manette, réaffectation.
 
 // Actions affectables (ordre d'affichage dans les réglages).
-export const ACTIONS = ["up", "down", "left", "right", "sprint", "shoot", "pass", "lob", "skill", "tackle", "slide", "switch", "call", "pu1", "pu2", "cam", "board", "menu"];
+export const ACTIONS = ["up", "down", "left", "right", "sprint", "shoot", "pass", "lob", "skill", "tackle", "press", "switch", "call", "pu1", "pu2", "cam", "board", "menu"];
 export const MOVE_ACTIONS = ["up", "down", "left", "right"];
-// Actions ponctuelles (front montant) ; les autres sont maintenues (déplacement, sprint, tir chargé, tableau).
-export const EDGE_ACTIONS = ["pass", "lob", "skill", "tackle", "slide", "switch", "call", "pu1", "pu2", "cam", "menu"];
+// Actions ponctuelles (front montant) ; les autres sont maintenues (déplacement, sprint, tir chargé, pressing, tableau).
+export const EDGE_ACTIONS = ["pass", "lob", "skill", "tackle", "switch", "call", "pu1", "pu2", "cam", "menu"];
 
 // Préréglages clavier. « arrows » : déplacement aux flèches (main droite), actions sous la main gauche posée
 // sur la rangée de repos (auriculaire → index : lob, passe, tir, crochet), rangée du haut pour les actions
 // « méta » (changer de joueur, appel, power-ups), pouce sur Espace pour le sprint maintenu.
+// En défense (touches contextuelles), les mêmes doigts servent : Passe maintenue = pressing, Tir = tacle.
 export const KEY_PRESETS = {
   arrows: {
     up: ["ArrowUp"], down: ["ArrowDown"], left: ["ArrowLeft"], right: ["ArrowRight"],
     sprint: ["Space", "ShiftLeft"], shoot: ["KeyD"], pass: ["KeyS"], lob: ["KeyA"], skill: ["KeyF"],
-    tackle: ["KeyX"], slide: ["KeyZ"], switch: ["KeyQ"], call: ["KeyW"], pu1: ["KeyE"], pu2: ["KeyR"],
+    tackle: ["KeyX"], press: ["KeyZ"], switch: ["KeyQ"], call: ["KeyW"], pu1: ["KeyE"], pu2: ["KeyR"],
     cam: ["KeyC"], board: ["Tab"], menu: ["Escape"],
   },
   // clavier + souris (style tir à la 3e personne) : ZQSD / WASD, souris pour la caméra et la visée
   wasd: {
     up: ["KeyW"], down: ["KeyS"], left: ["KeyA"], right: ["KeyD"],
     sprint: ["ShiftLeft"], shoot: ["Space"], pass: ["KeyE"], lob: ["KeyF"], skill: ["KeyQ"],
-    tackle: ["KeyC", "ControlLeft"], slide: ["KeyV"], switch: ["KeyX"], call: ["KeyZ"], pu1: ["KeyR"], pu2: ["KeyT"],
+    tackle: ["KeyC", "ControlLeft"], press: ["KeyV"], switch: ["KeyX"], call: ["KeyZ"], pu1: ["KeyR"], pu2: ["KeyT"],
     cam: ["KeyB"], board: ["Tab"], menu: ["Escape"],
   },
 };
 
-// Manette (mapping « standard » de l'API Gamepad, noms Xbox) : A passe, B tir, X lob, Y crochet,
-// LB changer de joueur, RB / LT power-ups, RT sprint, R3 appel, Select caméra, Start menu.
+// Manette (mapping « standard » de l'API Gamepad, noms Xbox) : A passe, B tir, X lob, Y geste technique,
+// LB changer de joueur, RB / LT power-ups, RT sprint, R3 appel, Select caméra, Start menu ;
+// en défense : A maintenu = pressing, B = tacle (touches contextuelles), sinon croix ← pressing / → tacle.
 export const PAD_DEFAULT = {
-  sprint: [7], shoot: [1], pass: [0], lob: [2], skill: [3, 10], tackle: [], slide: [], switch: [4], call: [11, 12],
+  sprint: [7], shoot: [1], pass: [0], lob: [2], skill: [3, 10], tackle: [15], press: [14], switch: [4], call: [11, 12],
   pu1: [5], pu2: [6], cam: [8], board: [13], menu: [9],
 };
 export const PAD_BUTTONS = 17;
@@ -45,7 +47,7 @@ export const DEFAULT_CONTROLS = {
   keys: null,          // réaffectations personnalisées { action: [codes] } (null = préréglage)
   pad: null,           // réaffectations manette { action: [boutons] }
   padStyle: "xbox",    // xbox | ps (libellés)
-  contextKeys: true,   // sans le ballon : Passe = tacle, Tir = tacle glissé
+  contextKeys: true,   // adversaire au ballon : Passe maintenue = pressing, Tir = tacle
   mouseCamera: null,   // null = selon le préréglage (activé pour « wasd »)
   autoSwitch: "off",   // off | pass (suivre le ballon après une passe) | assist (+ défense)
   vibration: true,

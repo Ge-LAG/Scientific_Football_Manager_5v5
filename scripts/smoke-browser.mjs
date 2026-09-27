@@ -142,6 +142,17 @@ await step("Vestiaire : apparence (mulet permanenté, tenue rockstar), aperçu 3
   if (saved?.hairStyle !== "mullet_perm" || saved?.outfit !== "rockstar") throw new Error("apparence non enregistrée : " + JSON.stringify(saved));
   await shot("19-vestiaire");
   await click("Visage"); await sleep(2000); await shot("19b-vestiaire-visage");
+  await click("Silhouette"); await sleep(200);
+  // les mulets sont dans la liste des coiffures, sans catégorie à part
+  const cats = await evaluate(`document.querySelectorAll(".look-sub").length`);
+  if (cats !== 0) throw new Error("catégorie de coiffures séparée encore présente");
+  // répartition des points : préréglage « Attaquant », enregistrée, bio adaptée
+  await evaluate(`location.hash = "#/look/loic/stats"`); await waitFor(has("Répartition des points"), 20000); await sleep(800);
+  await click("Attaquant"); await sleep(600);
+  const st = await evaluate(`JSON.parse(localStorage.getItem("ll.statAlloc") || "{}").loic`);
+  if (!st || Object.values(st).reduce((a, b) => a + b, 0) !== 612) throw new Error("répartition non enregistrée : " + JSON.stringify(st));
+  await shot("19c-vestiaire-stats");
+  await evaluate(`location.hash = "#/player/loic"`); await waitFor(has("Répartition personnalisée"), 10000); await shot("19d-fiche-perso");
 });
 
 await step("Affichage mobile (390 px) sans défilement horizontal", async () => {

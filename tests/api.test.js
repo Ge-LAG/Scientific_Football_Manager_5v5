@@ -215,3 +215,17 @@ test('PATCH /api/me : apparences et power-ups préférés (nettoyés, profil pub
   assert.equal(pub.json.user.loadouts, undefined, 'sélections privées');
   assert.equal(pub.json.user.looks.roland.hairStyle, 'mullet_perm', 'apparence publique');
 });
+
+test("PATCH /api/me : répartitions de points (statAlloc) sans jamais toucher la progression (stats)", async () => {
+  const { json: { token, user } } = await register("Noether");
+  db.updateUser(user.id, u => { u.stats.manager.elo = 1234; u.stats.manager.played = 7; });
+  const alloc = { Finition: 92, Tacle: 45, Dribble: 79, Endurance: 67, Force: 67, Vitesse: 83, Vision: 67, "Sang-froid": 73, "Réflexes": 39 };
+  const r = await call("PATCH", "/api/me", { token, body: { statAlloc: { loic: alloc, roland: { Finition: 99 } }, stats: { manager: { elo: 9999 } } } });
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.json.user.statAlloc, { loic: alloc }, "répartition invalide ignorée");
+  assert.equal(r.json.user.stats.manager.elo, 1234, "ELO intact");
+  assert.equal(r.json.user.stats.manager.played, 7);
+  assert.equal((await call("PATCH", "/api/me", { token, body: { stats: {} } })).status, 400, "la progression n'est pas modifiable");
+  const pub = await call("GET", "/api/users/Noether");
+  assert.equal(pub.json.user.statAlloc, undefined, "répartitions privées");
+});

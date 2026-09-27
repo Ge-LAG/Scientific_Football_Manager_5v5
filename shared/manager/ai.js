@@ -18,9 +18,10 @@ export const ROLE_SCORE = {
 };
 
 // Ordonne 5 titulaires selon les rôles de la formation (gardien en premier) ; le reste va au banc.
-export function autoLineup(ids, formation = "2-2") {
+// resolve : id → scientifique (permet d'utiliser la répartition de points d'un manager).
+export function autoLineup(ids, formation = "2-2", resolve = getPlayer) {
   const roles = FORMATIONS[formation]?.roles || FORMATIONS["2-2"].roles;
-  const pool = ids.map(getPlayer).filter(Boolean);
+  const pool = ids.map(resolve).filter(Boolean);
   const lineup = [];
   for (const role of roles) {
     const best = pool.filter(p => !lineup.includes(p.id)).sort((a, b) => ROLE_SCORE[role](b) - ROLE_SCORE[role](a))[0];

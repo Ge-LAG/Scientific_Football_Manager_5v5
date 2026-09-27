@@ -621,7 +621,7 @@
       "id": "roadmap",
       "path": "docs/roadmap.html",
       "title": "Product roadmap",
-      "summary": "Plan d'implémentation Lab League v3 : jalons M0–M4 et lots W-001…W-022.",
+      "summary": "Plan d'implémentation Lab League v3 : jalons M0–M5 et lots W-001…W-029.",
       "tags": [
         "roadmap",
         "milestones",
@@ -634,11 +634,11 @@
       ],
       "kind": "project",
       "status": "active",
-      "sha256": "77361e08295e0a2e079bc779faab643d986cb2621ff6d3d8d5cdbeb90bcd1e06",
-      "chars": 2541,
-      "size": 3885,
-      "mtime_ns": 1790511730129999000,
-      "revision": 3,
+      "sha256": "5ee969aa2fa6f96d006476b28e3aa68a64a19712ec4dba9433368965653bc564",
+      "chars": 2965,
+      "size": 4416,
+      "mtime_ns": 1790534436077117700,
+      "revision": 4,
       "owner": "CTO",
       "reviewed": "",
       "review_by": "",
@@ -655,7 +655,7 @@
       "evidence_digest": "",
       "criteria": [],
       "evidence": [],
-      "body_digest": "b59c7ddbeb2c95579052a4df13cf39af907d546218253f93fba27355267956ee",
+      "body_digest": "b54764502b6ae16428311507ed97b0a2f168ae249aa0ac06ec3fa3995687ecc6",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -681,7 +681,14 @@
         "../work/W-019.html#W-019",
         "../work/W-020.html#W-020",
         "../work/W-021.html#W-021",
-        "../work/W-022.html#W-022"
+        "../work/W-022.html#W-022",
+        "../work/W-023.html#W-023",
+        "../work/W-024.html#W-024",
+        "../work/W-025.html#W-025",
+        "../work/W-026.html#W-026",
+        "../work/W-027.html#W-027",
+        "../work/W-028.html#W-028",
+        "../work/W-029.html#W-029"
       ],
       "anchors": [
         "roadmap"
@@ -1092,6 +1099,84 @@
       ]
     },
     {
+      "id": "AC-003",
+      "path": "records/AC-003.html",
+      "title": "Relecture de la vague 6 (gameplay, stats libres)",
+      "summary": "Relecture indépendante de la vague 6 : 1 critique (écrasement de la progression), 1 haute, 4 moyennes, faibles ; corrigées et testées avant commit.",
+      "tags": [
+        "audit",
+        "securite",
+        "relecture",
+        "review",
+        "stats",
+        "progression",
+        "elo",
+        "penalty",
+        "coup",
+        "franc",
+        "tacle"
+      ],
+      "kind": "finding",
+      "status": "review",
+      "sha256": "9a653206d0601f315e7edfcc63adfaf7769ad44b04b70cd5d833658998825d91",
+      "chars": 2059,
+      "size": 3701,
+      "mtime_ns": 1790539449339023200,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "auth",
+        "data",
+        "arena-sim",
+        "arena-input",
+        "manager-engine"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Les scénarios décrits n'ont plus d'effet (tests automatisés)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/api.test.js",
+          "check": "npm test (127 tests, dont tests/api.test.js « statAlloc sans jamais toucher la progression », tests/gameplay6.test.js)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "127 tests réussis ; la progression reste intacte après un PATCH contenant statAlloc et stats ; les mécaniques de coup de pied arrêté, tacle et pressing sont couvertes."
+        }
+      ],
+      "body_digest": "3b73e094b9ea49c4816fef8f99f75fc60b33dfc8d6cad632d5a5c49f2768a1b4",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../work/W-023.html#W-023",
+        "../work/W-026.html#W-026",
+        "../work/W-025.html#W-025",
+        "../work/W-029.html#W-029",
+        "../../tests/api.test.js"
+      ],
+      "anchors": [
+        "AC-003"
+      ]
+    },
+    {
       "id": "TD-001",
       "path": "records/TD-001.html",
       "title": "Données partagées absentes du dépôt Git",
@@ -1175,11 +1260,11 @@
       ],
       "kind": "acceptance",
       "status": "ready",
-      "sha256": "2db97cb00aba3626e8ffbf2370063d02d137fd9d58c9bc1a76b1e4f8edf1628a",
-      "chars": 4562,
-      "size": 5904,
-      "mtime_ns": 1790523034243531300,
-      "revision": 3,
+      "sha256": "7977d093e36abc7d3dac42f2707dfc7a1280e2fd7b8539eb77b1908ce272916e",
+      "chars": 6187,
+      "size": 7649,
+      "mtime_ns": 1790539451335584900,
+      "revision": 4,
       "owner": "Guillaume (PO)",
       "reviewed": "",
       "review_by": "",
@@ -1197,7 +1282,7 @@
       "criteria": [
         {
           "id": "A1",
-          "text": "Les 17 étapes ci-dessus donnent le résultat attendu en français et en anglais."
+          "text": "Les 23 étapes ci-dessus donnent le résultat attendu en français et en anglais."
         },
         {
           "id": "PO",
@@ -1205,7 +1290,7 @@
         }
       ],
       "evidence": [],
-      "body_digest": "798f7f36d6c43b22e7c47fd0e3e06eeb643328431211c3d599e1c4a5da5b7d5f",
+      "body_digest": "341909f48d8d51371a10caf9761ee64025819cc3850037fbc7d06fde00c825e9",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -3638,6 +3723,614 @@
       ],
       "anchors": [
         "W-022"
+      ]
+    },
+    {
+      "id": "W-023",
+      "path": "work/W-023.html",
+      "title": "Répartition libre des caractéristiques",
+      "summary": "Budget de points identique pour tous, répartition par le joueur, sauvegardée (appareil, compte) et utilisée en ligne.",
+      "tags": [
+        "stats",
+        "caracteristiques",
+        "budget",
+        "repartition",
+        "points"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "2ff8fa602307386f42bda613a0fd9aae9534b867a80be9592404a800e751d916",
+      "chars": 1837,
+      "size": 3773,
+      "mtime_ns": 1790539447146619200,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "data",
+        "manager-engine",
+        "arena-sim"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/data/stats.js",
+        "shared/data/content.js",
+        "shared/profile.js",
+        "src/ui/StatsEditor.jsx",
+        "server/api.js",
+        "src/store/session.jsx"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Budget commun (612), bornes 25–95, profils par défaut valides ; répartitions hostiles refusées côté serveur (tests)."
+        },
+        {
+          "id": "A2",
+          "text": "Les salles et moteurs utilisent la répartition du propriétaire (tests) ; éditeur avec préréglages par poste dans le Vestiaire."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/gameplay6.test.js",
+          "check": "npm test (tests/gameplay6.test.js « répartition libre », tests/api.test.js « statAlloc sans jamais toucher la progression »)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Budget exact et bornes vérifiés pour les 16 profils ; répartitions hostiles refusées ; la progression (ELO) ne peut pas être modifiée par le client."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "npm test (« salles : la répartition du joueur est utilisée pour SON scientifique ») + smoke navigateur (préréglage Attaquant enregistré, fiche « Répartition personnalisée »)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Arène et Manager utilisent la répartition du propriétaire ; les bots gardent le profil par défaut ; captures 19c-vestiaire-stats et 19d-fiche-perso."
+        }
+      ],
+      "body_digest": "48102ab86766d1f866f46beb78dfeec8ade614881615ed5d16dd388463b77d08",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/gameplay6.test.js",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-023"
+      ]
+    },
+    {
+      "id": "W-024",
+      "path": "work/W-024.html",
+      "title": "Bios adaptatives, archétype et poste idéal",
+      "summary": "Biographies qui s'adaptent à la répartition et au domaine ; archétype et affinité par poste remplacent la note overall.",
+      "tags": [
+        "bio",
+        "archetype",
+        "poste",
+        "overall",
+        "profil",
+        "texte"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "5619a9b1a2435e2a4f1bda050dcc812aa901aeab14411239ac06d35f6b59aa9d",
+      "chars": 1630,
+      "size": 3364,
+      "mtime_ns": 1790539447541454500,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "data"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/data/profileText.js",
+        "src/ui/profile.jsx",
+        "src/pages/PlayerDetail.jsx",
+        "src/pages/Roster.jsx",
+        "src/pages/manager/DraftView.jsx"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Bios d'origine pour les profils par défaut ; bios générées FR/EN pour des répartitions aléatoires, sans trou de texte (tests)."
+        },
+        {
+          "id": "A2",
+          "text": "Archétype et affinité par poste affichés partout où l'overall l'était."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/profileText.test.js",
+          "check": "node --test tests/profileText.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Bios d'origine pour les 16 profils par défaut (FR/EN) ; 200 répartitions aléatoires par scientifique sans trou de texte, élisions correctes, ≥ 150 bios distinctes sur 200 ; poste idéal par défaut conforme au poste d'origine (ailier = rôle hybride)."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "Smoke navigateur (fiche Loïc personnalisée) + relecture des pages",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Badge « Renard des surfaces », affinités par poste et bio adaptée affichés ; plus aucune note overall."
+        }
+      ],
+      "body_digest": "67d88868ccd55dc030de2b5e0f8a22bdd856565937120345ebd3bef9c21f26fd",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/profileText.test.js",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-024"
+      ]
+    },
+    {
+      "id": "W-025",
+      "path": "work/W-025.html",
+      "title": "Gestes techniques",
+      "summary": "Roulette, feinte de corps, crochet, passement de jambes, petit pont, une-deux avec la paroi, appui mural ; efficacité selon le Dribble.",
+      "tags": [
+        "geste",
+        "technique",
+        "dribble",
+        "roulette",
+        "feinte",
+        "petit",
+        "pont",
+        "paroi",
+        "mur"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "c4c931c50e07f1dae55b3a8fdcbce252d1e6f92858eca2aad081d071dd58a248",
+      "chars": 1411,
+      "size": 3021,
+      "mtime_ns": 1790539447904781400,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-sim",
+        "arena-input"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/action/sim.js",
+        "shared/action/bot.js",
+        "src/three/arenaView.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Roulette, petit pont, une-deux, appui mural et feinte de corps vérifiés ; réussite croissante avec le Dribble (tests)."
+        },
+        {
+          "id": "A2",
+          "text": "Animations dédiées et aide (tableau des gestes)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/gameplay6.test.js",
+          "check": "node --test tests/gameplay6.test.js (« gestes techniques ») tests/arena-sim.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Roulette (rotation + esquive), petit pont plus souvent réussi avec un bon Dribble, une-deux vers la paroi, appui mural, feinte de corps (défenseurs mis dans le vent)."
+        },
+        {
+          "result": "pass",
+          "ref": "../../src/pages/Help.jsx",
+          "check": "Revue des animations (agent avatars) + page Aide",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Animations roulette, feinte, passement, petit pont, une-deux, appui mural, crochet et pressing ; tableau « Gestes techniques » (comment / effet)."
+        }
+      ],
+      "body_digest": "f60811d145c9274ad63aee1cfda62c7c3cc8491d1ab02dbb192d6170c327b7bc",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/gameplay6.test.js",
+        "../../src/pages/Help.jsx"
+      ],
+      "anchors": [
+        "W-025"
+      ]
+    },
+    {
+      "id": "W-026",
+      "path": "work/W-026.html",
+      "title": "Défense : tacle unique, pressing, fautes et coups de pied arrêtés",
+      "summary": "Une touche de tacle sans étourdissement, une touche de pressing, coups francs et penaltys, aucun carton (Arène et Manager).",
+      "tags": [
+        "tacle",
+        "pressing",
+        "faute",
+        "coup",
+        "franc",
+        "penalty",
+        "carton",
+        "defense"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "4226f8c7b966133d0b03f5fc933cefa6a3481b742a17e0e0cb69c7d4d4221d7a",
+      "chars": 1783,
+      "size": 3510,
+      "mtime_ns": 1790539448109836600,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-sim",
+        "manager-engine"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/action/sim.js",
+        "shared/manager/engine.js",
+        "shared/rooms/arenaRoom.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Tacle sans étourdissement ; pressing moins efficace mais bien moins fautif ; bons défenseurs moins fautifs (tests)."
+        },
+        {
+          "id": "A2",
+          "text": "Coup franc (distance 4,5 m, mur, chrono arrêté) et penalty (gardien sur la ligne) ; aucun carton en Manager (tests)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/gameplay6.test.js",
+          "check": "node --test tests/gameplay6.test.js (tacle, pressing)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Tacleur jamais étourdi ; pressing : moins de récupérations que le tacle et moins de la moitié de ses fautes ; les bons défenseurs commettent moins de fautes."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/gameplay6.test.js",
+          "check": "node --test tests/gameplay6.test.js (coup franc, penalty, Manager sans cartons)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Coup franc : distance réglementaire, chrono arrêté, reprise après la frappe ; penalty : placements corrects, tir automatique au délai ; Manager : fautes mais zéro carton sur 6 matchs."
+        }
+      ],
+      "body_digest": "1d48c13972977c8edb1edccc999c70ccef35db9b64513faf1e863538b7b20127",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/gameplay6.test.js",
+        "../../tests/gameplay6.test.js"
+      ],
+      "anchors": [
+        "W-026"
+      ]
+    },
+    {
+      "id": "W-027",
+      "path": "work/W-027.html",
+      "title": "Impact de chaque caractéristique",
+      "summary": "Chaque caractéristique agit sur le jeu (Arène et Manager), documenté dans l'Aide.",
+      "tags": [
+        "stats",
+        "impact",
+        "caracteristique",
+        "vitesse",
+        "tir",
+        "vision",
+        "reflexes",
+        "endurance"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "7c43bef8c43cba79615202331aeb37704b544b99729c5fb02cb814282c527596",
+      "chars": 1572,
+      "size": 3178,
+      "mtime_ns": 1790539448243470400,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-sim",
+        "manager-engine"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/action/sim.js",
+        "shared/manager/engine.js",
+        "src/pages/Help.jsx"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Test automatique : faire varier une seule caractéristique change le résultat attendu, pour les 9."
+        },
+        {
+          "id": "A2",
+          "text": "Tableau « Impact des caractéristiques » dans l'Aide (Arène et Manager)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/gameplay6.test.js",
+          "check": "node --test tests/gameplay6.test.js (« chaque caractéristique a un impact mesurable »)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "En ne faisant varier qu'une caractéristique (30 → 92) : vitesse, endurance restante, puissance, précision, précision sous pression, passes, tacles, résistance aux tacles et premier contrôle changent dans le sens attendu."
+        },
+        {
+          "result": "pass",
+          "ref": "../../src/pages/Help.jsx",
+          "check": "Relecture de la page Aide",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Tableau des 9 caractéristiques avec leurs effets en Arène et en Manager (FR/EN)."
+        }
+      ],
+      "body_digest": "6e152a5ce79a8e08911f64b41172d2602cb63cd924afe7b1fe4f78704c71c4bd",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/gameplay6.test.js",
+        "../../src/pages/Help.jsx"
+      ],
+      "anchors": [
+        "W-027"
+      ]
+    },
+    {
+      "id": "W-028",
+      "path": "work/W-028.html",
+      "title": "Visages masculins et coiffures réalistes",
+      "summary": "Formes de visage, types d'yeux, sourcils, nez ; têtes adultes masculines ; coiffures réalistes, mulets dans la liste.",
+      "tags": [
+        "visage",
+        "yeux",
+        "coiffure",
+        "mulet",
+        "avatar",
+        "apparence"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "a1c07b17a0e76052431d387e7b33afd0de3cf22bc0f83c65ac74960266171c0b",
+      "chars": 1480,
+      "size": 3160,
+      "mtime_ns": 1790539448389142500,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-render",
+        "data"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/data/appearance.js",
+        "src/three/visual/avatar.js",
+        "src/three/visual/avatar/*",
+        "src/pages/LookEditor.jsx"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Nouvelles options avec libellés FR/EN, apparences anciennes toujours valides (tests)."
+        },
+        {
+          "id": "A2",
+          "text": "Revue visuelle de toutes les options (captures)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/appearance.test.js",
+          "check": "node --test tests/appearance.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Libellés FR/EN complets, défauts valides pour les 16, entrées hostiles sans effet, anciennes apparences complétées par les défauts."
+        },
+        {
+          "result": "pass",
+          "ref": "../../scripts/smoke-browser.mjs",
+          "check": "Revue visuelle (agent avatars, captures du harness) + smoke Vestiaire (captures 19 et 19b)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Visages et coiffures distincts de face et de 3/4 ; mulets lisibles ; aucune catégorie de coiffure séparée dans l'éditeur (vérifié par le smoke)."
+        }
+      ],
+      "body_digest": "95d31ba03ebea219927ee196e0e7dde25f5ae8b2d721e964159c95611316f26e",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/appearance.test.js",
+        "../../scripts/smoke-browser.mjs"
+      ],
+      "anchors": [
+        "W-028"
+      ]
+    },
+    {
+      "id": "W-029",
+      "path": "work/W-029.html",
+      "title": "Audit des touches affichées",
+      "summary": "Toutes les touches affichées correspondent aux touches actives (AZERTY, QWERTY, manette).",
+      "tags": [
+        "touches",
+        "clavier",
+        "azerty",
+        "aide",
+        "affichage",
+        "audit"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "c8793916d03c1b2123af1934c281ebfeccadb6ea384b0a4d40201f17df0ef967",
+      "chars": 1470,
+      "size": 3057,
+      "mtime_ns": 1790539448550953400,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-input"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/three/controls.js",
+        "src/three/input.js",
+        "src/pages/Help.jsx",
+        "src/pages/arena/ArenaGame.jsx",
+        "tests/controls.test.js"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Test automatique : préréglages sans conflit, touche affichée = touche active, libellés AZERTY/QWERTY/QWERTZ."
+        },
+        {
+          "id": "A2",
+          "text": "Plus aucun texte à lettre figée dans les catalogues FR/EN (hors raccourcis fixes)."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/controls.test.js",
+          "check": "node --test tests/controls.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A1",
+          "text": "Préréglages sans conflit, table touche → action identique à l'affichage, réaffectations et valeurs hostiles, libellés AZERTY / QWERTY / QWERTZ, manette complète."
+        },
+        {
+          "result": "pass",
+          "ref": "../../src/i18n/fr.js",
+          "check": "Audit scripté des catalogues FR/EN + npm test (i18n)",
+          "by": "Claude (agent)",
+          "date": "2026-09-27",
+          "waiver": "",
+          "for": "A2",
+          "text": "Plus aucune lettre figée hors raccourcis fixes (1–6 et Espace du Manager, F1, F3, Échap dans les textes d'aide génériques)."
+        }
+      ],
+      "body_digest": "b975b1fe12d461edc0981293617323de9bb722127cf454511e824e7474f91bb5",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../../tests/controls.test.js",
+        "../../src/i18n/fr.js"
+      ],
+      "anchors": [
+        "W-029"
       ]
     }
   ]

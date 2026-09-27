@@ -37,9 +37,10 @@ function smoothed(pos, nor) {
 }
 
 // Cuit une ou plusieurs géométries three : [[geo, poids], ...] ; poids = n° d'os ou (x,y,z) => [[os, w], ...]
+// Attribut optionnel « tone » (1 composante) : mélange par sommet entre les 2 couleurs de la partie (c -> c2)
 export function bake(list, { smooth = false } = {}) {
   if (!Array.isArray(list)) list = [[list, 0]];
-  let nv = 0, ni = 0;
+  let nv = 0, ni = 0, hasT = false;
   const items = list.filter(it => it && it[0]).map(([g, w]) => {
     if (!g.index) {
       const n = g.attributes.position.count, idx = new Uint32Array(n);
@@ -47,21 +48,23 @@ export function bake(list, { smooth = false } = {}) {
       g.setIndex(new THREE.BufferAttribute(idx, 1));
     }
     if (!g.attributes.normal) g.computeVertexNormals();
+    if (g.attributes.tone) hasT = true;
     nv += g.attributes.position.count; ni += g.index.count;
     return [g, w];
   });
   const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), idx = new Uint32Array(ni);
-  const si = new Uint16Array(nv * 4), sw = new Float32Array(nv * 4);
+  const si = new Uint16Array(nv * 4), sw = new Float32Array(nv * 4), tt = hasT ? new Float32Array(nv) : null;
   let vo = 0, io = 0;
   for (const [g, w] of items) {
     const p = g.attributes.position, nn = g.attributes.normal, ix = g.index, n = p.count;
+    if (tt && g.attributes.tone) tt.set(g.attributes.tone.array.subarray(0, n), vo);
     for (let i = 0; i < n; i++) {
       const x = p.getX(i), y = p.getY(i), z = p.getZ(i), o = (vo + i) * 3;
       pos[o] = x; pos[o + 1] = y; pos[o + 2] = z;
       nor[o] = nn.getX(i); nor[o + 1] = nn.getY(i); nor[o + 2] = nn.getZ(i);
       const so = (vo + i) * 4;
       if (typeof w === "number") { si[so] = w; sw[so] = 1; continue; }
-      const ws = w(x, y, z).filter(e => e[1] > 1e-4).sort((a, b) => b[1] - a[1]).slice(0, 4);
+      const ws = w(x, y, z, i).filter(e => e[1] > 1e-4).sort((a, b) => b[1] - a[1]).slice(0, 4);
       let tot = 0;
       for (const e of ws) tot += e[1];
       ws.forEach((e, k) => { si[so + k] = e[0]; sw[so + k] = e[1] / (tot || 1); });
@@ -71,7 +74,7 @@ export function bake(list, { smooth = false } = {}) {
     vo += n; io += ix.count;
     g.dispose();
   }
-  const s = { pos, nor: smooth ? smoothed(pos, nor) : nor, idx, si, sw, n: nv, onor: null };
+  const s = { pos, nor: smooth ? smoothed(pos, nor) : nor, idx, si, sw, n: nv, onor: null, t: tt };
   return s;
 }
 
@@ -80,17 +83,20 @@ export function join(shapes) {
   const list = shapes.filter(Boolean);
   let nv = 0, ni = 0;
   for (const s of list) { nv += s.n; ni += s.idx.length; }
-  const out = { pos: new Float32Array(nv * 3), nor: new Float32Array(nv * 3), idx: new Uint32Array(ni), si: new Uint16Array(nv * 4), sw: new Float32Array(nv * 4), n: nv, onor: null };
+  const hasT = list.some(s => s.t);
+  const out = { pos: new Float32Array(nv * 3), nor: new Float32Array(nv * 3), idx: new Uint32Array(ni), si: new Uint16Array(nv * 4), sw: new Float32Array(nv * 4), n: nv, onor: null, t: hasT ? new Float32Array(nv) : null };
   let vo = 0, io = 0;
   for (const s of list) {
     out.pos.set(s.pos, vo * 3); out.nor.set(s.nor, vo * 3); out.si.set(s.si, vo * 4); out.sw.set(s.sw, vo * 4);
+    if (hasT && s.t) out.t.set(s.t, vo);
     for (let i = 0; i < s.idx.length; i++) out.idx[io + i] = s.idx[i] + vo;
     vo += s.n; io += s.idx.length;
   }
   return out;
 }
 
-// Fusion par avatar : parts = [{ s, c: THREE.Color, g: lueur, o: contour }]
+// Fusion par avatar : parts = [{ s, c: THREE.Color, c2?: THREE.Color, g: lueur, o: contour }]
+// (c2 + attribut tone : couleur = c -> c2 selon tone ; tone < 0 extrapole au-delà de c, ex. pointes plus claires)
 export function mergeParts(parts, withOutline) {
   let nv = 0, ni = 0, onv = 0, oni = 0;
   for (const p of parts) {
@@ -105,9 +111,15 @@ export function mergeParts(parts, withOutline) {
   const oidx = withOutline ? (onv > 65535 ? new Uint32Array(oni) : new Uint16Array(oni)) : null;
   let vo = 0, io = 0, ovo = 0, oio = 0;
   for (const p of parts) {
-    const s = p.s, n = s.n, c = p.c, g = p.g || 0;
+    const s = p.s, n = s.n, c = p.c, g = p.g || 0, c2 = s.t ? p.c2 : null;
     pos.set(s.pos, vo * 3); nor.set(s.nor, vo * 3); si.set(s.si, vo * 4); sw.set(s.sw, vo * 4);
-    for (let i = 0; i < n; i++) { const o = (vo + i) * 3; col[o] = c.r; col[o + 1] = c.g; col[o + 2] = c.b; glow[vo + i] = g; }
+    if (c2) {
+      const cl = v => (v < 0 ? 0 : v > 1 ? 1 : v);
+      for (let i = 0; i < n; i++) {
+        const o = (vo + i) * 3, t = s.t[i];
+        col[o] = cl(c.r + (c2.r - c.r) * t); col[o + 1] = cl(c.g + (c2.g - c.g) * t); col[o + 2] = cl(c.b + (c2.b - c.b) * t); glow[vo + i] = g;
+      }
+    } else for (let i = 0; i < n; i++) { const o = (vo + i) * 3; col[o] = c.r; col[o + 1] = c.g; col[o + 2] = c.b; glow[vo + i] = g; }
     for (let i = 0; i < s.idx.length; i++) idx[io + i] = s.idx[i] + vo;
     if (withOutline && p.o) {
       if (!s.onor) s.onor = smoothed(s.pos, s.nor);
@@ -247,6 +259,7 @@ export function twoSided(g, inset = 0.003) {
   const out = new THREE.BufferGeometry();
   out.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   out.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
+  if (g.attributes.tone) { const t = g.attributes.tone.array, tt = new Float32Array(n * 2); tt.set(t.subarray(0, n)); tt.set(t.subarray(0, n), n); out.setAttribute("tone", new THREE.BufferAttribute(tt, 1)); }
   out.setIndex(new THREE.BufferAttribute(idx, 1));
   g.dispose();
   return out;

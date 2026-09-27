@@ -3,7 +3,7 @@
 import { BaseRoom } from "./base.js";
 import { ManagerEngine, DEFAULT_HALF_TICKS } from "../manager/engine.js";
 import { BotManager, pickForDraft, autoLineup, teamValue, DIFFICULTIES } from "../manager/ai.js";
-import { PLAYERS, FORMATIONS, STRATEGY_BY_ID, getPlayer, sanitizeLoadout } from "../data/content.js";
+import { PLAYERS, FORMATIONS, STRATEGY_BY_ID, getPlayer, sanitizeLoadout, sanitizeStats, withStats } from "../data/content.js";
 import { sanitizeAppearance } from "../data/appearance.js";
 import { makeRng, randomSeed } from "../rng.js";
 
@@ -22,7 +22,7 @@ export class ManagerRoom extends BaseRoom {
     const botClubOpt = this.opts.botClub && typeof this.opts.botClub === "object" ? this.opts.botClub : null;
     this.opts = { season, botClub: botClubOpt, autostart: !!this.opts.autostart, bot: DIFFICULTIES[b] ? b : null, speed: [1, 2, 4].includes(this.opts.speed) ? this.opts.speed : 1, halfTicks: Math.min(2400, Math.max(300, this.opts.halfTicks || DEFAULT_HALF_TICKS)), public: !!this.opts.public, quick: !!this.opts.quick };
     this.rng = makeRng(randomSeed());
-    this.seats = Object.fromEntries(SIDES.map(s => [s, { side: s, memberId: null, identity: null, pseudo: null, userId: null, elo: null, bot: null, club: defaultClub(s), picks: [], lineup: [], bench: [], formation: "2-2", strategy: "equilibre", ready: false, connected: false, left: false, loadouts: {}, looks: {} }]));
+    this.seats = Object.fromEntries(SIDES.map(s => [s, { side: s, memberId: null, identity: null, pseudo: null, userId: null, elo: null, bot: null, club: defaultClub(s), picks: [], lineup: [], bench: [], formation: "2-2", strategy: "equilibre", ready: false, connected: false, left: false, loadouts: {}, looks: {}, stats: {} }]));
     this.draft = null; this.engine = null; this.bots = {}; this.evSent = 0; this.paused = false; this.report = null;
   }
 
@@ -87,9 +87,11 @@ export class ManagerRoom extends BaseRoom {
 
   // apparences choisies par le manager pour SES scientifiques (visibles par l'adversaire en 3D)
   applyLooks(seat, client) {
-    const looks = {};
+    const looks = {}, stats = {};
     for (const id of seat.picks.length ? seat.picks : Object.keys(client?.looks || {})) if (client?.looks?.[id]) looks[id] = sanitizeAppearance(client.looks[id], id);
-    seat.looks = looks;
+    // répartitions des caractéristiques choisies par le manager pour SES scientifiques
+    for (const id of seat.picks) if (client?.statAlloc?.[id]) stats[id] = sanitizeStats(id, client.statAlloc[id]);
+    seat.looks = looks; seat.stats = stats;
   }
   onProfile(clientId) {
     const m = this.members.get(clientId); const seat = m?.seat ? this.seats[m.seat] : null;
@@ -144,7 +146,8 @@ export class ManagerRoom extends BaseRoom {
     for (const side of SIDES) {
       const s = this.seats[side];
       const formation = s.bot ? Object.keys(FORMATIONS).map(f => ({ f, v: teamValue(s.picks, f) })).sort((a, b) => b.v - a.v)[0].f : "2-2";
-      const { lineup, bench } = autoLineup(s.picks, formation);
+      const owner = this.members.get(s.memberId)?.client; // composition automatique selon SES répartitions
+      const { lineup, bench } = autoLineup(s.picks, formation, id => withStats(getPlayer(id), owner?.statAlloc?.[id]));
       Object.assign(s, { formation, lineup, bench, strategy: s.bot === "stagiaire" ? this.rng.pick(Object.keys(STRATEGY_BY_ID)) : "equilibre", ready: !!s.bot || !s.connected });
       // power-ups emportés : préférences du manager, sinon les 2 premiers ; les bots varient
       const client = this.members.get(s.memberId)?.client;
@@ -152,7 +155,7 @@ export class ManagerRoom extends BaseRoom {
         if (client) return [id, sanitizeLoadout(id, client.loadouts?.[id])];
         const own = getPlayer(id).powerUps; return [id, [own[0].id, own[1 + Math.floor(this.rng() * (own.length - 1))].id]];
       }));
-      if (client) this.applyLooks(s, client); else s.looks = {};
+      if (client) this.applyLooks(s, client); else { s.looks = {}; s.stats = {}; }
     }
     this.broadcastState();
     this.after(SETUP_MS, () => { if (this.phase === "setup") this.startMatch(); });
@@ -174,7 +177,7 @@ export class ManagerRoom extends BaseRoom {
   maybeStart() { if (this.phase === "setup" && SIDES.every(s => this.seats[s].ready)) this.after(600, () => this.phase === "setup" && SIDES.every(s => this.seats[s].ready) && this.startMatch()); }
 
   matchSetup() {
-    return Object.fromEntries(SIDES.map(side => { const s = this.seats[side]; return [side, { name: s.club.name, colors: s.club.colors, crest: s.club.crest, lineup: s.lineup, bench: s.bench, formation: s.formation, strategy: s.strategy, pseudo: s.pseudo, bot: s.bot, loadouts: s.loadouts, looks: s.looks }]; }));
+    return Object.fromEntries(SIDES.map(side => { const s = this.seats[side]; return [side, { name: s.club.name, colors: s.club.colors, crest: s.club.crest, lineup: s.lineup, bench: s.bench, formation: s.formation, strategy: s.strategy, pseudo: s.pseudo, bot: s.bot, loadouts: s.loadouts, looks: s.looks, stats: s.stats }]; }));
   }
 
   // ── Match ────────────────────────────────────────────────
@@ -231,7 +234,7 @@ export class ManagerRoom extends BaseRoom {
   // ── État diffusé (personnalisé) ──────────────────────────
   stateFor(clientId) {
     const m = this.members.get(clientId);
-    const seats = Object.fromEntries(SIDES.map(side => { const s = this.seats[side]; return [side, { pseudo: s.pseudo, bot: s.bot, club: s.club, connected: s.connected || !!s.bot, ready: s.ready, picks: s.picks, lineup: s.lineup, bench: s.bench, formation: s.formation, strategy: s.strategy, loadouts: s.loadouts, looks: s.looks }]; }));
+    const seats = Object.fromEntries(SIDES.map(side => { const s = this.seats[side]; return [side, { pseudo: s.pseudo, bot: s.bot, club: s.club, connected: s.connected || !!s.bot, ready: s.ready, picks: s.picks, lineup: s.lineup, bench: s.bench, formation: s.formation, strategy: s.strategy, loadouts: s.loadouts, looks: s.looks, stats: s.stats }]; }));
     return {
       t: "room.state", code: this.code, mode: "manager", phase: this.phase, opts: this.publicOpts(), paused: this.paused,
       you: { seat: m?.seat || "spec", host: clientId === this.hostId }, seats,

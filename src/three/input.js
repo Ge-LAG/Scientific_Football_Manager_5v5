@@ -59,7 +59,7 @@ export function createInput(canvas, { sensitivity = 1, invertY = false, controls
     st.lastPadButtons = pad.buttons.map((_, i) => b(i));
     const rx = dz(pad.axes[2] || 0), ry = dz(pad.axes[3] || 0);
     st.yaw += rx * 2.6 * dt * st.sens; st.pitch = Math.max(0.05, Math.min(0.9, st.pitch + ry * 1.4 * dt * (st.invertY ? -1 : 1)));
-    st.pad = { lx: dz(pad.axes[0] || 0), ly: dz(pad.axes[1] || 0), shoot: any("shoot"), sprint: any("sprint"), board: any("board"),
+    st.pad = { lx: dz(pad.axes[0] || 0), ly: dz(pad.axes[1] || 0), shoot: any("shoot"), sprint: any("sprint"), board: any("board"), press: any("press"), pass: any("pass"),
       up: any("up"), down: any("down"), left: any("left"), right: any("right") };
     if (st.pad.lx || st.pad.ly || st.pad.shoot || st.pad.sprint || rx || st.lastPadButtons.some(Boolean)) st.usingPad = true;
   }
@@ -77,9 +77,11 @@ export function createInput(canvas, { sensitivity = 1, invertY = false, controls
     const edges = new Set(st.edges); st.edges.clear();
     if (shoot && !st.shootWasDown) edges.add("shootPress"); // front du tir (touches contextuelles en défense)
     st.shootWasDown = shoot;
-    for (const b of st.touch.btn) if (b !== "shoot" && b !== "sprint") edges.add(b);
-    st.touch.btn = new Set([...st.touch.btn].filter(b => b === "shoot" || b === "sprint"));
-    return { fwd, right, shoot, edges, sprint: held("sprint") || !!P?.sprint || st.touch.btn.has("sprint"), board: held("board") || !!P?.board };
+    const HELD = ["shoot", "sprint", "press"];
+    for (const b of st.touch.btn) if (!HELD.includes(b)) edges.add(b);
+    st.touch.btn = new Set([...st.touch.btn].filter(b => HELD.includes(b)));
+    return { fwd, right, shoot, edges, sprint: held("sprint") || !!P?.sprint || st.touch.btn.has("sprint"), board: held("board") || !!P?.board,
+      press: held("press") || !!P?.press || st.touch.btn.has("press"), passHeld: held("pass") || !!P?.pass || st.mouseR };
   }
 
   // vibration de la manette (si le navigateur et la manette le permettent)

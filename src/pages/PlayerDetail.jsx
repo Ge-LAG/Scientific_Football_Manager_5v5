@@ -3,19 +3,21 @@ import { useI18n } from "../i18n/index.jsx";
 import { Card, Kicker, StatBar, RadarChart, Avatar } from "../ui/components.jsx";
 import { getPlayer, PLAYERS, ATTRS, attrName, pText, puText, domainName, typeName, keeperRating, roleOf } from "../../shared/data/content.js";
 import { SYNERGIES } from "../../shared/data/enrichment.js";
-import { ROLE_SCORE } from "../../shared/manager/ai.js";
+import { strengthsOf, weaknessesOf, composeBio } from "../../shared/data/profileText.js";
+import { ArchetypeBadge, RoleFit, useMyPlayer } from "../ui/profile.jsx";
+import { useSession } from "../store/session.jsx";
 
 const TYPE_COLORS = { attaque: "var(--coral)", "défense": "var(--cyan)", "contrôle": "var(--violet)", mental: "var(--lime)" };
 
 export default function PlayerDetail({ id, navigate }) {
-  const { t, lang } = useI18n();
-  const p = getPlayer(id);
+  const { t, lang } = useI18n(); const my = useMyPlayer(); const { statAlloc } = useSession();
+  const p = getPlayer(id) ? my(id) : null; // avec MA répartition de points
   const [cmp, setCmp] = useState("");
   if (!p) return <div className="page"><p className="muted">{t("player.notFound")}</p></div>;
   const tx = pText(p, lang);
-  const other = cmp ? getPlayer(cmp) : null;
+  const other = cmp ? my(cmp) : null;
+  const custom = !!statAlloc?.[p.id];
   const syn = SYNERGIES.filter(s => s.match.some(m => p.domaine.includes(m)));
-  const roles = ["gk", "def", "mid", "att"].map(r => ({ r, v: Math.round(ROLE_SCORE[r](p)) })).sort((a, b) => b.v - a.v);
   const idx = PLAYERS.findIndex(x => x.id === p.id);
   const prev = PLAYERS[(idx + PLAYERS.length - 1) % PLAYERS.length], next = PLAYERS[(idx + 1) % PLAYERS.length];
 
@@ -29,22 +31,23 @@ export default function PlayerDetail({ id, navigate }) {
         <div className="row" style={{ alignItems: "flex-start", gap: 28 }}>
           <div className="center">
             <Avatar player={p} size={110} />
-            <div className="num mt8" style={{ fontSize: 44, color: p.color, textShadow: `0 0 20px ${p.color}66` }}>{p.overall}</div>
-            <div className="tiny muted">{t("roster.overall")}</div>
+            <div className="mt8"><ArchetypeBadge player={p} /></div>
+            <div className="tiny muted mt4">{custom ? "✎ " + t("stats.custom") : "★ " + t("stats.default")}</div>
           </div>
           <div className="grow" style={{ minWidth: 260 }}>
             <div className="row"><h1 className="h1" style={{ color: "var(--white)", margin: 0 }}>{p.nom}</h1><span className="chip" style={{ color: p.color }}>#{p.numero}</span><button className="btn small ghost" onClick={() => navigate("/look/" + p.id)}>🎨 {t("look.customize")}</button></div>
             <div style={{ color: p.color, fontWeight: 700 }}>{domainName(p.domaine, lang)}</div>
             <div className="muted mb8">{tx.poste} — « {tx.slogan} » · {p.taille.toFixed(2)} m</div>
-            <div className="row mb16" style={{ gap: 6 }}>{tx.traits.map(x => <span key={x} className="chip" style={{ color: p.color }}>{x}</span>)}<span className="chip" style={{ color: "var(--violet)" }}>{tx.profil}</span><span className="chip" style={{ color: "var(--gold)" }}>{t("player.tier", { n: p.tier })}</span></div>
+            <div className="row mb16" style={{ gap: 6 }}>{tx.traits.map(x => <span key={x} className="chip" style={{ color: p.color }}>{x}</span>)}<span className="chip" style={{ color: "var(--violet)" }}>{tx.profil}</span></div>
             <div className="row" style={{ gap: 28 }}>
-              <div><div className="tiny" style={{ color: "var(--lime)", fontWeight: 800 }}>⬆ {t("player.strengths")}</div>{p.forces.map(f => <div key={f} className="small">{attrName(f, lang)} : <b>{p.attributs[f]}</b></div>)}</div>
-              <div><div className="tiny" style={{ color: "var(--coral)", fontWeight: 800 }}>⬇ {t("player.weaknesses")}</div>{p.faiblesses.map(f => <div key={f} className="small">{attrName(f, lang)} : <b>{p.attributs[f]}</b></div>)}</div>
-              <div><div className="tiny" style={{ color: "var(--cyan)", fontWeight: 800 }}>🎯 {t("player.bestRoles")}</div>{roles.slice(0, 2).map(r => <div key={r.r} className="small">{t("role." + r.r)} : <b>{r.v}</b></div>)}</div>
+              <div><div className="tiny" style={{ color: "var(--lime)", fontWeight: 800 }}>⬆ {t("player.strengths")}</div>{strengthsOf(p.attributs, 3).map(f => <div key={f} className="small">{attrName(f, lang)} : <b>{p.attributs[f]}</b></div>)}</div>
+              <div><div className="tiny" style={{ color: "var(--coral)", fontWeight: 800 }}>⬇ {t("player.weaknesses")}</div>{weaknessesOf(p.attributs, 2).map(f => <div key={f} className="small">{attrName(f, lang)} : <b>{p.attributs[f]}</b></div>)}</div>
+              <div style={{ minWidth: 220 }}><div className="tiny" style={{ color: "var(--cyan)", fontWeight: 800 }}>🎯 {t("player.bestRoles")}</div><RoleFit player={p} all /></div>
             </div>
             <div className="mt16" style={{ padding: "12px 16px", borderRadius: 12, background: p.color + "0d", border: `1px solid ${p.color}33`, lineHeight: 1.7 }}>
               <div className="tiny" style={{ color: p.color, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>📋 {t("player.file")}</div>
-              <div className="small" style={{ fontStyle: "italic", opacity: .9 }}>{tx.bio}</div>
+              <div className="small" style={{ fontStyle: "italic", opacity: .9 }}>{composeBio(p, p.attributs, lang)}</div>
+              <button className="btn small ghost mt8" onClick={() => navigate("/look/" + p.id + "/stats")}>📊 {t("stats.distribute")}</button>
             </div>
           </div>
         </div>
@@ -63,7 +66,7 @@ export default function PlayerDetail({ id, navigate }) {
             <div className="row between"><Kicker>{t("player.radar")}</Kicker>
               <select className="select" style={{ width: "auto", fontSize: 12, padding: "4px 8px" }} value={cmp} onChange={e => setCmp(e.target.value)} aria-label={t("player.compare")}><option value="">{t("player.compare")}</option>{PLAYERS.filter(x => x.id !== p.id).map(x => <option key={x.id} value={x.id}>{x.nom}</option>)}</select></div>
             <RadarChart player={p} color={p.color} size={240} compare={other} />
-            {other && <div className="tiny" style={{ color: "var(--magenta)" }}>- - {other.nom} ({other.overall})</div>}
+            {other && <div className="tiny" style={{ color: "var(--magenta)" }}>- - {other.nom}</div>}
           </Card>
           <Card>
             <Kicker color="var(--magenta)">⚡ {t("player.powerups")}</Kicker>

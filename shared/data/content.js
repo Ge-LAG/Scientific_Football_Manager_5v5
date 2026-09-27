@@ -5,6 +5,7 @@ import { NARRATION_DOMAINE_FR, NARRATION_DEFAULT_FR } from "./narration.fr.js";
 import { NARRATION_DOMAINE_EN, NARRATION_DEFAULT_EN } from "./narration.en.js";
 import { ROSTER_EN, DOMAINS_EN, POSTES_EN, PROFILS_EN, POWER_UPS_EN, ATTRS_EN, TYPES_EN } from "./roster.en.js";
 import { POWER_UPS_EXTRA } from "./powerups.extra.js";
+import { scaledProfile, cleanStats, STAT_KEYS } from "./stats.js";
 
 export { ROSTER, POWER_UPS };
 
@@ -21,21 +22,43 @@ export const getPowerUp = id => (typeof id === "string" && POWER_UP_BY_ID[id]) |
 export const LOADOUT_SIZE = 2; // power-ups emportés dans un match
 
 // Joueur « complet » : données d'origine + Réflexes + identité visuelle + power-ups.
+// attributs = profil PAR DÉFAUT (forme d'origine ramenée au budget commun, identique pour tous) ;
+// baseAttributs = valeurs d'origine du prototype (référence, non jouées).
 export const PLAYERS = ROSTER.map(p => {
   const x = EXTRA[p.id];
   const pus = ALL_POWER_UPS.filter(u => u.joueur === p.id); // celui d'origine en premier
+  const base = { ...p.attributs, "Réflexes": x.reflexes };
   return Object.freeze({
     ...p,
-    attributs: { ...p.attributs, "Réflexes": x.reflexes },
+    baseAttributs: Object.freeze(base),
+    attributs: Object.freeze(scaledProfile(base)),
     numero: x.numero, taille: x.taille, look: x.look,
     color: domainColor(p.domaine),
     powerUp: pus[0] || null,          // power-up d'origine (compatibilité)
     powerUps: Object.freeze(pus),     // les 4 power-ups du scientifique
-    overall: Math.round(ATTRS.reduce((s, a) => s + p.attributs[a], 0) / ATTRS.length),
   });
 });
 export const PLAYER_BY_ID = Object.fromEntries(PLAYERS.map(p => [p.id, p]));
 export const getPlayer = id => PLAYER_BY_ID[id] || null;
+
+// ── Caractéristiques réparties par le joueur ─────────────────
+export const defaultStats = charId => ({ ...(getPlayer(charId)?.attributs || {}) });
+// Répartition d'un client → répartition valide (sinon profil par défaut du scientifique).
+export function sanitizeStats(charId, obj) { return cleanStats(obj) || defaultStats(charId); }
+// Table { charId: répartition } d'un client : seules les répartitions valides sont conservées.
+export function sanitizeStatsMap(obj) {
+  const out = Object.create(null);
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return out;
+  for (const p of PLAYERS) if (Object.hasOwn(obj, p.id)) { const s = cleanStats(obj[p.id]); if (s) out[p.id] = s; }
+  return out;
+}
+// Scientifique joué avec une répartition donnée (même identité, caractéristiques remplacées).
+export function withStats(player, stats) {
+  if (!player) return player;
+  const s = cleanStats(stats);
+  return s ? Object.freeze({ ...player, attributs: Object.freeze(s), custom: true }) : player;
+}
+export { STAT_KEYS };
 
 // Sélection de 2 power-ups pour un match : identifiants valides et propres au scientifique, sinon défaut.
 export function defaultLoadout(charId) { return (getPlayer(charId)?.powerUps || []).slice(0, LOADOUT_SIZE).map(u => u.id); }

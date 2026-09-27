@@ -1,7 +1,7 @@
 // API REST JSON (/api/*) : comptes, profil, classements, salons.
 import { publicUser } from './db.js';
 import { sanitizeLooks, plain } from '../shared/profile.js';
-import { sanitizeLoadouts } from '../shared/data/content.js';
+import { sanitizeLoadouts, sanitizeStatsMap } from '../shared/data/content.js';
 import { rateLimiter } from './ratelimit.js';
 import { applyMatchResult } from '../shared/progression.js';
 
@@ -117,13 +117,19 @@ function sanitizePatch(body) {
     if (!isObj(body.loadouts) || jsonSize(body.loadouts) > 8192) throw bad();
     patch.loadouts = plain(sanitizeLoadouts(body.loadouts));
   }
+  // répartitions des points de caractéristiques (budget identique pour tous) ; ne pas confondre avec
+  // user.stats (progression : ELO, victoires…) que le client ne peut jamais modifier
+  if (body.statAlloc !== undefined) {
+    if (!isObj(body.statAlloc) || jsonSize(body.statAlloc) > 8192) throw bad();
+    patch.statAlloc = plain(sanitizeStatsMap(body.statAlloc));
+  }
   if (!Object.keys(patch).length) throw bad();
   return patch;
 }
 
 function publicProfile(user) {
   const u = publicUser(user);
-  delete u.settings; delete u.loadouts;
+  delete u.settings; delete u.loadouts; delete u.statAlloc;
   return u;
 }
 

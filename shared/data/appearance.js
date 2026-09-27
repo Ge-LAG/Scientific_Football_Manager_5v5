@@ -10,10 +10,16 @@ const deepFreeze = o => {
 
 export const APPEARANCE_OPTIONS = deepFreeze({
   build: ["slim", "normal", "athletic", "stocky"],
+  // visage (morphologie adulte) : forme, yeux, sourcils, nez
+  faceShape: ["oval", "square", "round", "long", "diamond", "heart", "chiseled", "triangle"],
+  eyeShape: ["almond", "round", "narrow", "hooded", "deep_set", "droopy", "upturned", "monolid", "wide_set", "close_set", "intense"],
+  brows: ["straight", "thick", "bushy", "arched", "angled", "thin", "scarred", "heavy"],
+  nose: ["straight", "broad", "aquiline", "button", "boxer", "roman", "pointed"],
+  // coiffures classées de la plus courte à la plus longue (les mulets sont des coupes comme les autres)
   hairStyle: [
-    "bald", "buzz", "short", "side", "slick", "spiky", "curly", "afro", "messy", "long", "ponytail", "bun",
-    "mohawk", "fade", "pompadour", "dreads", "bowl", "mullet_modern", "mullet_shaved", "mullet_perm",
-    "mullet_classic", "grey_side",
+    "bald", "grey_side", "buzz", "fade", "mohawk", "short", "spiky", "side", "slick", "messy", "mullet_shaved",
+    "pompadour", "curly", "mullet_modern", "bowl", "afro", "mullet_classic", "mullet_perm", "bun", "ponytail",
+    "long", "dreads",
   ],
   facialHair: ["none", "stubble", "beard", "full_beard", "goatee", "moustache", "handlebar", "sideburns"],
   glasses: ["none", "round", "square", "goggles", "sunglasses", "visor", "monocle"],
@@ -36,12 +42,12 @@ export const APPEARANCE_OPTIONS = deepFreeze({
 
 // Champs de l'objet apparence (ordre stable pour l'éditeur)
 export const APPEARANCE_FIELDS = Object.freeze([
-  "build", "skin", "hairStyle", "hairColor", "facialHair", "facialHairColor", "eyes", "eyeColor",
-  "glasses", "headwear", "outfit", "outfitColor", "accessory", "shoeColor",
+  "build", "skin", "faceShape", "hairStyle", "hairColor", "facialHair", "facialHairColor", "eyes", "eyeShape", "eyeColor",
+  "brows", "nose", "glasses", "headwear", "outfit", "outfitColor", "accessory", "shoeColor",
 ]);
 const ENUM_FIELDS = Object.freeze({
-  build: "build", hairStyle: "hairStyle", facialHair: "facialHair", eyes: "eyes",
-  glasses: "glasses", headwear: "headwear", outfit: "outfit", accessory: "accessory",
+  build: "build", faceShape: "faceShape", hairStyle: "hairStyle", facialHair: "facialHair", eyes: "eyes", eyeShape: "eyeShape",
+  brows: "brows", nose: "nose", glasses: "glasses", headwear: "headwear", outfit: "outfit", accessory: "accessory",
 });
 const COLOR_FIELDS = Object.freeze(["hairColor", "facialHairColor", "eyeColor", "outfitColor", "shoeColor"]);
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -49,15 +55,37 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 const L = (fr, en) => ({ fr, en });
 export const APPEARANCE_LABELS = deepFreeze({
   fields: {
-    build: L("Morphologie", "Build"), skin: L("Teint", "Skin tone"), hairStyle: L("Coiffure", "Hairstyle"),
+    build: L("Morphologie", "Build"), skin: L("Teint", "Skin tone"), faceShape: L("Forme du visage", "Face shape"),
+    hairStyle: L("Coiffure", "Hairstyle"),
     hairColor: L("Couleur des cheveux", "Hair colour"), facialHair: L("Pilosité faciale", "Facial hair"),
-    facialHairColor: L("Couleur de la barbe", "Facial hair colour"), eyes: L("Regard", "Eyes"),
-    eyeColor: L("Couleur des yeux", "Eye colour"), glasses: L("Lunettes", "Glasses"), headwear: L("Couvre-chef", "Headwear"),
+    facialHairColor: L("Couleur de la barbe", "Facial hair colour"), eyes: L("Regard (expression)", "Eye expression"),
+    eyeShape: L("Forme des yeux", "Eye shape"), eyeColor: L("Couleur des yeux", "Eye colour"),
+    brows: L("Sourcils", "Eyebrows"), nose: L("Nez", "Nose"), glasses: L("Lunettes", "Glasses"), headwear: L("Couvre-chef", "Headwear"),
     outfit: L("Tenue", "Outfit"), outfitColor: L("Couleur de la tenue", "Outfit colour"), accessory: L("Accessoire", "Accessory"),
     shoeColor: L("Couleur des chaussures", "Shoe colour"),
   },
   build: {
     slim: L("Mince", "Slim"), normal: L("Normale", "Regular"), athletic: L("Athlétique", "Athletic"), stocky: L("Trapue", "Stocky"),
+  },
+  faceShape: {
+    oval: L("Ovale", "Oval"), square: L("Carré", "Square"), round: L("Rond", "Round"), long: L("Allongé", "Long"),
+    diamond: L("Diamant (pommettes larges)", "Diamond (wide cheekbones)"), heart: L("Cœur (menton fin)", "Heart (narrow chin)"),
+    chiseled: L("Ciselé (rectangle)", "Chiselled (rectangle)"), triangle: L("Triangle (mâchoire large)", "Triangle (wide jaw)"),
+  },
+  eyeShape: {
+    almond: L("En amande", "Almond"), round: L("Ronds", "Round"), narrow: L("Étroits", "Narrow"),
+    hooded: L("Paupière lourde", "Hooded"), deep_set: L("Enfoncés", "Deep-set"), droopy: L("Tombants", "Downturned"),
+    upturned: L("Relevés", "Upturned"), monolid: L("Sans pli (monolid)", "Monolid"), wide_set: L("Écartés", "Wide-set"),
+    close_set: L("Rapprochés", "Close-set"), intense: L("Perçants", "Intense"),
+  },
+  brows: {
+    straight: L("Droits", "Straight"), thick: L("Épais", "Thick"), bushy: L("Broussailleux", "Bushy"), arched: L("Arqués", "Arched"),
+    angled: L("Anguleux", "Angled"), thin: L("Fins", "Thin"), scarred: L("Balafré (fendu)", "Scarred (split)"),
+    heavy: L("Lourds et bas", "Heavy & low"),
+  },
+  nose: {
+    straight: L("Droit", "Straight"), broad: L("Large", "Broad"), aquiline: L("Aquilin", "Aquiline"), button: L("Retroussé", "Button"),
+    boxer: L("De boxeur (cassé)", "Boxer (broken)"), roman: L("Romain (bosse)", "Roman (hump)"), pointed: L("Pointu", "Pointed"),
   },
   hairStyle: {
     bald: L("Chauve", "Bald"), buzz: L("Coupe rase", "Buzz cut"), short: L("Courts", "Short"),
@@ -102,9 +130,20 @@ export const APPEARANCE_LABELS = deepFreeze({
 
 // ── Valeurs par défaut ──────────────────────────────────────
 const GENERIC = Object.freeze({
-  build: "normal", skin: 0.3, hairStyle: "short", hairColor: "#3b2a1a", facialHair: "none", facialHairColor: "#3b2a1a",
-  eyes: "normal", eyeColor: "#4a3222", glasses: "none", headwear: "none", outfit: "footballer", outfitColor: "#00f0ff",
-  accessory: "none", shoeColor: "#15151d",
+  build: "normal", skin: 0.3, faceShape: "oval", hairStyle: "short", hairColor: "#3b2a1a", facialHair: "none", facialHairColor: "#3b2a1a",
+  eyes: "normal", eyeShape: "almond", eyeColor: "#4a3222", brows: "straight", nose: "straight", glasses: "none", headwear: "none",
+  outfit: "footballer", outfitColor: "#00f0ff", accessory: "none", shoeColor: "#15151d",
+});
+// Visages par défaut des 16 personnages [forme, yeux, sourcils, nez] : tous différents, chaque option utilisée
+const FACE_PRESETS = Object.freeze({
+  roland: ["square", "hooded", "thick", "broad"], loic: ["heart", "upturned", "arched", "pointed"],
+  david: ["round", "almond", "bushy", "button"], thibault: ["oval", "narrow", "straight", "straight"],
+  henry: ["chiseled", "deep_set", "heavy", "roman"], romain: ["long", "droopy", "angled", "aquiline"],
+  theo: ["diamond", "round", "thin", "button"], franck: ["square", "intense", "scarred", "boxer"],
+  aurelien: ["long", "wide_set", "arched", "roman"], lucien: ["triangle", "monolid", "straight", "pointed"],
+  joffrey: ["heart", "close_set", "thin", "straight"], yacine: ["chiseled", "almond", "angled", "aquiline"],
+  djilani: ["triangle", "deep_set", "heavy", "broad"], mederic: ["diamond", "intense", "bushy", "pointed"],
+  guillaume: ["round", "droopy", "thick", "boxer"], patrice: ["oval", "hooded", "bushy", "roman"],
 });
 // anciennes valeurs de look.hair -> coiffure
 const HAIR_MAP = Object.freeze({
@@ -140,6 +179,14 @@ export function defaultAppearance(charId) {
   // couleur des yeux déterministe (teints foncés : yeux foncés)
   const eyes = APPEARANCE_OPTIONS.palettes.eye;
   a.eyeColor = a.skin >= 0.45 ? (strHash(id) & 1 ? eyes[0] : eyes[5]) : eyes[strHash(id) % 4];
+  // visage : preset du personnage, sinon dérivé de l'identifiant et du look (barbu -> mâchoire marquée)
+  const O = APPEARANCE_OPTIONS, preset = own(FACE_PRESETS, id) ? FACE_PRESETS[id] : null;
+  if (preset) [a.faceShape, a.eyeShape, a.brows, a.nose] = preset;
+  else {
+    const h = strHash("face:" + id), pick = (list, k) => list[(h >>> k) % list.length];
+    a.faceShape = look.beard ? pick(["square", "chiseled", "triangle", "oval"], 3) : pick(O.faceShape, 3);
+    a.eyeShape = pick(O.eyeShape, 7); a.brows = pick(O.brows, 11); a.nose = pick(O.nose, 15);
+  }
   return a;
 }
 

@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recette PO — Lab League v3 · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
 <body><header><a class="brand" href="../index.html">METHOD / V6</a><span>acceptance · UAT-001</span></header><main>
-<article data-method data-revision="3" data-owner="Guillaume (PO)" id="UAT-001" data-title="Recette PO — Lab League v3" data-summary="Fiche de recette produit : parcours Manager, Arène, comptes, langues, mise en ligne." data-tags="recette acceptance uat po test manuel" data-kind="acceptance" data-status="ready">
+<article data-method data-revision="4" data-owner="Guillaume (PO)" id="UAT-001" data-title="Recette PO — Lab League v3" data-summary="Fiche de recette produit : parcours Manager, Arène, comptes, langues, mise en ligne." data-tags="recette acceptance uat po test manuel" data-kind="acceptance" data-status="ready">
 <p class="eyebrow">acceptance / UAT-001</p><h1>Recette PO — Lab League v3</h1>
 <dl>
-<dt>Lots concernés / candidat / environnement</dt><dd>W-002 à W-022. Candidat : branche <code>lab-league-v3</code> (commits locaux, non poussés). Environnement : <code>npm run build</code> puis <code>npm start</code> → http://localhost:8787, ou après mise en ligne sur Hostinger (<code>deploy/HOSTINGER.md</code>).</dd>
+<dt>Lots concernés / candidat / environnement</dt><dd>W-002 à W-029. Candidat : branche <code>lab-league-v3</code> (commits locaux, non poussés). Environnement : <code>npm run build</code> puis <code>npm start</code> → http://localhost:8787, ou après mise en ligne sur Hostinger (<code>deploy/HOSTINGER.md</code>).</dd>
 <dt>Testeur / date</dt><dd>En attente : Guillaume.</dd>
 <dt>Étapes et résultats attendus</dt><dd><ol>
 <li>Ouvrir l'accueil sur un navigateur réglé en anglais : l'interface est en <b>français</b>. Passer en EN via le sélecteur, recharger : l'anglais est conservé.</li>
@@ -24,12 +24,18 @@
 <li><b>Vestiaire</b> : personnaliser un scientifique (dont les 4 mulets et les 8 tenues), aperçu 3D (animations, cadrage visage), annuler / aléatoire / apparence d'origine ; en ligne (deux ordinateurs), l'adversaire voit l'apparence choisie (Arène : son scientifique ; Manager 3D : son équipe).</li>
 <li><b>Power-ups</b> : page Power-ups (64, filtre par scientifique), fiche joueur (4 power-ups) ; choisir 2 power-ups avant un match Manager (composition) et en salle d'Arène ; en match, les deux se déclenchent séparément avec leur propre recharge.</li>
 <li><b>Rendu</b> : sur votre machine, qualité Moyenne / Élevée / Ultra, compteur F3, banc d'essai <code>#/bench</code> ; appréciation « jeu premium » (lumières, animations, célébrations, filets, confettis).</li>
+<li><b>Vague 6 — caractéristiques</b> : Vestiaire → Caractéristiques : répartir les points d'un scientifique (budget 612, préréglages Attaquant / Milieu / Défenseur / Gardien / Équilibré), vérifier la bio adaptée, l'archétype et le poste idéal ; revenir au profil d'origine (bio d'origine). La fiche du scientifique et la liste reflètent la répartition ; plus de note « overall ».</li>
+<li><b>Impact des stats</b> : jouer deux fois le même scientifique en Arène avec une Vitesse très haute puis très basse (ou une Finition haute / basse) et constater la différence ; page Aide → « Impact des caractéristiques ».</li>
+<li><b>Gestes techniques</b> (touche Geste technique + direction) : crochet, feinte de corps (sans direction), roulette (vers l'arrière), petit pont (défenseur devant), une-deux avec la paroi (vers la paroi), appui mural (contre une paroi, avec ou sans ballon) ; comparer un bon et un mauvais dribbleur.</li>
+<li><b>Défense</b> : tacle (touche Tir quand l'adversaire a le ballon, ou touche dédiée) sans étourdissement ; pressing (touche Passe maintenue, ou touche dédiée) ; provoquer une faute : coup franc (distance, mur) et penalty dans la surface (tireur : orienter puis frapper ; gardien : plonger) ; aucun carton, y compris en Manager.</li>
+<li><b>Visages et coiffures</b> : onglet Visage (forme du visage, forme des yeux, sourcils, nez) ; têtes adultes masculines ; coiffures réalistes, les 4 mulets dans la liste normale.</li>
+<li><b>Touches</b> : en AZERTY puis en QWERTY, vérifier que chaque touche indiquée (réglages, aide en jeu, entraînement guidé, page Aide) déclenche bien l'action ; la touche en bas à gauche (W en AZERTY) fait du pressing et n'étourdit plus.</li>
 </ol></dd>
 <dt>Résultats observés / anomalies</dt><dd>En attente de la recette ; consigner chaque anomalie dans un enregistrement TD-xxx.</dd>
 <dt>Décision produit</dt><dd>En attente (Guillaume).</dd>
 <dt>Travaux dépendants</dt><dd>Seule la mise en ligne publique attend cette recette.</dd>
 </dl>
 <h2>Critères</h2>
-<p data-criterion="A1">Les 17 étapes ci-dessus donnent le résultat attendu en français et en anglais.</p>
+<p data-criterion="A1">Les 23 étapes ci-dessus donnent le résultat attendu en français et en anglais.</p>
 <p data-criterion="PO">Décision d'acceptation produit de Guillaume.</p>
 </article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

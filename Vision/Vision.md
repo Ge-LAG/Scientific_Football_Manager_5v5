@@ -69,6 +69,10 @@ mon personnage au moment décisif.
   les actions tombent sous la main gauche (passe, tir, lob, crochet, changer de joueur, power-ups,
   sprint au pouce). AZERTY ou QWERTY : je choisis dans les réglages, et je peux réaffecter chaque
   touche. La souris et la **manette USB** restent possibles.
+- **Des gestes techniques** (roulette, feinte de corps, crochet, petit pont, une-deux avec la paroi,
+  appui sur la paroi) dont la réussite dépend du dribble ; **en défense**, un tacle (sans
+  étourdissement) et un pressing plus sûr mais moins efficace ; les fautes donnent **coups francs et
+  penaltys**, sans cartons (dans les deux modes).
 - **Changer de joueur en cours de match** quand mon équipe n'est pas complète en humains : je prends
   le contrôle du coéquipier le mieux placé (jamais celui d'un autre humain), à la demande ou
   automatiquement quand je fais une passe.
@@ -84,6 +88,10 @@ mon personnage au moment décisif.
   mon style en ligne**, et la couleur de l'équipe reste toujours lisible.
 - **Un rendu de jeu « premium »** : style cartoon néon soigné, lumières et effets, animations
   fluides (course, frappe, tacle glissé, plongeon, célébrations), qualité qui s'adapte à l'ordinateur.
+- **Mes scientifiques, mes réglages** : je répartis librement les points de caractéristiques de
+  chacun (même budget pour tous) ; leur biographie, leur **archétype** (Buteur, Meneur de jeu,
+  Muraille…) et leur **poste idéal** s'adaptent automatiquement. Chaque caractéristique a un effet
+  réel sur le jeu (vitesse, tirs, passes, tacles, gestes techniques, arrêts…).
 - **Jouer tout de suite, même seul** : les joueurs virtuels comblent toujours les places vides.
 - **Salons privés avec un code à partager** pour jouer entre amis, ou **partie rapide** pour être
   placé automatiquement.
@@ -124,8 +132,10 @@ mon personnage au moment décisif.
 ## 7. Ce qui ne change pas (engagement PO)
 
 1. Les 16 personnages, leurs noms, postes, slogans, biographies et domaines.
-2. Leurs caractéristiques chiffrées (qui pourront être **enrichies**, jamais dénaturées — par
-   exemple une aptitude « Réflexes » pour le rôle de gardien).
+2. Leurs caractéristiques d'origine servent de **profil de départ** : depuis la vague 6, **c'est le
+   joueur qui répartit les points** de chaque scientifique (même budget pour tous, aucun n'est
+   « meilleur » qu'un autre) ; seuls leurs power-ups les distinguent. La biographie s'adapte à la
+   répartition choisie (celle d'origine est conservée pour le profil d'origine).
 3. Le principe : **des footballeurs scientifiques qui utilisent des power-ups liés à leur domaine
    d'étude**.
 4. L'humour et l'univers « labo néon ».

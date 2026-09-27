@@ -150,11 +150,14 @@ const outerAng = side => (side ? -Math.PI / 2 : Math.PI / 2);
 function put(ctx, s, c, g = 0, o = true) { if (s) ctx.parts.push({ s, c, g, o }); }
 const both = fn => { fn(0); fn(1); };
 
-// Cou (peau)
+// Cou (peau) : musclé, légèrement penché vers l'avant, évasé vers les trapèzes ; pomme d'Adam
 function neck(ctx) {
-  const M = ctx.M;
-  put(ctx, shape(`${ctx.key}|neck`, () => bake([[new THREE.CylinderGeometry(0.05 * M.K.neck, 0.056 * M.K.neck, 0.19, sg(12, ctx.d), 1, true).translate(0, 1.5, -0.008),
-    (x, y) => { const k = smoothstep(1.43, 1.49, y); return [[B.chest, 1 - k], [B.neck, k]]; }]])), ctx.col.skin);
+  const M = ctx.M, k = M.K.neck;
+  const L = [[1.412, 0.09, 0.072, -0.014], [1.44, 0.083, 0.069, -0.013], [1.47, 0.076, 0.066, -0.01], [1.51, 0.071, 0.064, -0.006],
+    [1.55, 0.069, 0.063, -0.001], [1.6, 0.066, 0.06, 0.004]].map(([y, rx, rz, z]) => ({ y, rx: rx * k, rz: rz * k, z }));
+  const w = (x, y) => { const a = smoothstep(1.43, 1.49, y), b = smoothstep(1.55, 1.6, y); return [[B.chest, 1 - a], [B.neck, a * (1 - b)], [B.head, a * b]]; };
+  put(ctx, shape(`${ctx.key}|neck`, () => bake([[rings(L, sg(14, ctx.d)), w],
+    [ell(0.011, 0.017, 0.009, ctx.d, 8, 6).rotateX(0.25).translate(0, 1.515, -0.006 + 0.064 * k - 0.003), w]], { smooth: true })), ctx.col.skin);
 }
 
 // Mains (ou gants de gardien)
@@ -373,7 +376,7 @@ function renaissance(ctx) {
   put(ctx, pep.out, col.team); put(ctx, pep.inn, slash, 0.1, false);
   put(ctx, shape(`${ctx.key}|rn|slashes`, () => bake([-0.44, -0.22, 0.22, 0.44].map(a => [wrapTorso(new THREE.PlaneGeometry(0.018, 0.26, 1, 5), M, 1.23, a, 0.0155), torsoW]))), slash, 0.25, false);
   put(ctx, shape(`${ctx.key}|rn|buttons`, () => bake([1.06, 1.13, 1.2, 1.27, 1.34, 1.41].map(y => { const { p } = onTorso(M, y, 0, 0.016); return [ell(0.009, 0.009, 0.007, d, 8, 6).translate(p.x, p.y, p.z), torsoW]; }))), GOLD, 0.3, false);
-  put(ctx, shape(`${ctx.key}|rn|collar`, () => bake([[new THREE.CylinderGeometry(0.068 * M.K.neck, 0.074 * M.K.neck, 0.06, sg(16, d), 1, true).translate(0, 1.475, -0.008), torsoW]])), col.team);
+  put(ctx, shape(`${ctx.key}|rn|collar`, () => bake([[new THREE.CylinderGeometry(0.082 * M.K.neck, 0.088 * M.K.neck, 0.06, sg(16, d), 1, true).translate(0, 1.475, -0.008), torsoW]])), col.team);
   both(side => {
     const s = side ? -1 : 1, ub = side ? B.upperArmR : B.upperArmL;
     put(ctx, shape(`${ctx.key}|rn|puff|${side}`, () => bake([[ell(0.085, 0.12, 0.085, d, 16, 10).translate(s * M.shX, 1.33, -0.004), ub]])), col.team);
@@ -404,8 +407,8 @@ function futuristic(ctx) {
   ])), team, 1, false);
   put(ctx, shape(`${ctx.key}|ft|core`, () => bake([[wrapTorso(new THREE.CircleGeometry(0.03, sg(16, d)), M, 1.3, 0, 0.0255), torsoW]])), col.acc, 1, false);
   put(ctx, shape(`${ctx.key}|ft|corering`, () => bake([[wrapTorso(new THREE.RingGeometry(0.034, 0.042, sg(18, d)), M, 1.3, 0, 0.0255), torsoW]])), base, 0, false);
-  put(ctx, shape(`${ctx.key}|ft|collar`, () => bake([[new THREE.CylinderGeometry(0.064 * M.K.neck, 0.08 * M.K.neck, 0.05, sg(16, d), 1, true).translate(0, 1.47, -0.008), torsoW]])), base);
-  put(ctx, shape(`${ctx.key}|ft|collarglow`, () => bake([[new THREE.TorusGeometry(0.066 * M.K.neck, 0.005, 4, sg(16, d)).rotateX(Math.PI / 2).translate(0, 1.495, -0.008), torsoW]])), team, 1, false);
+  put(ctx, shape(`${ctx.key}|ft|collar`, () => bake([[new THREE.CylinderGeometry(0.084 * M.K.neck, 0.096 * M.K.neck, 0.05, sg(16, d), 1, true).translate(0, 1.47, -0.008), torsoW]])), base);
+  put(ctx, shape(`${ctx.key}|ft|collarglow`, () => bake([[new THREE.TorusGeometry(0.086 * M.K.neck, 0.005, 4, sg(16, d)).rotateX(Math.PI / 2).translate(0, 1.495, -0.008), torsoW]])), team, 1, false);
   both(side => {
     const s = side ? -1 : 1, ub = side ? B.upperArmR : B.upperArmL;
     put(ctx, shape(`${ctx.key}|ft|pad|${side}`, () => bake([[ell(0.085, 0.05, 0.078, d, 16, 8).rotateZ(-s * 0.35).translate(s * (M.shX + 0.012), M.shY + 0.045, -0.004), ub]])), team, 0.12);

@@ -6,9 +6,13 @@ import { matchupFactor } from "../../shared/manager/engine.js";
 import { attrName } from "../../shared/data/content.js";
 
 import { useBindings } from "../ui/bindings.js";
+import { STAT_BUDGET, STAT_MIN, STAT_MAX } from "../../shared/data/stats.js";
+
+const SKILLS = ["cut", "feint", "roulette", "stepover", "nutmeg", "wallpass", "wallkick"];
+const STAT_ROWS = [["Finition", "finition"], ["Tacle", "tacle"], ["Dribble", "dribble"], ["Endurance", "endurance"], ["Force", "force"], ["Vitesse", "vitesse"], ["Vision", "vision"], ["Sang-froid", "sangfroid"], ["Réflexes", "reflexes"]];
 
 // actions présentées dans l'aide (libellés selon les réglages : disposition du clavier, réaffectations, manette)
-export const CONTROLS = ["sprint", "shoot", "pass", "lob", "skill", "tackle", "slide", "switch", "call", "pu1", "pu2", "cam", "board", "menu"];
+export const CONTROLS = ["sprint", "shoot", "pass", "lob", "skill", "tackle", "press", "switch", "call", "pu1", "pu2", "cam", "board", "menu"];
 
 export default function Help({ navigate }) {
   const { t, lang } = useI18n(); const keys = useBindings();
@@ -36,6 +40,26 @@ export default function Help({ navigate }) {
           </tbody></table>
         <p className="tiny muted mt8">{t("help.controlsNote")} {keys.controls.contextKeys && t("controls.contextHint", { pass: keys.keyOf("pass"), shoot: keys.keyOf("shoot") })}</p>
         {navigate && <button className="btn small ghost mt8" onClick={() => navigate("/settings")}>⚙️ {t("help.customize")}</button>}
+      </Card>
+      <Card className="mt16">
+        <Kicker color="var(--magenta)">🌀 {t("help.skills")}</Kicker>
+        <p className="small muted mb8">{t("help.skillsLead", { key: keys.keyOf("skill") })}</p>
+        <div style={{ overflowX: "auto" }}>
+          <table className="table"><thead><tr><th>{t("help.action")}</th><th>{t("help.skillHowTitle")}</th><th>{t("help.skillEffectTitle")}</th></tr></thead>
+            <tbody>{SKILLS.map(k => <tr key={k}><td><b>{t("skill." + k)}</b></td><td className="small">{t("help.skillHow." + k)}</td><td className="small muted">{t("help.skillEffect." + k)}</td></tr>)}</tbody></table>
+        </div>
+      </Card>
+      <Card className="mt16">
+        <Kicker color="var(--violet)">🛡️ {t("help.defense")}</Kicker>
+        <p className="small" style={{ lineHeight: 1.7 }}>{t("help.defenseText", { tackle: keys.keyOf("tackle"), press: keys.keyOf("press") })}</p>
+      </Card>
+      <Card className="mt16">
+        <Kicker color="var(--lime)">📊 {t("help.stats")}</Kicker>
+        <p className="small muted mb8">{t("help.statsLead", { budget: STAT_BUDGET, min: STAT_MIN, max: STAT_MAX })}</p>
+        <div style={{ overflowX: "auto" }}>
+          <table className="table"><thead><tr><th>{t("help.action")}</th><th>🏟️ {t("help.statArena")}</th><th>🧪 {t("help.statManager")}</th></tr></thead>
+            <tbody>{STAT_ROWS.map(([k, id]) => <tr key={k}><td><b>{attrName(k, lang)}</b></td><td className="small">{t("help.statA." + id)}</td><td className="small muted">{t("help.statM." + id)}</td></tr>)}</tbody></table>
+        </div>
       </Card>
       <Card className="mt16">
         <Kicker color="var(--gold)">♟️ {t("help.matrix")}</Kicker>

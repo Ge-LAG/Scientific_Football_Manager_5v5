@@ -14,10 +14,15 @@ const NCH = PX + 9;
 const THIGH = 0.42, SHIN = 0.417, ANKLE = 0.088, HIP_DROP = 0.05, PELVIS = 0.975;
 
 // Durées internes des gestes (s) si actionT n'est pas piloté
-const DUR = { kick: 0.55, pass: 0.45, header: 0.62, tackle: 0.75, poke: 0.45, dive: 1.0 };
+const DUR = { kick: 0.55, pass: 0.45, header: 0.62, tackle: 0.75, poke: 0.45, dive: 1.0,
+  // gestes techniques de l'Arène
+  roulette: 0.45, feint: 0.35, stepover: 0.35, nutmeg: 0.3, wallpass: 0.35, wallkick: 0.4, cut: 0.3 };
 const ONE_SHOT = new Set(Object.keys(DUR));
 // Poids du regard selon l'état
-const LOOK = { loco: 1, charge: 0.45, kick: 0.25, pass: 0.5, header: 0.1, tackle: 0.25, poke: 0.4, dive: 0.15, celebrate: 0, stunned: 0 };
+const LOOK = { loco: 1, charge: 0.45, kick: 0.25, pass: 0.5, header: 0.1, tackle: 0.25, poke: 0.4, dive: 0.15, celebrate: 0, stunned: 0,
+  roulette: 0.1, feint: 0.5, stepover: 0.4, nutmeg: 0.3, wallpass: 0.5, wallkick: 0.2, cut: 0.4, press: 0.9 };
+// gestes orientés (côté donné par diveDir : +1 = gauche du joueur)
+const SIDED = new Set(["feint", "stepover", "cut", "wallkick"]);
 export const CELEBRATIONS = ["kneeSlide", "jumpPump", "robot", "dab"];
 
 // ── Écriture de poses ──
@@ -64,7 +69,7 @@ export function createAnimator({ bones, rest, keeper = false, height = 1.8, root
     sid: "loco", t: 0, fade: 1, fadeDur: 0.15, first: true, clock: Math.random() * 10,
     phase: 0, speed: 0, sprintW: 0, keeperW: keeper ? 1 : 0, keeper,
     act: { t0: 0, ext: false, lastT: 0, u: 0 }, variant: 0, celebN: Math.floor(Math.random() * 4),
-    diveDir: 1, look: { yaw: 0, pitch: 0, tYaw: 0, tPitch: 0, timer: 2, sacc: 0, saccT: 1, px: 0, py: 0 },
+    diveDir: 1, side: 1, look: { yaw: 0, pitch: 0, tYaw: 0, tPitch: 0, timer: 2, sacc: 0, saccT: 1, px: 0, py: 0 },
     blink: { next: 2 + Math.random() * 3, t: -1 }, target: null,
     vel: new THREE.Vector3(), prevPos: null, prevYaw: 0, yawRate: 0, accF: 0, prevVF: 0, prevPY: 0, vY: 0, aY: 0,
   };
@@ -161,11 +166,12 @@ export function createAnimator({ bones, rest, keeper = false, height = 1.8, root
     return p;
   }
 
-  function posePass(p, u) {
+  // passe intérieur du pied ; str > 0 : une-deux contre le mur (accompagnement plus appuyé)
+  function posePass(p, u, str = 0) {
     p.fill(0);
-    const back = smoothstep(0, 0.3, u), sw = smoothstep(0.3, 0.55, u), fol = smoothstep(0.5, 0.75, u), rec = smoothstep(0.75, 1, u), keep = 1 - rec;
-    rot(p, "hips", 0.04, (0.28 * sw - 0.12 * back) * keep, 0);
-    rot(p, "spine", 0.08 + 0.08 * sw * keep, 0, 0); rot(p, "chest", 0, -0.15 * sw * keep, 0);
+    const back = smoothstep(0, 0.3, u), sw = smoothstep(0.3, 0.55, u), fol = smoothstep(0.5, 0.75, u) * (1 + 1.2 * str), rec = smoothstep(0.75, 1, u), keep = 1 - rec;
+    rot(p, "hips", 0.04, (0.28 * sw * (1 + 0.4 * str) - 0.12 * back) * keep, 0);
+    rot(p, "spine", 0.08 + (0.08 + 0.08 * str) * sw * keep, 0, 0); rot(p, "chest", 0, -0.15 * sw * (1 + 0.5 * str) * keep, 0);
     rot(p, "head", 0.3 * keep, 0, 0);
     leg(p, 0, 0.24 * keep + 0.02, 0.08, 0.1, 0.36 * keep + 0.06);
     leg(p, 1, (lerp(-0.65 * back, 0.8, sw) + 0.2 * fol) * keep, (0.18 + 0.15 * sw) * keep, 0.95 * keep, (0.7 - 0.45 * sw) * keep + 0.06, -0.2 * keep);
@@ -318,16 +324,125 @@ export function createAnimator({ bones, rest, keeper = false, height = 1.8, root
     return p;
   }
 
+  // ── Gestes techniques de l'Arène (durées internes, actionT non piloté) ──
+  // Roulette marseillaise : tour complet du corps (bassin), bras écartés, semelle qui traîne le ballon
+  function poseRoulette(p, u) {
+    p.fill(0);
+    const e = ease(clamp(u / 0.9, 0, 1)), k = smoothstep(0, 0.12, u) * (1 - smoothstep(0.86, 1, u));
+    let yaw = TAU * e;
+    if (yaw > Math.PI) yaw -= TAU;
+    rot(p, "hips", 0.12 * k, yaw, 0);
+    rot(p, "spine", 0.14 * k, -0.15 * k * Math.sin(TAU * e), 0); rot(p, "chest", 0.05 * k, 0, 0);
+    rot(p, "head", 0.3 * k, 0.25 * k * Math.sin(TAU * e), 0);
+    arm(p, 0, 0.3 * k, 0.2 + 1.05 * k, 0, 0.35 + 0.2 * k); arm(p, 1, 0.3 * k, 0.2 + 1.05 * k, 0, 0.35 + 0.2 * k);
+    leg(p, 0, 0.22 * k + 0.02, 0.08, 0.1, 0.5 * k + 0.05, 0);
+    leg(p, 1, 0.35 * k + 0.02, 0.28 * k + 0.05, 0.25 * k, 0.3 * k + 0.05, -0.35 * k);
+    flatFoot(p, 0);
+    p[PY] = groundY(p) + 0.025 * Math.sin(Math.PI * e) * k;
+    p[FURROW] = 0.5 * k;
+    return p;
+  }
+  // Feinte de corps : épaule et bassin plongent d'un côté puis reviennent
+  function poseFeint(p, u, s) {
+    p.fill(0);
+    const e = Math.sin(Math.PI * smoothstep(0, 0.9, u)), out = s > 0 ? 0 : 1;
+    rot(p, "hips", 0.1, -0.22 * s * e, -0.16 * s * e);
+    rot(p, "spine", 0.14, 0, -0.24 * s * e); rot(p, "chest", 0.05, 0.22 * s * e, -0.16 * s * e);
+    rot(p, "head", 0.15, 0.18 * s * e, 0.22 * s * e);
+    leg(p, out, 0.25, 0.08 + 0.38 * e, 0.2, 0.12 + 0.55 * e);
+    leg(p, 1 - out, 0.2, 0.06, 0.1, 0.35 + 0.2 * e);
+    arm(p, out, 0.2, 0.3 + 0.75 * e, 0, 0.5); arm(p, 1 - out, 0.35, 0.2 + 0.2 * e, 0, 0.7);
+    flatFoot(p, 0); flatFoot(p, 1);
+    p[PY] = groundY(p);
+    p[FURROW] = 0.6;
+    return p;
+  }
+  // Passement de jambe : une jambe décrit un cercle au-dessus du ballon (intérieur -> extérieur)
+  function poseStepover(p, u, s) {
+    p.fill(0);
+    const k = smoothstep(0, 0.15, u) * (1 - smoothstep(0.85, 1, u)), a = TAU * smoothstep(0.05, 0.9, u), lg = s > 0 ? 1 : 0;
+    rot(p, "hips", 0.1, 0.18 * s * Math.sin(a) * k, 0.1 * s * Math.sin(a / 2) * k);
+    rot(p, "spine", 0.14 * k, -0.1 * s * Math.sin(a) * k, -0.12 * s * Math.sin(a / 2) * k); rot(p, "head", 0.32 * k, 0, 0);
+    leg(p, lg, 0.55 * Math.sin(a / 2) * k + 0.05, 0.06 + 0.5 * Math.sin(a - 0.7) * k, 0.3 * k, 0.1 + 0.95 * Math.sin(a / 2) * k, 0.25 * k);
+    leg(p, 1 - lg, 0.18 + 0.12 * k, 0.08, 0.1, 0.1 + 0.4 * k);
+    arm(p, 0, 0.2, 0.3 + 0.55 * k, 0, 0.5); arm(p, 1, 0.2, 0.3 + 0.55 * k, 0, 0.5);
+    flatFoot(p, 1 - lg);
+    p[PY] = groundY(p);
+    p[FURROW] = 0.5 * k;
+    return p;
+  }
+  // Petit pont : pointe du pied courte et sèche entre les jambes de l'adversaire
+  function poseNutmeg(p, u) {
+    p.fill(0);
+    const back = smoothstep(0, 0.3, u), strike = smoothstep(0.3, 0.5, u), keep = 1 - smoothstep(0.6, 1, u);
+    rot(p, "hips", 0.1, -0.08 * strike * keep, 0);
+    rot(p, "spine", 0.2 * keep + 0.04, 0, 0); rot(p, "head", 0.38 * keep, 0, 0);
+    leg(p, 0, 0.25 * keep + 0.03, 0.08, 0.1, 0.42 * keep + 0.06);
+    leg(p, 1, lerp(-0.4 * back, 0.7, strike) * keep, 0.05, -0.1, lerp(0.95 * back, 0.1, strike) * keep + 0.06, 0.55 * strike * keep);
+    arm(p, 0, 0.3 * keep, 0.3 + 0.45 * keep, 0, 0.5); arm(p, 1, -0.3 * strike * keep, 0.3, 0, 0.5);
+    flatFoot(p, 0);
+    p[PY] = groundY(p);
+    p[OPEN] = 0.3 * strike * keep; p[FURROW] = 0.6 * keep;
+    return p;
+  }
+  // Appui sur le mur : pied posé haut sur le côté, genou levé, corps penché à l'opposé, petit saut
+  function poseWallkick(p, u, s) {
+    p.fill(0);
+    const plant = smoothstep(0, 0.3, u), push = smoothstep(0.3, 0.55, u), land = smoothstep(0.72, 1, u), w = plant * (1 - land);
+    const air = Math.sin(Math.PI * smoothstep(0.3, 0.95, u)), lg = s > 0 ? 0 : 1;
+    rot(p, "hips", 0.1 * w, 0.2 * s * w, 0.2 * s * w);
+    rot(p, "spine", 0.1 * w, 0, 0.26 * s * w); rot(p, "chest", 0, 0, 0.12 * s * w); rot(p, "head", 0.1, 0, -0.3 * s * w);
+    leg(p, lg, 0.55 * w + 0.3 * push * w, 0.05 + 0.85 * w * (1 - 0.4 * push), 0.2 * w, 0.08 + 1.3 * w * (1 - 0.65 * push), 0.2 * w);
+    leg(p, 1 - lg, 0.15 + 0.3 * air, 0.1, 0.1, 0.25 + 0.7 * air, 0.3 * air);
+    arm(p, lg, 0.5 * w, 0.4 + 0.5 * w, 0, 0.6); arm(p, 1 - lg, 0.4 * w, 0.4 + 0.9 * w, 0, 0.4);
+    flatFoot(p, 1 - lg, 1 - air);
+    p[PX] = -s * 0.05 * push * (1 - land);
+    p[PY] = groundY(p) + 0.16 * air;
+    p[OPEN] = 0.4 * push * (1 - land); p[FURROW] = 0.7 * w;
+    return p;
+  }
+  // Crochet : appui sec d'un pied sur le côté puis poussée latérale
+  function poseCut(p, u, s) {
+    p.fill(0);
+    const plant = smoothstep(0, 0.3, u), push = smoothstep(0.3, 0.65, u), k = plant * (1 - smoothstep(0.65, 1, u)), lg = s > 0 ? 1 : 0;
+    rot(p, "hips", 0.2 * k, 0.35 * s * k, 0.12 * s * k);
+    rot(p, "spine", 0.24 * k, 0.12 * s * k, -0.22 * s * k); rot(p, "head", 0.12 * k, 0.25 * s * k, 0.15 * s * k);
+    leg(p, lg, 0.3 * k, 0.06 + 0.55 * k * (1 - 0.4 * push), 0.2 * k, 0.08 + 0.7 * k * (1 - 0.6 * push));
+    leg(p, 1 - lg, 0.45 * k, 0.1, 0.1, 0.1 + 0.85 * k, 0.2 * push);
+    arm(p, lg, 0.2, 0.3 + 0.65 * k, 0, 0.6); arm(p, 1 - lg, 0.5 * k, 0.2, 0, 0.9);
+    flatFoot(p, lg);
+    p[PX] = s * 0.06 * push * k;
+    p[PY] = groundY(p);
+    p[FURROW] = 0.8 * k;
+    return p;
+  }
+  // Pressing (boucle) : centre de gravité bas, de biais, bras écartés, petits pas rapides
+  function posePress(p, t) {
+    p.fill(0);
+    const sh = Math.sin(t * 9);
+    rot(p, "hips", 0.22, 0.45, 0);
+    rot(p, "spine", 0.18, -0.2, 0); rot(p, "chest", 0.05, -0.15, 0);
+    rot(p, "neck", -0.08, 0, 0); rot(p, "head", -0.14, -0.1, 0);
+    leg(p, 0, 0.5 + 0.1 * Math.max(0, sh), 0.24, 0.25, 0.9 + 0.3 * Math.max(0, sh));
+    leg(p, 1, 0.42 + 0.1 * Math.max(0, -sh), 0.24, 0.2, 0.8 + 0.3 * Math.max(0, -sh));
+    arm(p, 0, 0.35, 0.55, 0, 0.9); arm(p, 1, 0.35, 0.55, 0, 0.9);
+    flatFoot(p, 0); flatFoot(p, 1);
+    p[PY] = groundY(p) + 0.008 * Math.abs(Math.cos(t * 9));
+    p[FURROW] = 0.7;
+    return p;
+  }
+
   // ── Mise à jour ──
   const _v = new THREE.Vector3(), _m = new THREE.Matrix4();
   function stateOf(action) {
     if (action === "run" || action === "sprint" || action === "idle" || action === "keeperReady" || !action) return "loco";
-    if (action === "celebrate" || action === "stunned" || action === "charge" || ONE_SHOT.has(action)) return action;
+    if (action === "celebrate" || action === "stunned" || action === "charge" || action === "press" || ONE_SHOT.has(action)) return action;
     return "loco";
   }
   function fadeFor(prev, next) {
     if (next === "kick" && prev === "charge") return 0.05;
-    if (next === "dive" || next === "tackle") return 0.08;
+    if (next === "dive" || next === "tackle" || next === "roulette" || next === "cut" || next === "nutmeg") return 0.08;
+    if (prev === "roulette" || prev === "wallkick") return 0.14;
     if (prev === "dive" || prev === "tackle" || (prev === "celebrate" && CELEBRATIONS[st.variant] === "kneeSlide")) return 0.35;
     if (next === "celebrate") return 0.2;
     return 0.15;
@@ -346,6 +461,7 @@ export function createAnimator({ bones, rest, keeper = false, height = 1.8, root
       st.act = { t0: aT, ext: false, lastT: aT, u: 0 };
       if (sid === "celebrate") st.variant = Number.isInteger(variant) ? Math.abs(variant) % CELEBRATIONS.length : (st.celebN++ + Math.floor(Math.random() * 3)) % CELEBRATIONS.length;
       if (sid === "dive") st.diveDir = diveDir >= 0 ? 1 : -1;
+      if (SIDED.has(sid)) st.side = diveDir >= 0 ? 1 : -1;
     }
     st.t += dt;
     if (Math.abs(aT - st.act.lastT) > 1e-4) st.act.ext = true;
@@ -381,6 +497,21 @@ export function createAnimator({ bones, rest, keeper = false, height = 1.8, root
       case "dive": poseDive(live, u, st.diveDir); break;
       case "celebrate": poseCelebrate(live, st.t, st.variant); break;
       case "stunned": poseStunned(live, t); break;
+      case "roulette": poseRoulette(live, u); break;
+      case "feint": poseFeint(live, u, st.side); break;
+      case "stepover": poseStepover(live, u, st.side); break;
+      case "nutmeg": poseNutmeg(live, u); break;
+      case "wallpass": posePass(live, u, 1); break;
+      case "wallkick": poseWallkick(live, u, st.side); break;
+      case "cut": poseCut(live, u, st.side); break;
+      case "press": {
+        // pressing : garde basse de biais, piétinement ; se fond dans la course quand on accélère
+        const run = smoothstep(2.5, 5.5, v);
+        posePress(tmpA, t);
+        if (run > 0) { poseMove(tmpB, Math.max(v, 0.6), st.sprintW, st.phase); for (let i = 0; i < NCH; i++) live[i] = lerp(tmpA[i], tmpB[i], run); }
+        else live.set(tmpA);
+        break;
+      }
     }
     live[LOOKW] = LOOK[sid] ?? 1;
 
@@ -484,7 +615,11 @@ export function createAnimator({ bones, rest, keeper = false, height = 1.8, root
   }
   function secondary(dt, t) {
     if (dt <= 0) return;
-    const vF = clamp(st.vF || 0, -3, 12), vX = clamp(st.vel.x, -8, 8), aF = st.accF, om = st.yawRate;
+    // rotation rapide du bassin (roulette) : fait aussi réagir cheveux et cape
+    let hy = out[R.hips + 1] - (st.prevHipYaw ?? out[R.hips + 1]); hy = Math.atan2(Math.sin(hy), Math.cos(hy));
+    st.prevHipYaw = out[R.hips + 1];
+    st.hipRate = (st.hipRate || 0) + (clamp(hy / dt, -16, 16) - (st.hipRate || 0)) * (1 - Math.exp(-dt * 10));
+    const vF = clamp(st.vF || 0, -3, 12), vX = clamp(st.vel.x, -8, 8), aF = st.accF, om = clamp(st.yawRate + st.hipRate, -12, 12);
     const hp = out[R.hips] + out[R.spine] + out[R.chest] + out[R.neck] + out[R.head];
     const hr = out[R.hips + 2] + out[R.spine + 2] + out[R.chest + 2] + out[R.neck + 2] + out[R.head + 2];
     const cp = out[R.hips] + out[R.spine] + out[R.chest], cr = out[R.hips + 2] + out[R.spine + 2] + out[R.chest + 2];

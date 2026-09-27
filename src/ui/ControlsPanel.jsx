@@ -7,8 +7,8 @@ import { useSession } from "../store/session.jsx";
 import { Seg } from "./components.jsx";
 import { ACTIONS, KEY_PRESETS, controlsOf, resolveBindings, codeLabel, padLabel, conflicts, detectLayout } from "../three/controls.js";
 
-export const ACTION_ICONS = { up: "⬆️", down: "⬇️", left: "⬅️", right: "➡️", sprint: "🏃", shoot: "🎯", pass: "👟", lob: "🌈", skill: "🌀", tackle: "🦶", slide: "🛷", switch: "🔄", call: "🙋", pu1: "⚡", pu2: "⚡", cam: "🎥", board: "📋", menu: "⏸️" };
-const GROUP = { up: "move", down: "move", left: "move", right: "move", sprint: "move", shoot: "ball", pass: "ball", lob: "ball", skill: "ball", tackle: "def", slide: "def", switch: "meta", call: "meta", pu1: "pu", pu2: "pu", cam: "sys", board: "sys", menu: "sys" };
+export const ACTION_ICONS = { up: "⬆️", down: "⬇️", left: "⬅️", right: "➡️", sprint: "🏃", shoot: "🎯", pass: "👟", lob: "🌈", skill: "🌀", tackle: "🦶", press: "🧲", switch: "🔄", call: "🙋", pu1: "⚡", pu2: "⚡", cam: "🎥", board: "📋", menu: "⏸️" };
+const GROUP = { up: "move", down: "move", left: "move", right: "move", sprint: "move", shoot: "ball", pass: "ball", lob: "ball", skill: "ball", tackle: "def", press: "def", switch: "meta", call: "meta", pu1: "pu", pu2: "pu", cam: "sys", board: "sys", menu: "sys" };
 const GROUP_COLOR = { move: "#B8FF00", ball: "#00F0FF", def: "#8B5CF6", meta: "#FFD700", pu: "#FF00E5", sys: "#8a93a8" };
 
 // clavier visuel (bloc gauche + flèches), positions physiques

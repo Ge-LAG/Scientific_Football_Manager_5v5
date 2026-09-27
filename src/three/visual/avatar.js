@@ -31,13 +31,18 @@ function palette(app, teamColor, teamColor2, keeper) {
   const skin = skinColor(app.skin), hair = C3(app.hairColor), beard = C3(app.facialHairColor), team = C3(teamColor);
   const acc = C3(app.outfitColor);
   return {
-    skin, skinDark: skin.clone().multiplyScalar(0.78), nose: mix(skin, "#d27766", 0.12), blush: mix(skin, "#ff6f80", 0.3),
+    skin, skinDark: skin.clone().multiplyScalar(0.78), nose: mix(skin, "#c8705e", 0.07), blush: mix(skin, "#ff6f80", 0.3),
+    // détails du visage adulte
+    lid: mix(skin, "#4a2018", 0.42), lidLine: mix(skin, "#3a1a16", 0.45), lash: mix(hair, "#0c0808", 0.7), caruncle: mix(skin, "#e07a7a", 0.45),
+    nostril: mix(skin, "#1e0c0a", 0.75), lip: mix(skin, "#9c4a44", 0.3), lipLine: mix(skin, "#2e1010", 0.72), scar: mix(skin, "#fff0ea", 0.32),
+    sclera: C3("#ece8e1"), irisDark: C3(app.eyeColor).multiplyScalar(0.28),
     team: keeper ? C3(KEEPER.jersey) : team.clone(), teamRaw: team, team2: C3(teamColor2), teamDk: team.clone().multiplyScalar(0.62),
     trim: keeper ? team.clone() : acc.clone(), acc, accDk: acc.clone().multiplyScalar(0.55),
     shoe: C3(app.shoeColor), eye: C3(app.eyeColor), hair, brow: mix(hair, "#000000", 0.28), beard, stubble: mix(skin, beard, 0.42),
     hairTone: {
       hair, buzz: mix(skin, hair, 0.8), shaved: mix(skin, hair, 0.4), fade1: mix(skin, hair, 0.5), fade2: mix(skin, hair, 0.78),
       shine: mix(hair, "#ffffff", 0.45), dark: hair.clone().multiplyScalar(0.62), tie: C3("#1d1d26"),
+      root: mix(hair, "#000000", 0.45), skin: mix(skin, hair, 0.18),
     },
     hairGlow: isNeon(hair) ? 0.35 : 0, keeper,
   };
@@ -147,12 +152,13 @@ export function createAvatar(player, {
     const info = buildBody(ctx, app.outfit);
     const headInfo = buildHead(ctx, info.hood || null);
     if (app.accessory !== "none") buildAccessory(ctx, app.accessory, info);
-    const parts = ctx.parts.map(p => ({ s: p.s, c: C3(p.c), g: p.g || 0, o: p.o !== false }));
+    const parts = ctx.parts.map(p => ({ s: p.s, c: C3(p.c), c2: p.c2 != null ? C3(p.c2) : null, g: p.g || 0, o: p.o !== false }));
     const merged = mergeParts(parts, withOutline);
     return { M, info, headInfo, col, ...merged };
   }
-  function setRest(M, pv) {
-    const bind = { ...M.bind, hairBack: pv.back.toArray(), hairTail: pv.tail.toArray(), hatTip: pv.tip.toArray() };
+  function setRest(M, pv, face) {
+    // os du visage (yeux, sourcils, bouche) placés selon la forme du visage et des yeux
+    const bind = { ...M.bind, ...(face || {}), hairBack: pv.back.toArray(), hairTail: pv.tail.toArray(), hatTip: pv.tip.toArray() };
     BONES.forEach((n, i) => abs[i].fromArray(bind[n]));
     BONES.forEach((n, i) => {
       const p = PARENT_INDEX[i];
@@ -164,7 +170,7 @@ export function createAvatar(player, {
   }
 
   let vis = buildVisual();
-  setRest(vis.M, vis.headInfo.pivots);
+  setRest(vis.M, vis.headInfo.pivots, vis.headInfo.face);
   const body = mkSkinned(vis.geo, bodyMaterial(q));
   body.add(bones[B.hips]);
   body.castShadow = shadows;
@@ -279,7 +285,7 @@ export function createAvatar(player, {
   function rebuild() {
     const old = [body.geometry, outline?.geometry, decal.geometry];
     vis = buildVisual();
-    setRest(vis.M, vis.headInfo.pivots);
+    setRest(vis.M, vis.headInfo.pivots, vis.headInfo.face);
     body.geometry = vis.geo;
     if (outline) outline.geometry = vis.ogeo || new THREE.BufferGeometry();
     decal.geometry = decalGeometry(vis.M, vis.info.backOff, app.accessory === "cape");

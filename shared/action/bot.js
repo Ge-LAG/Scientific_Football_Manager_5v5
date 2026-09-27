@@ -25,14 +25,14 @@ export class ArenaBrain {
       if (p.human) {
         // gardien humain inactif : placement automatique (toute commande du joueur reprend la main)
         const hi = sim.inputs[p.slot];
-        if (sim.isKeeper(p) && sim.ball.owner !== p.slot && !hi.mx && !hi.mz && !hi.tackle && !hi.slide && !hi.pass && !hi.shoot) {
+        if (sim.isKeeper(p) && sim.ball.owner !== p.slot && !hi.mx && !hi.mz && !hi.tackle && !hi.press && !hi.pass && !hi.shoot) {
           const auto = this.think(p); sim.setInput(p.slot, { ...hi, mx: auto.mx, mz: auto.mz, sprint: auto.sprint });
         }
         continue;
       }
       const m = this.mem_(p.slot);
       // temps de réaction : entre deux décisions, le bot garde sa trajectoire (sans répéter les actions ponctuelles)
-      if (sim.time < m.nextThink && !m.shootHold && sim.ball.owner !== p.slot) { sim.setInput(p.slot, { ...m.lastInput, pass: false, lob: false, tackle: false, slide: false, pu: false, pu2: false }); continue; }
+      if (sim.time < m.nextThink && !m.shootHold && sim.ball.owner !== p.slot) { sim.setInput(p.slot, { ...m.lastInput, pass: false, lob: false, tackle: false, skill: false, pu: false, pu2: false }); continue; }
       const inp = this.think(p);
       if (!sim.isKeeper(p)) { inp.mx *= this.cfg.effort; inp.mz *= this.cfg.effort; if (this.cfg.effort < 1 && p.stamina < 60) inp.sprint = false; }
       m.lastInput = inp; m.nextThink = sim.time + this.cfg.react * (0.6 + sim.rng() * 0.8);
@@ -44,6 +44,7 @@ export class ArenaBrain {
     const sim = this.sim, b = sim.ball, m = this.mem_(p.slot);
     const inp = emptyInput();
     if (sim.phase === "goal" || sim.phase === "halftime" || sim.phase === "ended") return inp;
+    if (sim.phase === "setpiece") return this.setPiece(p, inp);
     const owner = sim.owner();
     const gx = sim.goalX(p.team), ownX = sim.ownGoalX(p.team), f = Math.sign(gx);
     const mates = sim.players.filter(q => q.team === p.team && q !== p);
@@ -89,14 +90,17 @@ export class ArenaBrain {
     const ranked = field.map(q => ({ q, d: hyp(q.x - owner.x, q.z - owner.z) })).sort((a, c) => a.d - c.d);
     const d = hyp(owner.x - p.x, owner.z - p.z);
     if (ranked[0].q === p) {
-      // pressing du porteur, côté but
-      // se placer au contact côté but, puis tenter le tacle (glissé si l'on arrive lancé)
+      // se placer côté but, harceler (pressing) au contact, tacler quand l'occasion est bonne
       const gl = Math.hypot(ownX - owner.x, owner.z) || 1;
       const tx = owner.x + (ownX - owner.x) / gl * 0.7, tz = owner.z - owner.z / gl * 0.7;
       this.steer(inp, p, tx, tz, d > 3);
       inp.aim = Math.atan2(owner.z - p.z, owner.x - p.x);
-      if (d < 1.3 && p.tackleCd <= 0 && this.sim.rng() < this.cfg.tackleEager * (0.18 + this.cfg.react * 2.5)) inp.tackle = true;
-      else if (d < 2.2 && d > 1.4 && p.sprinting && p.tackleCd <= 0 && this.sim.rng() < this.cfg.tackleEager * 0.05) { inp.tackle = true; inp.sprint = true; }
+      if (d < 3) inp.press = true;
+      // un bon tacleur tente sa chance de face ; de dos, on préfère le pressing (moins de fautes)
+      const facing = Math.cos(owner.facing) * (p.x - owner.x) + Math.sin(owner.facing) * (p.z - owner.z) > 0;
+      const eager = this.cfg.tackleEager * (0.5 + statOf(p, "Tacle", sim) / 99) * (facing ? 1 : 0.35);
+      if (d < 1.3 && p.tackleCd <= 0 && this.sim.rng() < eager * (0.12 + this.cfg.react * 1.8)) inp.tackle = true;
+      else if (d < 2.4 && d > 1.5 && p.sprinting && p.tackleCd <= 0 && this.sim.rng() < eager * 0.04) { inp.tackle = true; inp.sprint = true; }
       return inp;
     }
     if (ranked[1]?.q === p) { // couverture entre porteur et but
@@ -146,13 +150,55 @@ export class ArenaBrain {
       m.passWait = 10;
       return inp;
     }
-    // les bons dribbleurs tentent un crochet quand un défenseur arrive au contact
-    if (nearOpp && nearOpp.d < 1.8 && p.skillCd <= sim.time && statOf(p, "Dribble", sim) > 70 && this.sim.rng() < this.cfg.passSmart * 0.3) { const ax = p.x - nearOpp.o.x, az = p.z - nearOpp.o.z, al = Math.hypot(ax, az) || 1; inp.skill = true; inp.mx = ax / al; inp.mz = az / al; inp.aim = p.facing; return inp; }
+    // gestes techniques quand un défenseur arrive au contact (plus fréquents pour les bons dribbleurs)
+    const dr = statOf(p, "Dribble", sim);
+    if (nearOpp && nearOpp.d < 2 && p.skillCd <= sim.time && this.sim.rng() < this.cfg.passSmart * 0.12 * (0.3 + dr / 99)) {
+      const wall = sim.nearWall(p); const r = this.sim.rng();
+      const ahead = sim.defenderAhead(p);
+      inp.skill = true; inp.aim = p.facing;
+      if (wall.d < 2.5 && r < 0.35) { inp.mx = -wall.nx; inp.mz = -wall.nz; }                       // une-deux avec la paroi
+      else if (ahead && dr > 72 && r < 0.6) { inp.mx = Math.cos(p.facing); inp.mz = Math.sin(p.facing); } // petit pont
+      else if (r < 0.7) { inp.mx = 0; inp.mz = 0; }                                                  // feinte de corps
+      else if (r < 0.85) { inp.mx = -Math.cos(p.facing); inp.mz = -Math.sin(p.facing); }             // roulette
+      else { const s = r < 0.93 ? 1 : -1; inp.mx = -Math.sin(p.facing) * s; inp.mz = Math.cos(p.facing) * s; } // crochet
+      return inp;
+    }
     // conduite vers le but en évitant le défenseur le plus proche
     let tx = gx - f * 4, tz = p.z * 0.6;
     if (nearOpp && nearOpp.d < 4) { const side = p.z > nearOpp.o.z ? 1 : -1; tz = clamp(p.z + side * 4, -9, 9); tx = p.x + f * 4; }
     this.steer(inp, p, tx, tz, pressure < 5 || p.stamina > 60);
     inp.aim = Math.atan2(0 - p.z, gx - p.x);
+    return inp;
+  }
+
+  // coups de pied arrêtés : le tireur frappe ou passe, les autres se replacent (distances imposées par la simulation)
+  setPiece(p, inp) {
+    const sim = this.sim, sp = sim.setPiece, m = this.mem_(p.slot);
+    const gx = sim.goalX(p.team), f = Math.sign(gx), ownX = sim.ownGoalX(p.team);
+    if (sp.taker === p.slot) {
+      if (m.shootHold > 0) { // frappe en cours de chargement
+        m.shootHold--; inp.shoot = m.shootHold > 0; inp.aim = m.aim; inp.aimFace = true; inp.mx = Math.cos(m.aim) * 0.3; inp.mz = Math.sin(m.aim) * 0.3; return inp;
+      }
+      if (!m.spAt || m.spAt < sp.readyAt - 2) m.spAt = sp.readyAt + 0.4 + sim.rng() * 1.2;
+      const keeper = sim.players.find(q => q.team !== p.team && sim.isKeeper(q));
+      const dGoal = hyp(gx - p.x, p.z);
+      const shoot = sp.kind === "penalty" || (dGoal < 19 && Math.abs(p.z) < 9 && statOf(p, "Finition", sim) > 55);
+      if (shoot) {
+        if (m.spAim == null) { const side = keeper && keeper.z > 0.2 ? -1 : keeper && keeper.z < -0.2 ? 1 : (sim.rng() < 0.5 ? -1 : 1); m.spAim = Math.atan2(side * (FIELD.GOAL_HW - 0.45 - sim.rng() * 0.7) - p.z, gx - p.x); }
+        inp.aim = m.spAim; inp.aimFace = true; inp.mx = Math.cos(m.spAim) * 0.3; inp.mz = Math.sin(m.spAim) * 0.3;
+        if (sim.time >= m.spAt) { m.aim = m.spAim; m.shootHold = Math.round(sp.kind === "penalty" ? 12 + sim.rng() * 6 : 14 + dGoal * 0.5); inp.shoot = true; m.spAim = null; m.spAt = 0; }
+      } else if (sim.time >= m.spAt) {
+        const best = sim.players.filter(q => q.team === p.team && q !== p && !sim.isKeeper(q)).sort((a, c) => (c.x - a.x) * f - (hyp(c.x - p.x, c.z - p.z) - hyp(a.x - p.x, a.z - p.z)) * 0.2)[0];
+        if (best) { inp.aim = Math.atan2(best.z - p.z, best.x - p.x); inp.aimFace = true; inp.mx = Math.cos(inp.aim) * 0.3; inp.mz = Math.sin(inp.aim) * 0.3; inp.pass = true; }
+        m.spAt = 0;
+      }
+      return inp;
+    }
+    if (sim.isKeeper(p)) { this.steer(inp, p, ownX - Math.sign(ownX) * 0.6, 0, false); return inp; }
+    const w = sp.wall?.find(x => x.slot === p.slot); if (w) { this.steer(inp, p, w.x, w.z, false); return inp; } // tenir le mur
+    const base = sim.basePos(p);
+    if (p.team === sp.team) this.steer(inp, p, clamp(sp.x + f * (4 + (p.slot % 5) * 1.5), -17, 17), base.z * 0.8, false);
+    else this.steer(inp, p, (sp.x + ownX) / 2 + (base.x - ownX) * 0.1, base.z * 0.7, false);
     return inp;
   }
 

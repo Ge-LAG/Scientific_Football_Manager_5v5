@@ -11,13 +11,14 @@ import { createCameraRig } from "./cameraRig.js";
 import { createPipeline } from "./render/pipeline.js";
 import { createQualityManager, detectInitialQuality, normLevel } from "./render/quality.js";
 import { createPerfOverlay } from "./render/perfOverlay.js";
-import { getPlayer, getPowerUp, defaultLoadout } from "../../shared/data/content.js";
+import { getPlayer, getPowerUp, defaultLoadout, withStats } from "../../shared/data/content.js";
 import { FIELD, statOf, stepMovement } from "../../shared/action/sim.js";
 import { BTN } from "../../shared/rooms/arenaRoom.js";
 
 const INTERP_DELAY = 0.1; // s
 // ralenti des buts : 2,8 s avant le but jusqu'à 0,3 s après, à 65 % de la vitesse, 0,9 s après le but
 const REPLAY = { before: 2.8, after: 0.3, speed: 0.65, delay: 0.9 };
+const SKILL_ACTIONS = new Set(["cut", "feint", "roulette", "stepover", "nutmeg", "wallpass", "wallkick"]);
 const lerp = (a, b, t) => a + (b - a) * t;
 const lerpAngle = (a, b, t) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * t;
 
@@ -147,7 +148,8 @@ export function createArenaView(container, options) {
       case "SECOND_HALF": sfx.whistle("start"); break;
       case "INTERCEPT": sfx.pass(); break;
       case "CALL": effects.ring(pos, "#FFD700", { radius: 1.4, duration: 0.5 }); break;
-      case "SKILL": effects.burst(pos, color, { count: 14, speed: 2.5, up: 0.5 }); sfx.pass(); break;
+      case "SKILL": effects.burst(pos, color, { count: ev.move === "roulette" ? 22 : 14, speed: 2.5, up: 0.5 }); if (ev.move === "wallkick" || ev.move === "wallpass") effects.dust?.(pos); sfx.pass(); break;
+      case "FREEKICK": case "PENALTY": sfx.whistle("foul"); effects.ring(new THREE.Vector3(ev.x ?? pos.x, 0.05, ev.z ?? pos.z), ev.type === "PENALTY" ? "#FF3366" : "#FFD700", { radius: 1.2, duration: 1.2 }); break;
     }
     onEvent?.(ev);
   }
@@ -168,6 +170,7 @@ export function createArenaView(container, options) {
   const activeEffect = (i, P) => { const m = P?.[12] || 0; const lo = loadoutOf(i); for (let k = 0; k < lo.length; k++) if (m & (1 << k)) return getPowerUp(lo[k])?.arena?.effect; return null; };
 
   // ── Boucle ──────────────────────────────────────────────
+  let ctxPress = false, predPauseUntil = 0;
   let raf = 0, last = performance.now(), alive = true, inputAcc = 0, hudAcc = 0, lastInputSent = null, fpsAcc = 0, fpsN = 0, lastFps = 60, switchAcc = 0, pendingEdges = new Set();
   const ballPos = new THREE.Vector3(), ballVel = new THREE.Vector3();
   let menuOpen = false, boardOpen = false;
@@ -205,7 +208,7 @@ export function createArenaView(container, options) {
         const av = avatars[i]; const pa = a.p[i], pb = b.p[i]; if (!pa || !pb) continue;
         let x = lerp(pa[0], pb[0], k), z = lerp(pa[1], pb[1], k), face = lerpAngle(pa[4], pb[4], k);
         const vx = pb[2], vz = pb[3];
-        if (i === mySlot && latest && replayRt == null && interactive) {
+        if (i === mySlot && latest && replayRt == null && interactive && latest.ph !== "setpiece" && !(latest.p[i][6] & 256) && nowS >= predPauseUntil) {
           // prédiction locale : on intègre ses propres entrées, recalées doucement sur le serveur
           const L = latest.p[i];
           if (!pred.ok) Object.assign(pred, { x: L[0], z: L[1], vx: L[2], vz: L[3], facing: L[4], ok: true });
@@ -220,12 +223,16 @@ export function createArenaView(container, options) {
         av.group.rotation.y = Math.atan2(Math.cos(face), Math.sin(face));
         const flags = pb[6]; const speed = Math.hypot(vx, vz);
         let action = speed > 0.4 ? (flags & 1 ? "sprint" : "run") : "idle", actionT = 0.5;
+        if (flags & 256) action = "press";
         if (pb[8] === "kick" || pb[8] === "pass") action = pb[8];
         if (pb[8] === "tackle" || pb[8] === "poke") action = "tackle";
+        if (SKILL_ACTIONS.has(pb[8])) action = pb[8]; // gestes techniques
+        if (flags & 512 && action !== "tackle") action = "stunned"; // mis dans le vent
         if (flags & 16) { action = "charge"; actionT = pb[7] || 0; }
         if (flags & 4) action = "dive"; else if (flags & 2) action = "stunned";
         if (b.ph === "goal" && isScorerTeam(i)) action = "celebrate";
-        const localDive = Math.sign(-Math.sin(av.group.rotation.y) * (pb[10] || 1)) || 1;
+        // plongeon : sens en z du monde converti en côté local ; gestes techniques : côté local fourni par la simulation
+        const localDive = SKILL_ACTIONS.has(pb[8]) ? (pb[10] || 1) : Math.sign(-Math.sin(av.group.rotation.y) * (pb[10] || 1)) || 1;
         av.setState({ speed, action, actionT, diveDir: localDive, celebrateSeed: lastGoalId }, dt);
         av.setPowerUp(!!(flags & 8), getPlayer(av.charId)?.color || "#fff");
         if (av.setLookAt) av.setLookAt(ballPos);
@@ -239,13 +246,11 @@ export function createArenaView(container, options) {
     // ── Entrées → serveur (30 Hz) ──
     if (mySlot != null && interactive) {
       for (const e of inp.edges) pendingEdges.add(e);
-      // touches contextuelles : quand un adversaire a le ballon, Passe = tacle, Tir = tacle glissé
-      // (la passe est aussi envoyée : le serveur ne l'exécute que si l'on a réellement le ballon)
+      // touches contextuelles : quand un adversaire a le ballon, Passe maintenue = pressing, Tir = tacle
+      // (la passe reste transmise : le serveur ne l'exécute que si l'on a réellement le ballon)
       const oppBall = latest && latest.b[6] >= 0 && slots[latest.b[6]]?.team !== slots[mySlot].team;
-      if (controls.contextKeys && oppBall && !hasBall && latest.ph === "play") {
-        if (inp.edges.has("pass")) pendingEdges.add("tackle");
-        if (inp.edges.has("shootPress")) pendingEdges.add("slide");
-      }
+      ctxPress = controls.contextKeys && oppBall && !hasBall && latest.ph === "play" && inp.passHeld;
+      if (controls.contextKeys && oppBall && !hasBall && latest.ph === "play" && inp.edges.has("shootPress")) pendingEdges.add("tackle");
       if (inp.edges.has("switch") && !menuOpen) requestSwitch("auto");
       autoSwitch(dt, hasBall);
       inputAcc += dt;
@@ -253,6 +258,7 @@ export function createArenaView(container, options) {
         inputAcc = 0;
         let bits = 0;
         if (inp.sprint) bits |= BTN.sprint;
+        if (inp.press || ctxPress) bits |= BTN.press; // pressing (maintenu)
         if (inp.shoot && !menuOpen) bits |= BTN.shoot; // sans effet côté serveur si l'on n'a pas le ballon
         const E = pendingEdges; pendingEdges = new Set();
         if (E.has("pass") && hasBall) { onEvent?.({ type: "MY_PASS", slot: mySlot, local: true }); if (controls.autoSwitch !== "off") passFollow = { until: nowS + 2.2 }; }
@@ -260,11 +266,10 @@ export function createArenaView(container, options) {
         if (E.has("pass")) bits |= BTN.pass;
         if (E.has("lob")) bits |= BTN.lob;
         if (E.has("tackle")) bits |= BTN.tackle;
-        if (E.has("slide")) bits |= BTN.slide;
         if (E.has("pu1")) bits |= BTN.pu;
         if (E.has("pu2")) bits |= BTN.pu2;
         if (E.has("call")) bits |= BTN.call;
-        if (E.has("skill")) { bits |= BTN.skill; if (hasBall && pred.ok) { const side = (inp.right || 0) >= 0 ? 1 : -1; const perp = pred.facing + side * Math.PI / 2; pred.vx += Math.cos(perp) * 5; pred.vz += Math.sin(perp) * 5; } }
+        if (E.has("skill")) { bits |= BTN.skill; predPauseUntil = nowS + 0.6; } // geste choisi par le serveur : on suit sa trajectoire
         for (let k = 1; k <= 5; k++) if (E.has("emote" + k)) onEvent?.({ type: "EMOTE_KEY", n: k, local: true });
         const aimFace = input.state.locked || input.state.usingPad;
         if (aimFace) bits |= BTN.aimFace;
@@ -346,13 +351,13 @@ export function createArenaView(container, options) {
   const isScorerTeam = i => lastGoalTeam === slots[i].team;
 
   function predictStep(p, i, mx, mz, sprint, dt, L) {
-    const char = getPlayer(slots[i].charId); const lo = loadoutOf(i); const mask = L[12] || 0;
+    const char = withStats(getPlayer(slots[i].charId), slots[i].stats); const lo = loadoutOf(i); const mask = L[12] || 0; // mêmes caractéristiques que le serveur
     // élan (dash) décidé par le serveur : on reprend sa vitesse dès qu'il apparaît
     if (L[6] & 128) { if (!p.dashSeen) { p.vx = L[2]; p.vz = L[3]; p.dashSeen = true; } } else p.dashSeen = false;
     // auras d'équipe actives (vitesse) des coéquipiers
     const auras = [];
     for (let j = 0; j < slots.length; j++) { if (slots[j].team !== slots[i].team) continue; const e = activeEffect(j, latest.p[j]); if (e === "teamSpeed") { const pu = loadoutOf(j).map(getPowerUp).find(u => u?.arena?.effect === "teamSpeed"); if (pu) auras.push({ kind: "speed", team: slots[i].team, until: 1e9, value: pu.arena.value || 1.1 }); } }
-    const fakeP = { char, stamina: L[5], pus: lo.map((id, k) => ({ def: getPowerUp(id), until: mask & (1 << k) ? 1e9 : 0 })), boostUntil: 0, dashUntil: L[6] & 128 ? 1e9 : 0, stunUntil: L[6] & 2 ? 1e9 : 0, diveUntil: L[6] & 4 ? 1e9 : 0, team: slots[i].team, x: p.x, z: p.z, vx: p.vx, vz: p.vz, facing: p.facing, slot: i };
+    const fakeP = { char, stamina: L[5], pus: lo.map((id, k) => ({ def: getPowerUp(id), until: mask & (1 << k) ? 1e9 : 0 })), boostUntil: 0, feintedUntil: L[6] & 512 ? 1e9 : 0, spinUntil: L[8] === "roulette" ? 1e9 : 0, dashUntil: L[6] & 128 ? 1e9 : 0, stunUntil: L[6] & 2 ? 1e9 : 0, diveUntil: L[6] & 4 ? 1e9 : 0, team: slots[i].team, x: p.x, z: p.z, vx: p.vx, vz: p.vz, facing: p.facing, slot: i };
     const fakeSim = { time: 0, auras, slows: [], ball: { owner: latest.b[6] } };
     stepMovement(fakeP, { mx, mz, sprint, aim: input.state.yaw, aimFace: input.state.locked }, fakeSim, dt);
     p.x = fakeP.x; p.z = fakeP.z; p.vx = fakeP.vx; p.vz = fakeP.vz; p.facing = fakeP.facing;
@@ -362,7 +367,7 @@ export function createArenaView(container, options) {
     const L = latest; const me = mySlot != null ? L.p[mySlot] : null;
     const lo = mySlot != null ? loadoutOf(mySlot) : [];
     return {
-      score: L.s, clock: L.c, half: L.h, phase: L.ph, mySlot,
+      score: L.s, clock: L.c, half: L.h, phase: L.ph, mySlot, sp: L.sp || null,
       me: me && { stamina: me[5], charging: !!(me[6] & 16), charge: me[7], puActive: !!(me[6] & 8), puCd: me[9], hasBall: L.b[6] === mySlot,
         pus: lo.map((id, k) => ({ id, cd: k === 0 ? me[9] : me[11] || 0, active: !!((me[12] || 0) & (1 << k)) })) },
       fps: lastFps, quality: qm.level, replay: !!replay && performance.now() / 1000 >= replay.beginAt, locked: input.state.locked, menu: menuOpen, board: boardOpen, cam: rig.mode, follow: rig.follow, usingPad: input.state.usingPad,

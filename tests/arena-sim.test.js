@@ -133,7 +133,7 @@ test("salle Arène : un front de bouton reçu entre deux ticks n'est pas perdu",
   room.close();
 });
 
-test("crochet : écart latéral, recharge et tacles bien plus difficiles pendant l'esquive", () => {
+test("geste technique (feinte de corps) : tacles bien plus difficiles pendant l'esquive", () => {
   let won = 0, wonSkill = 0;
   for (let i = 0; i < 80; i++) {
     for (const skill of [false, true]) {
@@ -141,7 +141,7 @@ test("crochet : écart latéral, recharge et tacles bien plus difficiles pendant
       sim.phase = "play";
       const d = sim.players[6], t = sim.players[1];
       d.x = 0; d.z = 0; d.facing = 0; t.x = 1; t.z = 0; sim.ball.owner = 6;
-      if (skill) { sim.setInput(6, { skill: true }); sim.step(); assert.ok(d.skillUntil > sim.time); }
+      if (skill) { sim.setInput(6, { skill: true }); sim.step(); assert.ok(d.dodgeUntil > sim.time); }
       sim.tackle(t, {});
       if (sim.ball.owner === 1) { if (skill) wonSkill++; else won++; }
     }

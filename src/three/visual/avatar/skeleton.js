@@ -43,8 +43,8 @@ const TORSO = [
   [1.315, 0.197, 0.136, 0.004, "chest"],
   [1.375, 0.188, 0.128, -0.002, "chest"],
   [1.418, 0.158, 0.11, -0.006, "sh"],
-  [1.448, 0.098, 0.078, -0.006, "neck"],
-  [1.462, 0.062, 0.058, -0.004, "neck"],
+  [1.448, 0.112, 0.084, -0.006, "neck"],
+  [1.462, 0.078, 0.068, -0.006, "neck"],
 ];
 // Profils des membres (hauteur, rayon)
 const LEG = [[1.0, 0.09], [0.93, 0.089], [0.82, 0.08], [0.68, 0.068], [0.56, 0.057], [0.5, 0.056], [0.44, 0.06], [0.34, 0.061], [0.22, 0.048], [0.13, 0.04], [0.085, 0.039]];
@@ -72,7 +72,7 @@ export function bodyMetrics(build) {
     hipX: 0.09 * K.hip, hipY: 0.925, kneeY: 0.505, ankleY: 0.088,
     pelvisY: 0.975, spineY: 1.1, chestY: 1.265, neckY: 1.452, headY: 1.525,
     shX: 0.2 * K.sh + 0.012, shY: 1.39, elY: 1.13, wrY: 0.878,
-    C: new THREE.Vector3(0, 1.655, 0.012), E: new THREE.Vector3(0.15, 0.158, 0.146),
+    C: new THREE.Vector3(0, 1.648, 0.012), E: new THREE.Vector3(0.15, 0.158, 0.146),
     torso,
     torsoAt(y) {
       const t = this.torso;

@@ -5,12 +5,16 @@ import { useI18n } from "../i18n/index.jsx";
 import { useSession } from "../store/session.jsx";
 import { Card, Kicker, Avatar, Seg } from "../ui/components.jsx";
 import { LoadoutPicker } from "../ui/LoadoutPicker.jsx";
+import { StatsEditor } from "../ui/StatsEditor.jsx";
+import { ArchetypeBadge, RoleFit, useMyPlayer } from "../ui/profile.jsx";
+import { composeBio } from "../../shared/data/profileText.js";
 import { PLAYERS, getPlayer, pText, sanitizeLoadout } from "../../shared/data/content.js";
 import { APPEARANCE_OPTIONS, APPEARANCE_LABELS, defaultAppearance, sanitizeAppearance } from "../../shared/data/appearance.js";
 import { reloadOnChunkError } from "../net/reload.js";
 
 const TABS = {
-  body: ["build", "skin", "eyes", "eyeColor"],
+  body: ["build", "skin"],
+  face: ["faceShape", "eyeShape", "eyes", "eyeColor", "brows", "nose"],
   hair: ["hairStyle", "hairColor", "facialHair", "facialHairColor"],
   style: ["outfit", "outfitColor", "shoeColor"],
   gear: ["glasses", "headwear", "accessory"],
@@ -20,9 +24,12 @@ const ACTIONS = ["idle", "run", "sprint", "charge", "celebrate", "stunned"];
 const TEAM_COLORS = ["#00F0FF", "#FF00E5", "#B8FF00", "#FFD700"];
 const pick = a => a[Math.floor(Math.random() * a.length)];
 
-export default function LookEditor({ id, navigate }) {
+export default function LookEditor({ id, tab: routeTab, navigate }) {
   const { t, lang } = useI18n();
-  const { looks, setLook, loadouts, setLoadout, settings } = useSession();
+  const { looks, setLook, loadouts, setLoadout, settings, statAlloc, setCharStats } = useSession();
+  const mode = routeTab === "stats" ? "stats" : "look"; // Apparence / Caractéristiques
+  const my = useMyPlayer();
+  const go = (cid, m = mode) => navigate("/look/" + cid + (m === "stats" ? "/stats" : ""));
   const charId = getPlayer(id) ? id : PLAYERS[0].id;
   const p = getPlayer(charId);
   const saved = looks[charId] ? sanitizeAppearance(looks[charId], charId) : null;
@@ -61,7 +68,7 @@ export default function LookEditor({ id, navigate }) {
   const change = (f, v) => commit({ ...look, [f]: v }, f);
   const randomize = () => {
     const O = APPEARANCE_OPTIONS, P = O.palettes;
-    commit({ build: pick(O.build), skin: Math.round(Math.random() * 20) / 20, hairStyle: pick(O.hairStyle), hairColor: pick(P.hair), facialHair: pick(O.facialHair), facialHairColor: pick(P.hair),
+    commit({ build: pick(O.build), skin: Math.round(Math.random() * 20) / 20, faceShape: pick(O.faceShape || [look.faceShape]), eyeShape: pick(O.eyeShape || [look.eyeShape]), brows: pick(O.brows || [look.brows]), nose: pick(O.nose || [look.nose]), hairStyle: pick(O.hairStyle), hairColor: pick(P.hair), facialHair: pick(O.facialHair), facialHairColor: pick(P.hair),
       eyes: pick(O.eyes), eyeColor: pick(P.eye), glasses: Math.random() < 0.5 ? "none" : pick(O.glasses), headwear: Math.random() < 0.45 ? "none" : pick(O.headwear), outfit: pick(O.outfit),
       outfitColor: pick(P.outfit), accessory: Math.random() < 0.4 ? "none" : pick(O.accessory), shoeColor: pick(P.shoe) });
   };
@@ -87,7 +94,8 @@ export default function LookEditor({ id, navigate }) {
         </div>);
     }
     const opts = APPEARANCE_OPTIONS[f];
-    const groups = f === "hairStyle" ? [["", opts.filter(o => !o.startsWith("mullet"))], [t("look.mullets"), opts.filter(o => o.startsWith("mullet"))]] : [["", opts]];
+    if (!Array.isArray(opts)) return null; // champ absent de cette version du modèle d'apparence
+    const groups = [["", opts]]; // toutes les coiffures ensemble (les mulets ne sont pas une catégorie à part)
     return (
       <div key={f} className="look-field">
         <div className="label">{L("fields", f)}</div>
@@ -110,8 +118,8 @@ export default function LookEditor({ id, navigate }) {
       </div>
       <div className="look-chars" role="tablist" aria-label={t("look.chooseChar")}>
         {PLAYERS.map(x => (
-          <button key={x.id} role="tab" aria-selected={x.id === charId} className={"look-char" + (x.id === charId ? " on" : "")} style={{ "--pc": x.color }} onClick={() => navigate("/look/" + x.id)}>
-            <Avatar player={x} size={36} showNum={false} /><span className="tiny">{x.nom}</span>{customized.has(x.id) && <span className="look-dot" title={t("look.customized")} />}
+          <button key={x.id} role="tab" aria-selected={x.id === charId} className={"look-char" + (x.id === charId ? " on" : "")} style={{ "--pc": x.color }} onClick={() => go(x.id)}>
+            <Avatar player={x} size={36} showNum={false} /><span className="tiny">{x.nom}</span>{(customized.has(x.id) || statAlloc?.[x.id]) && <span className="look-dot" title={t("look.customized")} />}
           </button>
         ))}
       </div>
@@ -127,6 +135,21 @@ export default function LookEditor({ id, navigate }) {
           <p className="tiny muted mt8">{t("look.teamNote")}</p>
         </Card>
         <div className="col" style={{ gap: 16 }}>
+          <Seg value={mode} onChange={m => go(charId, m)} options={[{ value: "look", label: "🎨 " + t("look.mode.look") }, { value: "stats", label: "📊 " + t("look.mode.stats") }]} />
+          {mode === "stats" ? (
+            <>
+              <Card>
+                <Kicker color="var(--lime)">📊 {t("stats.title", { name: p.nom })}</Kicker>
+                <StatsEditor charId={charId} value={statAlloc?.[charId] || null} onChange={v => setCharStats(charId, v)} />
+              </Card>
+              <Card>
+                <div className="row between mb8"><ArchetypeBadge player={my(charId)} /><span className="tiny muted">{t("profile.roleFit")}</span></div>
+                <RoleFit player={my(charId)} all />
+                <div className="small mt16" style={{ fontStyle: "italic", lineHeight: 1.7 }}>{composeBio(my(charId), my(charId).attributs, lang)}</div>
+                <p className="tiny muted mt8">{t("stats.bioNote")}</p>
+              </Card>
+            </>
+          ) : (
           <Card>
             <Seg value={tab} onChange={setTab} options={Object.keys(TABS).map(k => ({ value: k, label: t("look.tab." + k) }))} />
             <div className="mt16">{TABS[tab].map(field)}</div>
@@ -137,6 +160,7 @@ export default function LookEditor({ id, navigate }) {
               <span className="tiny muted grow" style={{ textAlign: "right" }}>✓ {t("look.autosave")}</span>
             </div>
           </Card>
+          )}
           <Card>
             <Kicker color="var(--magenta)">⚡ {t("look.loadout")}</Kicker>
             <p className="tiny muted mb8">{t("look.loadoutHelp")}</p>

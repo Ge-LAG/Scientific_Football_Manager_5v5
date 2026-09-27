@@ -38,7 +38,7 @@ export function ReportView({ report: msg, setup, me, navigate, onLeave }) {
   const goals = r.events.filter(e => e.type === "GOAL");
   const players = [...r.players].sort((a, b) => b.rating - a.rating);
   const stat = (k, fmt = v => v) => [fmt(H.stats[k] ?? 0), fmt(A.stats[k] ?? 0)];
-  const rows = [["possession", stat("possession", v => v + "%")], ["xg", stat("xg")], ["shots", stat("shots")], ["onTarget", stat("onTarget")], ["passes", [`${H.stats.passesOk}/${H.stats.passes}`, `${A.stats.passesOk}/${A.stats.passes}`]], ["tackles", stat("tackles")], ["saves", stat("saves")], ["fouls", stat("fouls")], ["cards", [`${H.stats.yellow}🟨 ${H.stats.red}🟥`, `${A.stats.yellow}🟨 ${A.stats.red}🟥`]], ["powerups", stat("powerups")], ["subs", stat("subs")]];
+  const rows = [["possession", stat("possession", v => v + "%")], ["xg", stat("xg")], ["shots", stat("shots")], ["onTarget", stat("onTarget")], ["passes", [`${H.stats.passesOk}/${H.stats.passes}`, `${A.stats.passesOk}/${A.stats.passes}`]], ["tackles", stat("tackles")], ["saves", stat("saves")], ["fouls", stat("fouls")], ["powerups", stat("powerups")], ["subs", stat("subs")]];
 
   // conseils du coach (repris et enrichis du prototype)
   const tips = [];

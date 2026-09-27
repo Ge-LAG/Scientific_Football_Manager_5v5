@@ -1,284 +1,14 @@
-// Tête : visage expressif (yeux, sourcils, 3 bouches), 22 coiffures, pilosité, lunettes et couvre-chefs.
+// Tête : assemblage du visage adulte (face.js), des 22 coiffures (hair.js), lunettes et couvre-chefs.
 // Géométries construites relativement au centre de la tête C puis translatées ; poids = os de la tête / visage / mèches.
 import * as THREE from "three";
-import { shape, bake, rings, sweep, twoSided, splitSides, warp, flatShape, ellipseShape, arcRibbon, ell, sg, V3, smoothstep, lerp, orient, bar, cutTris, subdivide } from "./kit.js";
+import { shape, bake, rings, sweep, twoSided, splitSides, ell, sg, V3, smoothstep, orient, bar, cutTris } from "./kit.js";
 import { B } from "./skeleton.js";
-import { rng, hashStr } from "../util.js";
+import { headModel, skullGeo, earGeos, noseGeos, eyeGeos, browGeos, mouthGeos, facialHairGeos } from "./face.js";
+import { hairStyle } from "./hair.js";
 
 const TAU = Math.PI * 2;
-const LASH = "#1a1216";
-
-// ── Surface du crâne ──
-function headDeform(v, E) {
-  const ny = v.y / E.y;
-  if (ny < 0) { const k = ny * ny; v.x *= 1 - 0.13 * k; v.z += 0.016 * k * Math.max(0, v.z / E.z); }
-  return v;
-}
-function surf(E, x, y, lift = 0) {
-  const z = E.z * Math.sqrt(Math.max(0, 1 - (x / E.x) ** 2 - (y / E.y) ** 2));
-  const n = V3(x / (E.x * E.x), y / (E.y * E.y), z / (E.z * E.z)).normalize();
-  const p = headDeform(V3(x, y, z), E).addScaledVector(n, lift);
-  return { p, n };
-}
-// Projette une forme plate (plan XY, relatif à C) sur le visage
-function onFace(g0, E, lift) {
-  const g = subdivide(g0, 0.01), p = g.attributes.position, nor = new Float32Array(p.count * 3);
-  for (let i = 0; i < p.count; i++) {
-    const s = surf(E, p.getX(i), p.getY(i), lift);
-    p.setXYZ(i, s.p.x, s.p.y, s.p.z);
-    nor[i * 3] = s.n.x; nor[i * 3 + 1] = s.n.y; nor[i * 3 + 2] = s.n.z;
-  }
-  g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
-  return g;
-}
-// Point sur une calotte inclinée (a = angle depuis le pôle, f = azimut)
-function capDir(a, f, tilt) {
-  return V3(Math.sin(a) * Math.cos(f), Math.cos(a), Math.sin(a) * Math.sin(f)).applyAxisAngle(V3(1, 0, 0), tilt);
-}
-const onEll = (E, k, dir) => V3(dir.x * E.x * k, dir.y * E.y * k, dir.z * E.z * k);
-const faceZone = dir => dir.z > 0.42 && dir.y < 0.62; // zone du visage (pas de mèches)
-
-// Calotte de cheveux + bande de fermeture vers le crâne
-function capParts(E, d, k, th, tilt, { sx = 1, sy = 1, sz = 1, ws = 26, hs = 12, close = true } = {}) {
-  const S = (g, kk) => g.scale(E.x * kk * sx, E.y * kk * sy, E.z * kk * sz);
-  const out = [S(new THREE.SphereGeometry(1, sg(ws, d), sg(hs, d), 0, TAU, 0, th).rotateX(tilt), k)];
-  if (close && k > 1.02) {
-    const n = sg(ws, d), pos = [], idx = [];
-    for (const kk of [k, 1.0]) for (let j = 0; j <= n; j++) {
-      const f = (j / n) * TAU, v = capDir(th, f, tilt);
-      pos.push(v.x * E.x * kk * sx, v.y * E.y * kk * sy, v.z * E.z * kk * sz);
-    }
-    for (let j = 0; j < n; j++) { const a = j, b = j + 1, c = n + 1 + j, dd = c + 1; idx.push(a, c, b, b, c, dd); }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-    g.setIndex(idx); g.computeVertexNormals();
-    out.push(g);
-  }
-  return out;
-}
-
-// ════════════════════════ Coiffures ════════════════════════
-// Chaque partie : { g, cat: cap|top|side|back|fringe, tone, w: "head"|"back"|"tail" }
-const P = (g, cat = "cap", tone = "hair", w = "head") => ({ g, cat, tone, w });
-
-function hairStyle(style, E, d) {
-  const r = rng(hashStr("hair:" + style));
-  const parts = [];
-  const add = (g, cat, tone, w) => { for (const x of Array.isArray(g) ? g : [g]) parts.push(P(x, cat, tone, w)); };
-  let vol = { r: 1.08, top: E.y * 1.08 };
-  let pivots = null;
-  const tufts = (n, k, th, tilt, make, cat = "top") => {
-    for (let i = 0, tries = 0; i < n && tries < n * 6; tries++) {
-      const a = Math.sqrt(r()) * th, f = r() * TAU, dir = capDir(a, f, tilt);
-      if (faceZone(dir)) continue;
-      add(make(dir, onEll(E, k, dir), i), cat);
-      i++;
-    }
-  };
-  const backShell = (list, th0, th1, tone = "hair") => {
-    const g = twoSided(rings(list, sg(22, d), { th0, th1 }), 0.004);
-    const [a, b] = splitSides(g);
-    add(a, "back", tone, "back"); add(b, "back", "dark", "back");
-  };
-  switch (style) {
-    case "bald":
-      vol = { r: 1.0, top: E.y };
-      break;
-    case "buzz":
-      add(capParts(E, d, 1.018, 0.47 * Math.PI, -0.6), "cap", "buzz");
-      vol = { r: 1.03, top: E.y * 1.03 };
-      break;
-    case "short":
-      add(capParts(E, d, 1.07, 0.5 * Math.PI, -0.58), "cap");
-      add(ell(0.12, 0.07, 0.125, d).translate(0, 0.095, -0.015), "top");
-      for (let i = 0; i < 3; i++) {
-        const x = -0.055 + i * 0.05, s = surf(E, x, 0.105, 0.01);
-        add(orient(ell(0.04, 0.045, 0.016, d, 10, 6), V3(-0.5 + x, -0.35, 1), s.p), "fringe");
-      }
-      vol = { r: 1.1, top: 0.175 };
-      break;
-    case "side":
-      add(capParts(E, d, 1.07, 0.49 * Math.PI, -0.6), "cap");
-      add(ell(0.125, 0.045, 0.1, d).rotateX(-0.15).rotateZ(0.28).translate(-0.02, 0.14, 0.055), "top");
-      add(orient(ell(0.03, 0.07, 0.03, d, 10, 6), V3(0.9, 0.2, 0.3), V3(0.12, 0.12, 0.07)), "top");
-      vol = { r: 1.1, top: 0.19 };
-      break;
-    case "slick":
-      add(capParts(E, d, 1.06, 0.5 * Math.PI, -0.5, { sz: 1.1 }), "cap");
-      add(ell(0.1, 0.055, 0.155, d).translate(0, 0.118, -0.03), "top");
-      add(ell(0.12, 0.075, 0.06, d).translate(0, -0.005, -0.14), "cap");
-      add([ell(0.014, 0.006, 0.1, d, 8, 4).rotateX(0.35).translate(0.035, 0.158, 0.02), ell(0.01, 0.005, 0.07, d, 6, 4).rotateX(0.3).translate(-0.03, 0.162, 0.0)], "top", "shine");
-      vol = { r: 1.09, top: 0.18 };
-      break;
-    case "spiky":
-      add(capParts(E, d, 1.04, 0.49 * Math.PI, -0.6), "cap");
-      tufts(17, 1.0, 0.44 * Math.PI, -0.55, dir => {
-        const len = 0.1 + r() * 0.06, g = new THREE.ConeGeometry(0.04 + r() * 0.01, len, sg(6, d)).translate(0, len / 2, 0);
-        return orient(g, dir.clone().add(V3(0, 0.55, -0.35)), onEll(E, 0.98, dir));
-      });
-      vol = { r: 1.15, top: 0.27 };
-      break;
-    case "curly":
-      add(capParts(E, d, 1.04, 0.5 * Math.PI, -0.58), "cap");
-      tufts(42, 1.1, 0.5 * Math.PI, -0.58, (dir, p) => ell(1, 1, 1, d, 7, 5).scale(0.036 + r() * 0.014, 0.036 + r() * 0.014, 0.036 + r() * 0.014).translate(p.x, p.y, p.z));
-      vol = { r: 1.3, top: 0.22 };
-      break;
-    case "afro": {
-      add(capParts(E, d, 1.04, 0.5 * Math.PI, -0.58), "cap");
-      const g = new THREE.IcosahedronGeometry(1, d >= 1 ? 4 : d >= 0.75 ? 3 : 2);
-      warp(g, v => {
-        const n = v.clone().normalize();
-        const bump = 1 + 0.045 * Math.sin(n.x * 17 + n.y * 5) * Math.sin(n.y * 15 + n.z * 3) + 0.03 * Math.sin(n.z * 21 - n.x * 9);
-        v.copy(n).multiplyScalar(bump).multiply(V3(0.25, 0.23, 0.235)).add(V3(0, 0.09, -0.06));
-        if (v.z > 0 && v.y < 0.105) {
-          const zs = E.z * Math.sqrt(Math.max(0, 1 - (v.x / E.x) ** 2 - (Math.min(v.y, 0.1) / E.y) ** 2)) - 0.014;
-          if (v.z > zs) v.z = lerp(v.z, zs, smoothstep(0.13, 0.06, v.y) * 0.9 + 0.1);
-        }
-      });
-      add(g, "top");
-      vol = { r: 1.62, top: 0.32 };
-      break;
-    }
-    case "messy":
-      add(capParts(E, d, 1.07, 0.5 * Math.PI, -0.56), "cap");
-      tufts(18, 1.02, 0.52 * Math.PI, -0.56, dir => {
-        const len = 0.07 + r() * 0.05, g = new THREE.ConeGeometry(0.032, len, sg(5, d)).scale(1, 1, 0.55).rotateY(r() * 3).translate(0, len / 2, 0);
-        return orient(g, dir.clone().add(V3(r() - 0.5, r() * 0.4 - 0.1, r() - 0.5)), onEll(E, 1.0, dir));
-      });
-      vol = { r: 1.15, top: 0.23 };
-      break;
-    case "long":
-      add(capParts(E, d, 1.08, 0.5 * Math.PI, -0.56), "cap");
-      backShell([
-        { y: -0.33, rx: 0.188, rz: 0.1, z: -0.07 }, { y: -0.25, rx: 0.182, rz: 0.112, z: -0.062 }, { y: -0.15, rx: 0.176, rz: 0.13, z: -0.045 },
-        { y: -0.05, rx: 0.172, rz: 0.15, z: -0.022 }, { y: 0.04, rx: 0.165, rz: 0.158, z: -0.008 },
-      ], 0.3 * Math.PI, 1.7 * Math.PI);
-      add([1, -1].map(s => ell(0.03, 0.11, 0.028, d, 10, 8).rotateZ(s * 0.08).translate(s * 0.14, -0.07, 0.06)), "side");
-      vol = { r: 1.1, top: 0.172 };
-      break;
-    case "ponytail": {
-      add(capParts(E, d, 1.04, 0.5 * Math.PI, -0.58), "cap");
-      add(new THREE.TorusGeometry(0.024, 0.009, 5, sg(10, d)).rotateX(-0.9).translate(0, 0.085, -0.15), "back", "tie");
-      const pts = [[0, 0.085, -0.152], [0, 0.07, -0.2], [0, 0.0, -0.235], [0, -0.1, -0.24], [0, -0.2, -0.225], [0, -0.3, -0.2]];
-      add(sweep(pts, [0.03, 0.045, 0.042, 0.035, 0.024, 0.006], sg(10, d), { flat: 0.8 }), "back", "hair", "back");
-      pivots = { back: V3(0, 0.085, -0.155), tail: V3(0, -0.08, -0.24) };
-      vol = { r: 1.05, top: 0.172 };
-      break;
-    }
-    case "bun":
-      add(capParts(E, d, 1.04, 0.5 * Math.PI, -0.58), "cap");
-      add(ell(0.066, 0.058, 0.066, d, 14, 10).translate(0, 0.15, -0.08), "top");
-      add(new THREE.TorusGeometry(0.05, 0.009, 5, sg(12, d)).rotateX(Math.PI / 2 + 0.5).translate(0, 0.128, -0.066), "top", "tie");
-      vol = { r: 1.05, top: 0.21 };
-      break;
-    case "mohawk":
-      add(capParts(E, d, 1.016, 0.47 * Math.PI, -0.6), "cap", "shaved");
-      for (let i = 0; i < 9; i++) {
-        const t = 0.62 - (i / 8) * 2.35, dir = V3(0, Math.cos(t), Math.sin(t));
-        const h = 0.17 - Math.abs(i - 3.5) * 0.013;
-        add(orient(new THREE.ConeGeometry(0.05, h, sg(4, d)).scale(0.3, 1, 1).translate(0, h / 2 - 0.012, 0), dir, onEll(E, 0.98, dir)), "top");
-      }
-      vol = { r: 1.03, top: 0.31 };
-      break;
-    case "fade":
-      add(capParts(E, d, 1.016, 0.47 * Math.PI, -0.6), "cap", "fade1");
-      add(capParts(E, d, 1.04, 0.38 * Math.PI, -0.5, { close: false }), "cap", "fade2");
-      add(capParts(E, d, 1.1, 0.3 * Math.PI, -0.3, { sy: 1.2 }), "top");
-      vol = { r: 1.1, top: 0.2 };
-      break;
-    case "pompadour":
-      add(capParts(E, d, 1.05, 0.49 * Math.PI, -0.6), "cap");
-      add(ell(0.105, 0.075, 0.125, d).rotateX(-0.45).translate(0, 0.14, 0.05), "top");
-      add(ell(0.095, 0.052, 0.065, d).rotateX(0.35).translate(0, 0.19, 0.115), "top");
-      add([ell(0.008, 0.005, 0.08, d, 6, 4).rotateX(-0.5).translate(0.03, 0.2, 0.06)], "top", "shine");
-      vol = { r: 1.1, top: 0.26 };
-      break;
-    case "dreads": {
-      add(capParts(E, d, 1.07, 0.5 * Math.PI, -0.56), "cap");
-      const n = d >= 0.75 ? 18 : 12;
-      for (let i = 0; i < n; i++) {
-        const a = 0.3 * Math.PI + (i / (n - 1)) * 1.4 * Math.PI + (r() - 0.5) * 0.1;
-        const sx = Math.sin(a), cz = Math.cos(a), front = Math.max(0, cz);
-        const root = V3(sx * 0.158, 0.05 - 0.04 * (1 - front), -0.008 + cz * 0.15);
-        const len = (0.2 + r() * 0.1) * (1 - front * 0.55);
-        const out = V3(sx, 0, cz).multiplyScalar(0.03);
-        const pts = [root, root.clone().add(out).add(V3(0, -0.06, 0)), root.clone().add(out.clone().multiplyScalar(1.4)).add(V3(0, -len * 0.6, 0)), root.clone().add(out.clone().multiplyScalar(1.6)).add(V3(0, -len, 0))];
-        add(sweep(pts, [0.019, 0.019, 0.017, 0.013], sg(5, d)), "back", i % 3 ? "hair" : "dark", "back");
-      }
-      vol = { r: 1.12, top: 0.18 };
-      break;
-    }
-    case "bowl": {
-      add(capParts(E, d, 1.012, 0.52 * Math.PI, -0.55), "cap", "shaved");
-      const th = Math.acos(0.085 / (E.y * 1.1));
-      add(capParts(E, d, 1.1, th, 0, { sx: 1.1, sz: 1.1, close: false }), "top");
-      const rr = Math.sin(th) * 1.1 * 1.1;
-      add(new THREE.TorusGeometry(1, 0.075, 6, sg(28, d)).rotateX(Math.PI / 2).scale(E.x * rr, 0.16, E.z * rr).translate(0, 0.085, 0), "top");
-      vol = { r: 1.22, top: 0.176 };
-      break;
-    }
-    case "mullet_modern":
-      add(capParts(E, d, 1.03, 0.49 * Math.PI, -0.6), "cap", "fade1");
-      add(capParts(E, d, 1.09, 0.32 * Math.PI, -0.45, { sy: 1.08 }), "top");
-      tufts(7, 1.08, 0.26 * Math.PI, -0.4, dir => orient(new THREE.ConeGeometry(0.03, 0.06, sg(5, d)).translate(0, 0.03, 0), dir.clone().add(V3(0, 0.3, -0.5)), onEll(E, 1.06, dir)));
-      backShell([
-        { y: -0.27, rx: 0.15, rz: 0.12, z: -0.085 }, { y: -0.24, rx: 0.13, rz: 0.108, z: -0.07 }, { y: -0.15, rx: 0.12, rz: 0.115, z: -0.055 },
-        { y: -0.05, rx: 0.13, rz: 0.13, z: -0.03 }, { y: 0.06, rx: 0.12, rz: 0.14, z: -0.02 },
-      ], 0.58 * Math.PI, 1.42 * Math.PI);
-      vol = { r: 1.1, top: 0.18 };
-      break;
-    case "mullet_shaved":
-      add(capParts(E, d, 1.014, 0.47 * Math.PI, -0.6), "cap", "shaved");
-      add(capParts(E, d, 1.09, 0.3 * Math.PI, -0.42, { sy: 1.12 }), "top");
-      add(ell(0.08, 0.035, 0.07, d).rotateZ(0.35).translate(-0.04, 0.155, 0.075), "top");
-      backShell([
-        { y: -0.31, rx: 0.08, rz: 0.09, z: -0.085 }, { y: -0.22, rx: 0.09, rz: 0.1, z: -0.07 }, { y: -0.1, rx: 0.1, rz: 0.12, z: -0.05 },
-        { y: 0.0, rx: 0.1, rz: 0.14, z: -0.03 }, { y: 0.06, rx: 0.09, rz: 0.14, z: -0.02 },
-      ], 0.7 * Math.PI, 1.3 * Math.PI);
-      for (const x of [-0.045, 0, 0.045]) add(orient(new THREE.ConeGeometry(0.02, 0.07, sg(5, d)).translate(0, 0.035, 0), V3(x, -1, -0.25), V3(x, -0.3, -0.172)), "back", "hair", "back");
-      vol = { r: 1.1, top: 0.2 };
-      break;
-    case "mullet_perm": {
-      add(capParts(E, d, 1.04, 0.49 * Math.PI, -0.6), "cap");
-      tufts(24, 1.1, 0.42 * Math.PI, -0.5, (dir, p) => ell(1, 1, 1, d, 7, 5).scale(0.04 + r() * 0.012, 0.04 + r() * 0.012, 0.04 + r() * 0.012).translate(p.x, p.y, p.z));
-      backShell([
-        { y: -0.25, rx: 0.15, rz: 0.12, z: -0.07 }, { y: -0.12, rx: 0.15, rz: 0.14, z: -0.05 }, { y: 0.02, rx: 0.15, rz: 0.15, z: -0.02 },
-      ], 0.58 * Math.PI, 1.42 * Math.PI, "dark");
-      const n = d >= 0.75 ? 34 : 22;
-      for (let i = 0; i < n; i++) {
-        const t = r(), a = (0.55 + r() * 0.9) * Math.PI, y = 0.02 - t * 0.27, rad = 0.15 + t * 0.045;
-        add(ell(1, 1, 1, d, 7, 5).scale(0.043 + r() * 0.014, 0.043 + r() * 0.014, 0.043 + r() * 0.014).translate(Math.sin(a) * rad, y, -0.03 - t * 0.04 + Math.cos(a) * (rad - 0.01)), "back", "hair", "back");
-      }
-      vol = { r: 1.3, top: 0.22 };
-      break;
-    }
-    case "mullet_classic":
-      add(capParts(E, d, 1.07, 0.5 * Math.PI, -0.56, { sy: 0.97 }), "cap");
-      for (let i = 0; i < 4; i++) {
-        const x = -0.06 + i * 0.04, s = surf(E, x, 0.098, 0.014);
-        add(orient(ell(0.026, 0.04, 0.012, d, 8, 6), V3(x * 1.5, -1, 0.9), s.p), "fringe");
-      }
-      add([1, -1].map(s => ell(0.03, 0.06, 0.075, d, 10, 8).translate(s * 0.152, 0.0, -0.005)), "side");
-      backShell([
-        { y: -0.29, rx: 0.16, rz: 0.1, z: -0.068 }, { y: -0.2, rx: 0.158, rz: 0.11, z: -0.06 }, { y: -0.1, rx: 0.156, rz: 0.13, z: -0.04 },
-        { y: 0.0, rx: 0.156, rz: 0.145, z: -0.02 }, { y: 0.05, rx: 0.15, rz: 0.15, z: -0.01 },
-      ], 0.55 * Math.PI, 1.45 * Math.PI);
-      vol = { r: 1.1, top: 0.168 };
-      break;
-    case "grey_side": {
-      const pts = [];
-      for (let i = 0; i <= 12; i++) { const a = 0.32 * Math.PI + (i / 12) * 1.36 * Math.PI; pts.push(V3(Math.sin(a) * 0.158, 0.03 - 0.05 * Math.max(0, -Math.cos(a)), -0.01 + Math.cos(a) * 0.146)); }
-      add(sweep(pts, 0.036, sg(8, d), { flat: 0.75 }), "side");
-      add([1, -1].map(s => ell(0.05, 0.048, 0.06, d, 10, 8).translate(s * 0.15, 0.045, -0.012)), "side");
-      for (const s of [1, -1]) for (let i = 0; i < 3; i++) add(orient(new THREE.ConeGeometry(0.02, 0.07, sg(5, d)).translate(0, 0.035, 0), V3(s, 0.4 + i * 0.35, -0.3 + i * 0.2), V3(s * 0.175, 0.04 + i * 0.02, -0.03 - i * 0.03)), "side");
-      vol = { r: 1.0, top: E.y };
-      break;
-    }
-    default:
-      return hairStyle("short", E, d);
-  }
-  return { parts, vol, pivots };
-}
+// échelle de la tête (proportions adultes : tête un peu plus petite que le modèle d'origine)
+export const HS = 0.93;
 
 // Masquage des cheveux sous les couvre-chefs
 const HIDE = {
@@ -286,66 +16,6 @@ const HIDE = {
   cap: ["top", "fringe"], beanie: ["top", "fringe"], wizard_hat: ["top"], top_hat: ["top"],
   knight_helmet: ["top", "cap", "side", "fringe"], hood: ["top", "cap", "side", "back", "fringe"],
 };
-
-// ════════════════════════ Pilosité faciale ════════════════════════
-function facialHair(type, E, d) {
-  const out = [];
-  const shell = (k, t0, t1, cutMouth = true) => {
-    const g = new THREE.SphereGeometry(1, sg(34, d), sg(16, d), 0.02 * Math.PI, 0.96 * Math.PI, t0, t1 - t0);
-    warp(g, v => { v.multiply(E); headDeform(v, E); v.multiplyScalar(k); });
-    if (!cutMouth) return g;
-    // ouverture de la bouche : sommets intérieurs ramenés sur l ellipse, triangles entièrement intérieurs supprimés
-    const p = g.attributes.position, inside = [], ax = 0.046, ay = 0.027, cy = -0.079;
-    for (let i = 0; i < p.count; i++) {
-      const x = p.getX(i), y = p.getY(i), z = p.getZ(i), q = (x / ax) ** 2 + ((y - cy) / ay) ** 2;
-      inside[i] = z > 0.05 && q < 1;
-      if (inside[i]) { const a = Math.atan2((y - cy) / ay, x / ax); p.setXY(i, Math.cos(a) * ax, cy + Math.sin(a) * ay); }
-    }
-    const ix = g.index, keep = [];
-    for (let i = 0; i < ix.count; i += 3) { const a = ix.getX(i), b = ix.getX(i + 1), c = ix.getX(i + 2); if (!(inside[a] && inside[b] && inside[c])) keep.push(a, b, c); }
-    g.setIndex(keep); g.computeVertexNormals();
-    return g;
-  };
-  const stache = (w = 0.036, h = 0.014, droop = 0.22) => [1, -1].map(s => {
-    const q = surf(E, s * 0.024, -0.056, 0.008).p;
-    return ell(w, h, 0.016, d, 10, 6).rotateZ(-s * droop).translate(q.x, q.y, q.z);
-  });
-  const burns = (len = 0.05) => [1, -1].map(s => ell(0.013, len, 0.028, d, 8, 6).translate(s * 0.146, -0.02, 0.035));
-  switch (type) {
-    case "stubble": out.push({ g: shell(1.008, 0.55 * Math.PI, 0.97 * Math.PI, false), tone: "stubble", o: false }); break;
-    case "beard":
-      out.push({ g: shell(1.045, 0.6 * Math.PI, 0.98 * Math.PI), tone: "beard", o: true });
-      for (const g of [...stache(0.04, 0.012, 0.15), ...burns()]) out.push({ g, tone: "beard", o: true });
-      break;
-    case "full_beard":
-      out.push({ g: shell(1.09, 0.56 * Math.PI, 1.0 * Math.PI), tone: "beard", o: true });
-      out.push({ g: ell(0.1, 0.085, 0.08, d).translate(0, -0.158, 0.07), tone: "beard", o: true });
-      for (const g of [...stache(0.044, 0.018, 0.3), ...burns(0.06)]) out.push({ g, tone: "beard", o: true });
-      break;
-    case "goatee": {
-      const q = surf(E, 0, -0.13, 0.01).p;
-      out.push({ g: ell(0.026, 0.036, 0.02, d, 10, 8).translate(q.x, q.y - 0.006, q.z), tone: "beard", o: true });
-      for (const g of stache(0.03, 0.009, 0.2)) out.push({ g, tone: "beard", o: true });
-      for (const s of [1, -1]) { const m = surf(E, s * 0.034, -0.095, 0.004).p; out.push({ g: ell(0.006, 0.02, 0.006, d, 6, 4).translate(m.x, m.y, m.z), tone: "beard", o: false }); }
-      break;
-    }
-    case "moustache": for (const g of stache(0.038, 0.016, 0.24)) out.push({ g, tone: "beard", o: true }); break;
-    case "handlebar":
-      for (const g of stache(0.036, 0.014, 0.1)) out.push({ g, tone: "beard", o: true });
-      for (const s of [1, -1]) {
-        const pts = [[0.05, -0.062, 0.128], [0.072, -0.062, 0.114], [0.088, -0.048, 0.104], [0.092, -0.028, 0.1], [0.082, -0.018, 0.102]].map(([x, y, z]) => V3(s * x, y, z));
-        out.push({ g: sweep(pts, [0.009, 0.008, 0.007, 0.005, 0.004], sg(6, d)), tone: "beard", o: true });
-      }
-      break;
-    case "sideburns":
-      for (const s of [1, -1]) {
-        out.push({ g: ell(0.015, 0.06, 0.03, d, 8, 6).translate(s * 0.145, -0.025, 0.035), tone: "beard", o: true });
-        out.push({ g: ell(0.02, 0.03, 0.03, d, 8, 6).translate(s * 0.14, -0.075, 0.05), tone: "beard", o: true });
-      }
-      break;
-  }
-  return out;
-}
 
 // ════════════════════════ Lunettes ════════════════════════
 function glassesParts(type, E, d, col) {
@@ -573,94 +243,92 @@ function ratHood(E, d, fur) {
 }
 
 // ════════════════════════ Assemblage de la tête ════════════════════════
-// ctx : { M, d, q, key, parts, col, app, hood (bool|"rat") } ; renvoie { lenses, pivots, labelLift }
+// ctx : { M, d, q, key, parts, col, app, hood (bool|"rat") } ; renvoie { lenses, pivots, face (positions des os du visage), labelLift }
 export function buildHead(ctx, hoodMode) {
   const { M, d, col, app } = ctx, E = M.E, C = M.C;
-  const put = (s, c, g = 0, o = true) => { if (s) ctx.parts.push({ s, c, g, o }); };
-  const at = g => g.translate(C.x, C.y, C.z);
-  const K = `h|${d}`;
+  const H = headModel(app.faceShape);
+  const put = (s, c, g = 0, o = true, c2 = null) => { if (s) ctx.parts.push({ s, c, c2, g, o }); };
+  // repère tête -> modèle : tête légèrement réduite (proportions adultes), centrée sur C
+  const at = g => g.scale(HS, HS, HS).translate(C.x, C.y, C.z);
+  const abs = v => [C.x + v.x * HS, C.y + v.y * HS, C.z + v.z * HS];
+  const K = `h|${d}`, FK = `${K}|${H.key}`;
 
-  // crâne, oreilles, nez, joues
-  put(shape(`${K}|skull`, () => bake([[at(warp(new THREE.SphereGeometry(1, sg(30, d), sg(22, d)).scale(E.x, E.y, E.z), v => headDeform(v, E))), B.head]], { smooth: true })), col.skin);
-  put(shape(`${K}|ears`, () => bake([1, -1].map(s => [at(ell(0.018, 0.036, 0.027, d, 10, 8).rotateY(s * 0.3).translate(s * 0.147, -0.012, -0.006)), B.head]))), col.skin);
-  put(shape(`${K}|earsIn`, () => bake([1, -1].map(s => [at(ell(0.007, 0.022, 0.015, d, 8, 6).rotateY(s * 0.3).translate(s * 0.158, -0.012, 0.0)), B.head]))), col.skinDark, 0, false);
-  put(shape(`${K}|nose`, () => bake([[at(ell(0.022, 0.019, 0.02, d, 12, 8).translate(0, -0.028, 0.14)), B.head]])), col.nose, 0, true);
-  if (ctx.q !== "low") put(shape(`${K}|blush`, () => bake([1, -1].map(s => [at(onFace(ellipseShape(0.022, 0.012, 12).translate(s * 0.088, -0.047, 0), E, 0.0012)), B.head]))), col.blush, 0, false);
+  // crâne, oreilles, nez
+  put(shape(`${FK}|skull`, () => bake([[at(skullGeo(H, d)), B.head]], { smooth: true })), col.skin);
+  put(shape(`${FK}|ears`, () => bake([1, -1].flatMap(s => earGeos(H, d, s).skin.map(g => [at(g), B.head])))), col.skin);
+  put(shape(`${FK}|earsIn`, () => bake([1, -1].map(s => [at(earGeos(H, d, s).inner), B.head]))), col.skinDark, 0, false);
+  const nk = `${FK}|nose|${app.nose}`;
+  put(shape(nk, () => bake(noseGeos(H, d, app.nose).skin.map(g => [at(g), B.head]))), col.nose, 0, false);
+  put(shape(nk + "|n", () => bake(noseGeos(H, d, app.nose).dark.map(g => [at(g), B.head]))), col.nostril, 0, false);
 
-  // yeux
-  const eyeType = app.eyes;
+  // yeux (paupières + globe + iris), sourcils
+  const face = {};
   for (const side of [0, 1]) {
-    const s = side ? -1 : 1, eb = side ? B.eyeR : B.eyeL, pb = side ? B.pupilR : B.pupilL;
-    const EC = V3(s * 0.057, 0.008, 0.117);
-    const T = g => at(g.translate(EC.x, EC.y, EC.z));
-    put(shape(`${K}|sclera|${side}`, () => bake([[T(ell(0.036, 0.043, 0.026, d, 16, 12)), eb]])), "#fbfbff", 0.06, false);
-    put(shape(`${K}|iris|${side}`, () => bake([[T(new THREE.SphereGeometry(1, sg(18, d), 5, 0, TAU, 0, 0.64).rotateX(Math.PI / 2).scale(0.0372, 0.0443, 0.0283)), pb]])), col.eye, 0.12, false);
-    put(shape(`${K}|pupil|${side}`, () => bake([[T(new THREE.SphereGeometry(1, sg(12, d), 3, 0, TAU, 0, 0.32).rotateX(Math.PI / 2).scale(0.0378, 0.045, 0.0298)), pb]])), "#07070b", 0, false);
-    put(shape(`${K}|glint|${side}`, () => bake([[T(ell(0.0085, 0.0085, 0.004, d, 8, 6).translate(0.011, 0.015, 0.028)), pb], [T(ell(0.0042, 0.0042, 0.003, d, 6, 4).translate(-0.009, -0.011, 0.029)), pb]])), "#ffffff", 1, false);
-    const upper = eyeType === "determined" || eyeType === "sleepy";
-    if (!upper) {
-      const ae = side ? 0.89 * Math.PI : 0.11 * Math.PI;
-      put(shape(`${K}|lash|${side}`, () => bake([
-        [T(new THREE.TorusGeometry(0.037, 0.0042, 4, sg(14, d), 0.78 * Math.PI).rotateZ(0.11 * Math.PI).scale(1, 1.17, 1).translate(0, 0, 0.003)), eb],
-        [T(orient(new THREE.ConeGeometry(0.0055, 0.02, 4).translate(0, 0.01, 0), V3(s * 0.8, 0.6, 0), V3(0.037 * Math.cos(ae), 0.037 * 1.17 * Math.sin(ae), 0.003))), eb],
-      ])), LASH, 0, false);
-    }
-    const lid = (th, tilt, lower) => {
-      const g = new THREE.SphereGeometry(1, sg(16, d), sg(6, d), 0, TAU, 0, th);
-      const line = new THREE.TorusGeometry(Math.sin(th), 0.075, 4, sg(14, d), Math.PI).rotateX(Math.PI / 2).translate(0, Math.cos(th), 0);
-      for (const x of [g, line]) { if (lower) x.rotateX(Math.PI); x.rotateZ(tilt).scale(0.0396, 0.0473, 0.036); }
-      return [T(g), T(line)];
-    };
-    if (eyeType !== "normal") {
-      const [g, line] = eyeType === "happy" ? lid(0.95, -s * 0.12, true) : eyeType === "determined" ? lid(0.98, s * 0.4, false) : lid(1.22, 0, false);
-      put(shape(`${K}|lid|${eyeType}|${side}`, () => bake([[g, eb]])), col.skin, 0, false);
-      put(shape(`${K}|lidline|${eyeType}|${side}`, () => bake([[line, eb]])), LASH, 0, false);
-    }
-    // sourcils
-    const [tilt, dy] = { normal: [0.06, 0], happy: [-0.16, 0.008], determined: [0.34, -0.006], sleepy: [-0.06, 0.004] }[eyeType] || [0, 0];
-    const bb = side ? B.browR : B.browL;
-    put(shape(`${K}|brow|${eyeType}|${side}`, () => {
-      const g = new THREE.CapsuleGeometry(0.0085, 0.044, 2, sg(6, d)).rotateZ(Math.PI / 2);
-      warp(g, v => { v.y -= 7 * v.x * v.x; v.z *= 0.55; });
-      const q = surf(E, s * 0.058, 0.07 + dy, 0.006);
-      g.rotateZ(s * tilt).rotateX(-Math.atan2(q.n.y, q.n.z) * 0.8).rotateY(Math.atan2(q.n.x, q.n.z)).translate(q.p.x, q.p.y, q.p.z);
-      return bake([[at(g), bb]]);
-    }), col.brow, 0, false);
+    const s = side ? -1 : 1, eb = side ? B.eyeR : B.eyeL, pb = side ? B.pupilR : B.pupilL, bb = side ? B.browR : B.browL;
+    const EY = shape(`${FK}|eye|${app.eyeShape}|${app.eyes}|${side}`, () => {
+      const g = eyeGeos(H, d, app.eyeShape, app.eyes, s), lw = g.lidW;
+      return {
+        C: g.C, boneY: g.boneY, sep: g.Y.sep,
+        lids: bake([[at(g.lids), (x, y, z, i) => [[eb, lw[i]], [B.head, 1 - lw[i]]]]]),
+        lash: bake([[at(g.lash), eb]]), lower: bake([[at(g.lower), eb]]),
+        globe: bake([[at(g.globe), eb]]), iris: bake([[at(g.iris), pb]]), pupil: bake([[at(g.pupil), pb]]),
+        glint: bake([[at(g.glint), pb]]), caruncle: ctx.q === "low" ? null : bake([[at(g.caruncle), eb]]),
+      };
+    });
+    put(EY.globe, col.sclera, 0.03, false);
+    put(EY.iris, col.eye, 0.1, false, col.irisDark);
+    put(EY.pupil, "#060608", 0, false);
+    put(EY.glint, "#ffffff", 1, false);
+    put(EY.lids, col.skin, 0, false, col.lid);
+    put(EY.lash, col.lash, 0, false);
+    put(EY.lower, col.lidLine, 0, false);
+    put(EY.caruncle, col.caruncle, 0, false);
+    face[side ? "eyeR" : "eyeL"] = abs(V3(EY.C.x, EY.boneY, EY.C.z));
+    face[side ? "pupilR" : "pupilL"] = abs(EY.C);
+    const BR = shape(`${FK}|brow|${app.brows}|${app.eyes}|${EY.sep}|${side}`, () => {
+      const b = browGeos(H, d, app.brows, s, EY.sep, app.eyes);
+      return { s: bake(b.geos.map(g => [at(g), bb])), pivot: b.pivot, scar: b.scar ? bake([[at(b.scar), B.head]]) : null };
+    });
+    put(BR.s, col.brow, 0, false);
+    put(BR.scar, col.scar, 0, false);
+    face[side ? "browR" : "browL"] = abs(BR.pivot);
   }
 
   // bouches (affichées une à la fois via l'échelle de leur os)
-  put(shape(`${K}|mouthN`, () => bake([[at(onFace(arcRibbon(0.03, 0.0065, 1.2 * Math.PI, 1.8 * Math.PI, sg(12, d), 0.5).translate(0, -0.05, 0), E, 0.0035)), B.mouthN]])), "#4a1820", 0, false);
-  put(shape(`${K}|mouthS`, () => bake([[at(onFace(ellipseShape(0.034, 0.026, sg(16, d), Math.PI, TAU).translate(0, -0.066, 0), E, 0.003)), B.mouthS]])), "#5b1a24", 0, false);
-  put(shape(`${K}|mouthSt`, () => bake([[at(onFace(flatShape([[-0.029, -0.0668], [0.029, -0.0668], [0.025, -0.0748], [-0.025, -0.0748]]), E, 0.0037)), B.mouthS]])), "#ffffff", 0.1, false);
-  put(shape(`${K}|mouthSg`, () => bake([[at(onFace(ellipseShape(0.016, 0.0065, 10).translate(0, -0.0845, 0), E, 0.0034)), B.mouthS]])), "#e06a78", 0, false);
-  put(shape(`${K}|mouthO`, () => bake([[at(onFace(ellipseShape(0.024, 0.03, sg(16, d)).translate(0, -0.08, 0), E, 0.003)), B.mouthO]])), "#4a1420", 0, false);
-  put(shape(`${K}|mouthOt`, () => bake([[at(onFace(ellipseShape(0.016, 0.011, 10, Math.PI, TAU).translate(0, -0.096, 0), E, 0.0034)), B.mouthO]])), "#e06a78", 0, false);
-  put(shape(`${K}|mouthOd`, () => bake([[at(onFace(flatShape([[-0.016, -0.0535], [0.016, -0.0535], [0.013, -0.059], [-0.013, -0.059]]), E, 0.0036)), B.mouthO]])), "#ffffff", 0.1, false);
+  const MO = shape(`${FK}|mouth`, () => {
+    const m = mouthGeos(H, d), b = (g, bone) => bake([[at(g), bone]]);
+    return {
+      N: b(m.lineN, B.mouthN), NL: b(m.lipN, B.mouthN), S: b(m.smile, B.mouthS), ST: b(m.smileT, B.mouthS), SG: b(m.smileG, B.mouthS),
+      O: b(m.open, B.mouthO), OT: b(m.openT, B.mouthO), OD: b(m.openD, B.mouthO), pivot: m.pivot,
+    };
+  });
+  put(MO.N, col.lipLine, 0, false); put(MO.NL, col.lip, 0, false);
+  put(MO.S, "#4a1a1e", 0, false); put(MO.ST, "#f4f1ea", 0.05, false); put(MO.SG, "#c65a66", 0, false);
+  put(MO.O, "#3e141a", 0, false); put(MO.OT, "#c65a66", 0, false); put(MO.OD, "#f4f1ea", 0.05, false);
+  face.mouthN = face.mouthS = face.mouthO = abs(MO.pivot);
 
   // pilosité faciale
   if (app.facialHair !== "none" && hoodMode !== "rat") {
-    for (const [i, p] of facialHair(app.facialHair, E, d).entries()) {
-      const c = p.tone === "stubble" ? col.stubble : col.beard;
-      put(shape(`${K}|fh|${app.facialHair}|${i}`, () => bake([[at(p.g), B.head]])), c, 0, p.o);
-    }
+    const FH = shape(`${FK}|fh|${app.facialHair}`, () => facialHairGeos(H, d, app.facialHair).map(p => ({ s: bake([[at(p.g), B.head]]), tone: p.tone, fade: p.fade, o: p.o })));
+    for (const p of FH) put(p.s, p.tone === "stubble" ? col.stubble : col.beard, 0, p.o, p.fade === "skin" ? col.skin : p.fade === "stubble" ? col.stubble : null);
   }
 
   // cheveux (masqués selon le couvre-chef / la capuche)
   const hw = hoodMode === "rat" ? "hood" : app.headwear;
   const hidden = HIDE[hw] || [];
-  const hs = shape(`hs|${app.hairStyle}|${d}`, () => hairStyle(app.hairStyle, E, d));
+  const hs = shape(`hs|${app.hairStyle}|${d}|${H.key}|${M.build}`, () => hairStyle(app.hairStyle, H, d, C, y => M.torsoAt(y), HS));
   const piv = hs.pivots;
   const pb = piv ? piv.back : V3(0, 0.02, -0.12), pt = piv ? piv.tail : V3(0, -0.17, -0.17);
   const hang = (x, y) => {
-    const ry = y - C.y, k = smoothstep(pb.y - 0.01, pb.y - 0.08, ry), t = smoothstep(pt.y, pt.y - 0.09, ry);
+    const ry = (y - C.y) / HS, k = smoothstep(pb.y - 0.01, pb.y - 0.08, ry), t = smoothstep(pt.y, pt.y - 0.09, ry);
     return [[B.head, 1 - k], [B.hairBack, k * (1 - t)], [B.hairTail, k * t]];
   };
   let visible = 0;
   hs.parts.forEach((p, i) => {
     if (hidden.includes(p.cat)) return;
     visible++;
-    const c = col.hairTone[p.tone] || col.hair;
-    put(shape(`${K}|hair|${app.hairStyle}|${i}`, () => bake([[at(p.g.clone()), p.w === "head" ? B.head : hang]])), c, p.tone === "shine" ? 0.35 : col.hairGlow, p.tone !== "shine" && p.tone !== "tie");
+    const c = col.hairTone[p.tone] || col.hair, c2 = p.fade ? col.hairTone[p.fade] || null : null;
+    put(shape(`${K}|hair|${app.hairStyle}|${H.key}|${M.build}|${i}`, () => bake([[at(p.g.clone()), p.w === "head" ? B.head : hang]], { smooth: p.cat === "cap" })), c, col.hairGlow, p.o !== false && p.tone !== "tie", c2);
   });
   let vol = hs.vol;
   if (hidden.includes("top")) vol = { r: Math.min(vol.r, 1.1), top: Math.min(vol.top, E.y * 1.09) };
@@ -678,14 +346,14 @@ export function buildHead(ctx, hoodMode) {
   }
 
   // couvre-chef
-  const tipY = C.y + vol.top;
+  const tipY = C.y + vol.top * HS;
   const tipW = kind => (x, y) => {
     if (kind === "tip") return [[B.hatTip, 1]];
-    const lo = kind === "tipY2" ? C.y + 0.28 : tipY + 0.05, hi = kind === "tipY2" ? C.y + 0.42 : tipY + 0.16;
+    const lo = kind === "tipY2" ? C.y + 0.28 * HS : tipY + 0.05 * HS, hi = kind === "tipY2" ? C.y + 0.42 * HS : tipY + 0.16 * HS;
     const k = smoothstep(lo, hi, y);
     return [[B.head, 1 - k], [B.hatTip, k]];
   };
-  const neckW = (x, y) => { const k = smoothstep(C.y - 0.14, C.y - 0.24, y); return [[B.head, 1 - k], [B.chest, k]]; };
+  const neckW = (x, y) => { const k = smoothstep(C.y - 0.14 * HS, C.y - 0.24 * HS, y); return [[B.head, 1 - k], [B.chest, k]]; };
   const wOf = w => (w === "head" ? B.head : w === "neck" ? neckW : tipW(w));
   let hwParts = [];
   if (hoodMode === "rat") hwParts = ratHood(E, d, ctx.furColor).map(p => ({ ...p, rat: true }));
@@ -699,8 +367,8 @@ export function buildHead(ctx, hoodMode) {
     put(shape(key, () => bake([[at(p.g.clone()), wOf(p.w)]])), p.c, p.glow || 0, p.o !== false);
   });
   const hatTop = { top_hat: 0.36, wizard_hat: 0.47, knight_helmet: 0.33, crown: vol.top + 0.08, antenna: vol.top + 0.25, beanie: 0.24, cap: 0.2 }[app.headwear];
-  const labelLift = Math.max(0, (hatTop ?? vol.top) - 0.2) + (hoodMode === "rat" ? 0.08 : 0);
+  const labelLift = (Math.max(0, (hatTop ?? vol.top) - 0.2) + (hoodMode === "rat" ? 0.08 : 0)) * HS;
   const tipRel = { wizard_hat: V3(0, 0.3, -0.03), knight_helmet: V3(0, E.y * 1.22 + 0.02, -0.03), beanie: V3(0, E.y * 1.18, -0.04) }[app.headwear] || V3(0, vol.top, 0);
-  const tip = V3(C.x + tipRel.x, C.y + tipRel.y, C.z + tipRel.z);
-  return { lenses, pivots: { back: V3(C.x + pb.x, C.y + pb.y, C.z + pb.z), tail: V3(C.x + pt.x, C.y + pt.y, C.z + pt.z), tip }, labelLift };
+  const tip = V3(...abs(tipRel));
+  return { lenses, pivots: { back: V3(...abs(pb)), tail: V3(...abs(pt)), tip }, face, labelLift };
 }

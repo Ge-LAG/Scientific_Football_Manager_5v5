@@ -4,17 +4,18 @@ import { useGame } from "../../game/GameProvider.jsx";
 import { useSession } from "../../store/session.jsx";
 import { Card, Kicker, Avatar, Crest } from "../../ui/components.jsx";
 import { LoadoutPicker } from "../../ui/LoadoutPicker.jsx";
+import { ArchetypeBadge, useMyPlayer } from "../../ui/profile.jsx";
 import { getPlayer, pText, FORMATIONS, STRATEGIES, attrName, keeperRating, sanitizeLoadout } from "../../../shared/data/content.js";
 import { activeSynergies } from "../../../shared/data/enrichment.js";
 import { autoLineup } from "../../../shared/manager/ai.js";
 
 export function SetupView({ room }) {
-  const { t, lang } = useI18n(); const game = useGame(); const { club, setLoadout } = useSession();
+  const { t, lang } = useI18n(); const game = useGame(); const { club, setLoadout } = useSession(); const my = useMyPlayer();
   const me = room.you.seat; const seat = me !== "spec" ? room.seats[me] : null; const opp = room.seats[me === "home" ? "away" : "home"];
   // on reprend l'état connu du serveur (reconnexion) ; la formation préférée du club ne s'applique qu'avant toute synchronisation
   const useClub = !!seat && !seat.ready && seat.formation === "2-2" && (club.formation || "2-2") !== "2-2";
   const [formation, setFormation] = useState(useClub ? club.formation : seat?.formation || "2-2");
-  const [lineup, setLineup] = useState(() => (!seat ? [] : useClub ? autoLineup(seat.picks, club.formation).lineup : seat.lineup));
+  const [lineup, setLineup] = useState(() => (!seat ? [] : useClub ? autoLineup(seat.picks, club.formation, my).lineup : seat.lineup));
   const syncTimer = useRef(null);
   const [strategy, setStrategy] = useState(club.strategy || seat?.strategy || "equilibre");
   const [sel, setSel] = useState(null);
@@ -51,6 +52,7 @@ export function SetupView({ room }) {
               <Avatar player={p} size={46} ring={i === 0 ? "#FFD700" : undefined} />
               <div className="tiny" style={{ fontWeight: 800, textShadow: "0 1px 3px #000" }}>{p.nom}</div>
               <div className="tiny" style={{ color: "var(--gold)" }}>{t("role." + roles[i])}</div>
+              <ArchetypeBadge player={my(id)} small />
             </button>); })}
         </div>
         <p className="tiny muted mt8">{t("setup.swapHelp")}</p>
@@ -60,8 +62,8 @@ export function SetupView({ room }) {
       <div className="col" style={{ gap: 16 }}>
         <Card>
           <Kicker>{t("club.formation")}</Kicker>
-          <div className="row">{Object.entries(FORMATIONS).map(([k, f]) => <button key={k} className={"btn small " + (formation === k ? "primary" : "ghost")} onClick={() => { setFormation(k); setLineup(autoLineup(lineup, k).lineup.length === 5 ? autoLineup(lineup, k).lineup : lineup); }}>{f.label[lang]}</button>)}</div>
-          <button className="linkbtn mt8" onClick={() => setLineup(autoLineup(seat.picks, formation).lineup)}>✨ {t("setup.auto")}</button>
+          <div className="row">{Object.entries(FORMATIONS).map(([k, f]) => <button key={k} className={"btn small " + (formation === k ? "primary" : "ghost")} onClick={() => { setFormation(k); setLineup(autoLineup(lineup, k, my).lineup.length === 5 ? autoLineup(lineup, k, my).lineup : lineup); }}>{f.label[lang]}</button>)}</div>
+          <button className="linkbtn mt8" onClick={() => setLineup(autoLineup(seat.picks, formation, my).lineup)}>✨ {t("setup.auto")}</button>
         </Card>
         <Card>
           <Kicker color="var(--magenta)">⚡ {t("setup.loadouts")}</Kicker>
@@ -87,7 +89,7 @@ export function SetupView({ room }) {
         <Card>
           <Kicker color="var(--lime)">🔗 {t("setup.synergies")}</Kicker>
           {syn.length ? syn.map(s => <div key={s.id} className="small mb8"><b>{s[lang]}</b> <span className="muted">{Object.entries(s.bonus).map(([k, v]) => `${attrName(k, lang)} +${v}`).join(", ")}</span></div>) : <p className="tiny muted">{t("setup.noSynergy")}</p>}
-          <div className="small muted">🧤 {t("setup.keeper")} : <b>{getPlayer(lineup[0])?.nom}</b> ({keeperRating(getPlayer(lineup[0]))})</div>
+          <div className="small muted">🧤 {t("setup.keeper")} : <b>{getPlayer(lineup[0])?.nom}</b> ({lineup[0] ? keeperRating(my(lineup[0])) : ""})</div>
         </Card>
         <Card>
           <div className="row nowrap mb8"><Crest club={opp.club} size={36} /><div className="small">{t("setup.opponent")} : <b>{opp.club.name}</b> {opp.ready && <span style={{ color: "var(--lime)" }}>✓ {t("setup.ready")}</span>}</div></div>

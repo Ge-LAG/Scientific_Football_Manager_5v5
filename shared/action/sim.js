@@ -5,13 +5,15 @@
 // Les 9 caractéristiques des scientifiques pilotent vitesse, contrôle, tirs, passes, tacles et arrêts.
 // ═══════════════════════════════════════════════════════════════
 import { makeRng } from "../rng.js";
-import { getPlayer, getPowerUp, sanitizeLoadout, narrKey } from "../data/content.js";
+import { getPlayer, getPowerUp, sanitizeLoadout, withStats, narrKey } from "../data/content.js";
 
 export const TICK_HZ = 30;
 export const DT = 1 / TICK_HZ;
 export const FIELD = { L: 40, W: 24, HX: 20, HZ: 12, GOAL_HW: 2.5, GOAL_H: 2.2, GOAL_D: 1.2, BOX_D: 6, BOX_HW: 6 };
 const BALL_R = 0.11, PLAYER_R = 0.42, G = 9.81, POST_R = 0.06;
 export const GOAL_PAUSE = 6.2; // s : célébration + ralenti côté client
+export const PEN_D = 5.2;       // distance du point de penalty à la ligne de but
+const FK_DIST = 4.5;            // distance imposée aux adversaires sur coup franc
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const hyp = Math.hypot;
 
@@ -19,7 +21,7 @@ const hyp = Math.hypot;
 export const BASE = [{ x: -18.3, z: 0 }, { x: -12, z: 0 }, { x: -7, z: -6 }, { x: -7, z: 6 }, { x: -2.2, z: 0 }];
 export const ROLES = ["gk", "def", "mid", "mid", "att"];
 
-export const emptyInput = () => ({ mx: 0, mz: 0, aim: 0, sprint: false, shoot: false, pass: false, lob: false, tackle: false, pu: false, pu2: false, call: false, skill: false, slide: false });
+export const emptyInput = () => ({ mx: 0, mz: 0, aim: 0, sprint: false, shoot: false, pass: false, lob: false, tackle: false, press: false, pu: false, pu2: false, call: false, skill: false });
 
 // Effet Arène d'un power-up actif du joueur (ou null). p.pus = [{ def, until, cd }] (sélection de 2).
 export function activeFx(p, effect, sim) {
@@ -51,6 +53,9 @@ export function maxSpeed(p, sim) {
   if (sim.ball.owner === p.slot) s *= 0.86 + statOf(p, "Dribble", sim) / 99 * 0.12;
   for (const a of sim.slows) if (a.team !== p.team && a.until > sim.time && hyp(a.x - p.x, a.z - p.z) < a.radius) s *= a.value;
   if (p.boostUntil > sim.time) s *= 1.18;
+  if (p.feintedUntil > sim.time) s *= 0.45;       // mis dans le vent par une feinte / un petit pont
+  if (p.spinUntil > sim.time) s *= 0.7;           // roulette en cours
+  if (p.pressedUntil > sim.time && sim.ball.owner === p.slot) s *= 0.9 + statOf(p, "Force", sim) / 99 * 0.08; // porteur harcelé (la Force aide à protéger le ballon)
   return s;
 }
 
@@ -108,14 +113,16 @@ export class ArenaSim {
   }
 
   makePlayer(slot, s) {
-    const char = getPlayer(s.charId);
-    if (!char) throw new Error("Personnage inconnu : " + s.charId);
+    const base = getPlayer(s.charId);
+    if (!base) throw new Error("Personnage inconnu : " + s.charId);
+    const char = withStats(base, s.stats); // répartition du joueur (sinon profil par défaut)
     const team = slot < 5 ? 0 : 1; const role = ROLES[slot % 5];
     const p = {
       slot, team, role, char, name: s.name || char.nom, human: !!s.human,
       x: 0, z: 0, vx: 0, vz: 0, facing: team === 0 ? 0 : Math.PI, stamina: 100, sprinting: false,
       charge: 0, charging: false, kickCd: 0, tackleCd: 0, stunUntil: 0, diveUntil: 0, diveDir: 0, action: "", actionUntil: 0,
-      boostUntil: 0, dashUntil: 0, protectedUntil: 0, holdUntil: 0, callUntil: 0, skillUntil: 0, skillCd: 0,
+      boostUntil: 0, dashUntil: 0, protectedUntil: 0, holdUntil: 0, callUntil: 0, skillCd: 0,
+      dodgeUntil: 0, dodge: 0, feintedUntil: 0, spinUntil: 0, pressCd: 0, pressedUntil: 0, pressing: false,
       // sélection de 2 power-ups (chacun avec sa durée et sa recharge)
       pus: sanitizeLoadout(char.id, s.loadout).map(id => ({ def: getPowerUp(id), until: 0, cd: 0 })),
     };
@@ -125,7 +132,7 @@ export class ArenaSim {
 
   setSlot(slot, s) { // un humain remplace un bot (ou l'inverse) en conservant la position
     const old = this.players[slot];
-    const np = this.makePlayer(slot, { loadout: old.pus.map(u => u.def.id), ...s });
+    const np = this.makePlayer(slot, { loadout: old.pus.map(u => u.def.id), stats: old.char.custom ? old.char.attributs : undefined, ...s });
     for (const k of ["x", "z", "vx", "vz", "facing", "stamina"]) np[k] = old[k];
     if (old.char.id === np.char.id) for (const u of np.pus) { const o = old.pus.find(x => x.def.id === u.def.id); if (o) { u.until = o.until; u.cd = o.cd; } }
     this.players[slot] = np; this.inputs[slot] = emptyInput();
@@ -173,6 +180,7 @@ export class ArenaSim {
     this.tick++; this.time = this.tick * DT;
     this.auras = this.auras.filter(a => a.until > this.time); this.slows = this.slows.filter(a => a.until > this.time);
 
+    if (this.phase === "setpiece" && this.time >= this.setPiece.until) this.autoTakeSetPiece();
     if (this.phase === "goal" || this.phase === "halftime") {
       for (const p of this.players) { p.vx *= 0.9; p.vz *= 0.9; p.x += p.vx * DT; p.z += p.vz * DT; }
       if (this.time >= this.phaseUntil) {
@@ -190,8 +198,9 @@ export class ArenaSim {
 
     for (const p of this.players) this.stepPlayer(p, this.inputs[p.slot]);
     this.collidePlayers();
+    if (this.phase === "setpiece") this.holdSetPiece();
     this.stepBall();
-    this.checkFirewalls();
+    if (this.phase === "play") this.checkFirewalls();
     if (this.phase === "play") this.playClock += DT;
     return true;
   }
@@ -204,26 +213,44 @@ export class ArenaSim {
     if (p.kickCd > 0) p.kickCd -= DT;
     if (p.tackleCd > 0) p.tackleCd -= DT;
     const frozen = this.phase === "kickoff" && this.ball.owner !== p.slot; // seuls les joueurs du coup d'envoi bougent librement
-    stepMovement(p, frozen ? { ...inp, mx: inp.mx * 0.6, mz: inp.mz * 0.6 } : inp, this);
+    // pressing : on harcèle le porteur adverse (poursuite automatique, récupérations plus propres mais moins sûres)
+    const o = this.owner(); let mv = frozen ? { ...inp, mx: inp.mx * 0.6, mz: inp.mz * 0.6 } : inp;
+    p.pressing = false;
+    if (inp.press && o && o.team !== p.team && this.phase === "play" && !(this.isKeeper(p) && this.inOwnBox(p))) {
+      const d = hyp(o.x - p.x, o.z - p.z);
+      if (d < 14) {
+        const tx = o.x + o.vx * 0.25 - p.x, tz = o.z + o.vz * 0.25 - p.z, dl = hyp(tx, tz) || 1;
+        const has = hyp(inp.mx, inp.mz) > 0.2;
+        mv = { ...inp, mx: has ? (inp.mx + tx / dl) / 2 : tx / dl, mz: has ? (inp.mz + tz / dl) / 2 : tz / dl };
+        p.pressing = true;
+        if (d < 1.4) o.pressedUntil = t + 0.15;
+        if (d < 1.25 && p.pressCd <= t && p.stunUntil <= t && p.feintedUntil <= t) this.pressSteal(p, o);
+      }
+    }
+    stepMovement(p, mv, this);
+    if (p.pressing && hyp(p.vx, p.vz) > 1) p.stamina = Math.max(0, p.stamina - DT * 2.2 * (1.25 - statOf(p, "Endurance", this) / 99 * 0.6)); // le pressing fatigue
     if (this.phase === "kickoff") { // rester dans son camp (et hors du rond central pour l'équipe qui ne donne pas le coup d'envoi)
       if (p.team === 0) p.x = Math.min(p.x, p.slot === this.ball.owner ? 0 : -0.5); else p.x = Math.max(p.x, p.slot === this.ball.owner ? 0 : 0.5);
       const kicking = this.ball.owner >= 0 && this.players[this.ball.owner].team === p.team;
       const r = Math.hypot(p.x, p.z);
       if (!kicking && r < 3.2) { const k = 3.2 / (r || 1); p.x = r ? p.x * k : (p.team === 0 ? -3.2 : 3.2); p.z *= k; }
     }
+    if (this.phase === "setpiece" && !this.setPieceMove(p, inp)) return; // coup de pied arrêté : tireur immobile, autres limités
     if (inp.pu) this.activatePowerUp(p, 0);
     if (inp.pu2) this.activatePowerUp(p, 1);
     if (inp.call && this.ball.owner !== p.slot && p.callUntil <= t) { p.callUntil = t + 1.6; this.event("CALL", p.slot); } // appel de balle
     const own = this.ball.owner === p.slot;
+    const aim = this.phase === "setpiece" && this.setPiece?.taker === p.slot ? p.facing : inp.aim; // coup de pied arrêté : direction choisie
     // tir chargé : on charge tant que le bouton est maintenu, on frappe au relâchement
-    if (own && inp.shoot && p.kickCd <= 0) { p.charging = true; p.charge = Math.min(1, p.charge + DT / 0.85); }
-    else if (own && p.charging && !inp.shoot) { this.shoot(p, inp.aim, p.charge); p.charging = false; p.charge = 0; }
+    if (p.shootLock && !inp.shoot) p.shootLock = false; // la touche de tir doit être relâchée après une récupération
+    if (own && inp.shoot && p.kickCd <= 0 && !p.shootLock) { p.charging = true; p.charge = Math.min(1, p.charge + DT / 0.85); }
+    else if (own && p.charging && !inp.shoot) { this.shoot(p, aim, p.charge); p.charging = false; p.charge = 0; }
     else if (!own) { p.charging = false; p.charge = 0; }
-    if (own && (inp.pass || inp.lob) && p.kickCd <= 0 && !p.charging) this.pass(p, inp.aim, inp.lob);
-    if (own && inp.skill && p.skillCd <= t && p.stunUntil <= t) this.skillMove(p, inp);
-    if ((inp.tackle || inp.slide) && !own) {
+    if (own && (inp.pass || inp.lob) && p.kickCd <= 0 && !p.charging) this.pass(p, aim, inp.lob);
+    if (inp.skill && p.skillCd <= t && p.stunUntil <= t && this.phase !== "setpiece") this.skillMove(p, inp);
+    if (inp.tackle && !own) {
       if (this.isKeeper(p) && this.inOwnBox(p)) this.dive(p, inp);
-      else if (p.tackleCd <= 0 && p.stunUntil <= t) this.tackle(p, inp);
+      else if (p.tackleCd <= 0 && p.stunUntil <= t && this.phase !== "setpiece") this.tackle(p, inp);
     }
     if (p.action && p.actionUntil <= t) p.action = "";
   }
@@ -353,7 +380,7 @@ export class ArenaSim {
       const wall = keeperHands ? teamMul(this, p.team, "keeper") : 1; // power-up « mur » : allonge du gardien
       const reachH = keeperHands ? (p.diveUntil > this.time ? 2.4 : 2.1) * Math.min(1.25, wall) : 0.9;
       if (b.y > reachH) continue;
-      const ctrl = 0.55 + statOf(p, "Dribble", this) / 99 * 0.25 + (keeperHands ? 0.25 + statOf(p, "Réflexes", this) / 99 * 0.3 : 0) + (p.diveUntil > this.time ? 0.9 : 0) + (wall - 1) * 0.9;
+      const ctrl = 0.5 + statOf(p, "Dribble", this) / 99 * 0.25 + statOf(p, "Réflexes", this) / 99 * (keeperHands ? 0.55 : 0.12) + (keeperHands ? 0.25 : 0) + (p.diveUntil > this.time ? 0.9 : 0) + (wall - 1) * 0.9;
       if (d < ctrl && (!best || d < best.d)) best = { p, d, keeperHands };
     }
     if (!best) return;
@@ -366,7 +393,7 @@ export class ArenaSim {
         const R = statOf(p, "Réflexes", this); const diving = p.diveUntil > this.time;
         const reach = diving ? 2.1 : 1.0;
         const wall = teamMul(this, p.team, "keeper"); const curling = Math.abs(b.curl) > 3 && ps.curl;
-        const pSave = clamp(1.03 - (rel - 12) / 26 * 0.5 - (best.d / reach) * 0.35 + (R - 60) / 100 * 0.6 + (diving ? 0.1 : 0) - (b.y > 1.6 ? 0.1 : 0) + (wall - 1) * 0.6 - (curling ? 0.15 : 0), 0.08, 0.95);
+        const pSave = clamp(1.03 - (rel - 12) / 26 * 0.5 - (best.d / reach) * 0.35 + (R - 60) / 100 * 0.6 + (diving ? 0.1 : 0) - (b.y > 1.6 ? 0.1 : 0) + (wall - 1) * 0.6 - (curling ? 0.15 : 0) - (ps.penalty ? 0.3 : 0), 0.08, 0.95);
         ps.tried[p.slot] = this.rng() < pSave;
         if (!ps.tried[p.slot]) { this.event("BEATEN", p.slot); return; }
       }
@@ -396,7 +423,8 @@ export class ArenaSim {
     const b = this.ball;
     const passer = b.last >= 0 ? this.players[b.last] : null;
     if (this.pendingPass && this.pendingPass.from !== p.slot) {
-      if (passer && passer.team === p.team && this.pendingPass.from === passer.slot) {
+      if (this.pendingPass.self) { /* une-deux avec la paroi / petit pont : pas une passe */ }
+      else if (passer && passer.team === p.team && this.pendingPass.from === passer.slot) {
         this.stats[passer.slot].passesOk++;
         if (activeFx(passer, "passBoost", this)) p.boostUntil = this.time + 2.5;
       } else if (passer && passer.team !== p.team) this.event("INTERCEPT", p.slot, {}, "tacle_reussi");
@@ -430,7 +458,9 @@ export class ArenaSim {
     const b = this.ball;
     const fin = statOf(p, "Finition", this), sf = statOf(p, "Sang-froid", this), force = statOf(p, "Force", this);
     const near = this.players.filter(o => o.team !== p.team && hyp(o.x - p.x, o.z - p.z) < 2.2).length;
-    const pressure = 1 + near * 0.35 * (1 - sf / 99 * 0.5);
+    let pressure = 1 + near * 0.35 * (1 - sf / 99 * 0.5);
+    const sp = this.phase === "setpiece" ? this.setPiece : null;
+    if (sp) pressure *= sp.kind === "penalty" ? 1.35 - sf / 99 * 0.8 : 1.15 - sf / 99 * 0.4; // la pression du face-à-face
     let dir = this.aimAssist(p, aim);
     let power = (11 + charge * 17) * (0.82 + force / 99 * 0.33);
     let err = (1 - fin / 99) * 0.16 * pressure * (1.15 - p.stamina / 100 * 0.3) * (0.5 + charge * 0.7);
@@ -451,25 +481,26 @@ export class ArenaSim {
     dir += (this.rng() - 0.5) * 2 * err;
     loft += (this.rng() - 0.5) * err * 10;
     this.release(p);
+    if (sp) this.endSetPiece();
     b.vx = Math.cos(dir) * power; b.vz = Math.sin(dir) * power; b.vy = Math.max(0.5, loft); b.curl = curl;
     this.stats[p.slot].shots++;
     // tir cadré ? (prédiction simple à la ligne de but)
     const gx = this.goalX(p.team); const tHit = (gx - b.x) / (b.vx || 1e-6);
     const onTarget = tHit > 0 && Math.abs(b.z + b.vz * tHit) < FIELD.GOAL_HW && (b.y + b.vy * tHit - 0.5 * G * tHit * tHit) < FIELD.GOAL_H;
     if (onTarget) this.stats[p.slot].onTarget++;
-    this.pendingShot = { team: p.team, from: p.slot, t: this.time, onTarget, curl: !!cs };
+    this.pendingShot = { team: p.team, from: p.slot, t: this.time, onTarget, curl: !!cs, penalty: sp?.kind === "penalty" };
     p.action = "kick"; p.actionUntil = this.time + 0.35;
     this.event("SHOT", p.slot, { power: Math.round(power), onTarget });
   }
 
   passTarget(p, aim) {
-    let best = null;
+    let best = null; const tol = 0.75 + statOf(p, "Vision", this) / 99 * 0.5; // la Vision trouve des partenaires plus excentrés
     for (const m of this.players) {
       if (m.team !== p.team || m === p) continue;
       const dx = m.x - p.x, dz = m.z - p.z, d = hyp(dx, dz);
       if (d < 1.5) continue;
       const ang = Math.abs(Math.atan2(Math.sin(Math.atan2(dz, dx) - aim), Math.cos(Math.atan2(dz, dx) - aim)));
-      if (ang > 1.0) continue;
+      if (ang > tol) continue;
       const sc = ang * 3 + d * 0.04;
       if (!best || sc < best.sc) best = { m, sc, d };
     }
@@ -482,7 +513,7 @@ export class ArenaSim {
     const tgt = this.passTarget(p, aim);
     let dir = aim, d = 12;
     if (tgt) {
-      const lead = Math.min(0.9, tgt.d / 16);
+      const lead = Math.min(0.9, tgt.d / 16) * (0.7 + vis / 99 * 0.45); // anticipation de la course du receveur
       const tx = tgt.m.x + tgt.m.vx * lead, tz = tgt.m.z + tgt.m.vz * lead;
       dir = Math.atan2(tz - p.z, tx - p.x); d = hyp(tx - p.x, tz - p.z);
     }
@@ -490,6 +521,7 @@ export class ArenaSim {
     if (perfect) err = 0;
     dir += (this.rng() - 0.5) * 2 * err;
     this.release(p);
+    if (this.phase === "setpiece") this.endSetPiece();
     if (lob) {
       const T = clamp(d / 11, 0.6, 1.6); const v = d / T * (perfect ? 1 : 1 + (this.rng() - 0.5) * err * 2);
       b.vx = Math.cos(dir) * v * 0.93; b.vz = Math.sin(dir) * v * 0.93; b.vy = G * T / 2;
@@ -502,50 +534,235 @@ export class ArenaSim {
     p.action = "pass"; p.actionUntil = this.time + 0.3;
   }
 
+  // Tacle (une seule touche) : debout au contact, glissé si l'on court ou si l'adversaire est un peu loin.
+  // Aucun étourdissement du tacleur : seulement un court délai avant le suivant.
   tackle(p, inp) {
-    const o = this.owner(); const tr = activeFx(p, "tackleRange", this);
-    const slide = inp.slide || inp.sprint || p.sprinting;
-    let reach = (slide ? 2.3 : 1.35) * (tr ? tr.value || 1.5 : 1);
-    p.tackleCd = slide ? 1.1 : 0.55; p.action = slide ? "tackle" : "poke"; p.actionUntil = this.time + (slide ? 0.55 : 0.3);
-    if (slide) { const s = 7.5; p.vx = Math.cos(p.facing) * s; p.vz = Math.sin(p.facing) * s; }
-    if (!o || o.team === p.team) {
+    const t = this.time; const o = this.owner(); const tr = activeFx(p, "tackleRange", this);
+    const opp = o && o.team !== p.team ? o : null;
+    const dO = opp ? hyp(opp.x - p.x, opp.z - p.z) : 99;
+    const slide = !!(inp.sprint || p.sprinting || (dO > 1.45 && dO < 3.2));
+    const reach = (slide ? 2.3 : 1.35) * (tr ? tr.value || 1.5 : 1);
+    p.tackleCd = slide ? 0.9 : 0.5; p.action = slide ? "tackle" : "poke"; p.actionUntil = t + (slide ? 0.5 : 0.3);
+    if (slide) { // élan vers l'adversaire s'il est à portée, sinon droit devant
+      const dir = opp && dO < reach * 1.3 ? Math.atan2(opp.z - p.z, opp.x - p.x) : p.facing; const s = 7 + statOf(p, "Vitesse", this) / 99 * 1.5;
+      p.vx = Math.cos(dir) * s; p.vz = Math.sin(dir) * s; p.facing = dir;
+    }
+    if (!opp) {
       // tacle sur ballon libre : dégagement
       const b = this.ball; if (this.ball.owner < 0 && hyp(b.x - p.x, b.z - p.z) < reach * 0.7 && b.y < 0.6) { this.touch(p); b.vx = Math.cos(p.facing) * 9; b.vz = Math.sin(p.facing) * 9; b.vy = 1; }
-      if (slide) p.stunUntil = this.time + 0.45;
       return;
     }
-    const d = hyp(o.x - p.x, o.z - p.z);
-    if (d > reach) { if (slide) p.stunUntil = this.time + 0.6; return; }
-    let pr = clamp(0.42 + (statOf(p, "Tacle", this) - statOf(o, "Dribble", this)) / 100 * 0.9 + (statOf(p, "Force", this) - statOf(o, "Force", this)) / 100 * 0.25 + (slide ? 0.08 : 0), 0.12, 0.9);
+    if (dO > reach) return; // raté, sans étourdissement
+    let pr = clamp(0.44 + (statOf(p, "Tacle", this) - statOf(opp, "Dribble", this)) / 100 * 0.9 + (statOf(p, "Force", this) - statOf(opp, "Force", this)) / 100 * 0.25
+      + (statOf(p, "Réflexes", this) - 60) / 100 * 0.08 + (slide ? 0.06 : 0), 0.12, 0.9);
     if (activeFx(p, "sureTackle", this)) { pr = 1; this.consumePu(p, "sureTackle"); }
-    if (activeFx(o, "tackleImmune", this) || o.protectedUntil > this.time) pr = 0;
-    if (o.skillUntil > this.time) pr *= 1 - statOf(o, "Dribble", this) / 99 * 0.75; // crochet réussi
-    if (this.isKeeper(o) && this.inOwnBox(o) && o.holdUntil > this.time) pr = 0;
+    if (p.feintedUntil > t) pr *= 0.5;                                   // défenseur mis dans le vent
+    if (opp.dodgeUntil > t) pr *= 1 - opp.dodge;                          // geste technique en cours
+    if (activeFx(opp, "tackleImmune", this) || opp.protectedUntil > t) pr = 0;
+    if (this.isKeeper(opp) && this.inOwnBox(opp) && opp.holdUntil > t) pr = 0;
     if (this.rng() < pr) {
       this.stats[p.slot].tackles++;
-      const b = this.ball; this.release(o); o.kickCd = 0.5; o.stunUntil = this.time + 0.45;
+      const b = this.ball; this.release(opp); opp.kickCd = 0.5; opp.stunUntil = t + 0.3;
       this.touch(p);
       if (slide) { b.vx = Math.cos(p.facing) * 6; b.vz = Math.sin(p.facing) * 6; b.vy = 0.4; } else this.giveBall(p);
-      this.event("TACKLE", p.slot, { victim: o.slot }, "tacle_reussi");
-    } else {
-      const foul = d < 1.1 && this.rng() < (slide ? 0.35 : 0.15) && pr > 0;
-      if (foul) {
-        this.stats[p.slot].fouls++;
-        p.stunUntil = this.time + 1.4; o.protectedUntil = this.time + 1.5;
-        for (const q of this.players) if (q.team !== o.team && hyp(q.x - o.x, q.z - o.z) < 3) { const k = 3 / (hyp(q.x - o.x, q.z - o.z) || 1); q.x = o.x + (q.x - o.x) * k; q.z = o.z + (q.z - o.z) * k; }
-        this.event("FOUL", p.slot, { victim: o.slot }, "faute");
-      } else if (slide) p.stunUntil = this.time + 0.8;
+      p.shootLock = true;
+      this.event("TACKLE", p.slot, { victim: opp.slot, slide }, "tacle_reussi");
+    } else if (pr > 0 && dO < 1.25) {
+      // faute : plus fréquente en glissé et par derrière, rare pour les bons défenseurs
+      const behind = Math.cos(opp.facing) * (p.x - opp.x) + Math.sin(opp.facing) * (p.z - opp.z) < -0.3 * dO;
+      if (this.rng() < (slide ? 0.32 : 0.16) * this.foulFactor(p) * (behind ? 1.6 : 1)) this.foul(p, opp, slide ? "slide" : "tackle");
     }
   }
 
-  // crochet : écart latéral explosif ballon au pied ; les tacles pendant l'esquive échouent souvent
+  // Discipline : plus les caractéristiques défensives sont élevées, moins on commet de fautes
+  foulFactor(p) {
+    const def = statOf(p, "Tacle", this) * 0.6 + statOf(p, "Sang-froid", this) * 0.3 + statOf(p, "Vision", this) * 0.1;
+    return clamp(1.4 - def / 99 * 1.05, 0.3, 1.3);
+  }
+
+  // Pressing : tentative de récupération au contact, moins efficace qu'un tacle mais bien plus propre
+  pressSteal(p, o) {
+    const t = this.time; p.pressCd = t + 0.55;
+    const atk = statOf(p, "Tacle", this) * 0.55 + statOf(p, "Force", this) * 0.2 + statOf(p, "Vitesse", this) * 0.1 + statOf(p, "Réflexes", this) * 0.15;
+    const dfn = statOf(o, "Dribble", this) * 0.6 + statOf(o, "Force", this) * 0.25 + statOf(o, "Sang-froid", this) * 0.15;
+    let pr = clamp(0.16 + (atk - dfn) / 100 * 0.6, 0.04, 0.42);
+    if (o.dodgeUntil > t) pr *= 1 - o.dodge;
+    if (activeFx(o, "tackleImmune", this) || o.protectedUntil > t || (this.isKeeper(o) && this.inOwnBox(o) && o.holdUntil > t)) pr = 0;
+    p.action = "press"; p.actionUntil = t + 0.25;
+    if (this.rng() < pr) {
+      this.stats[p.slot].tackles++;
+      this.release(o); o.kickCd = 0.4; this.giveBall(p); p.shootLock = true;
+      this.event("TACKLE", p.slot, { victim: o.slot, press: true }, "tacle_reussi");
+    } else if (pr > 0 && this.rng() < 0.012 * this.foulFactor(p)) this.foul(p, o, "press");
+  }
+
+  // ── Fautes, coups francs et penaltys (pas de cartons) ──
+  foul(p, o, kind) {
+    this.stats[p.slot].fouls++;
+    this.event("FOUL", p.slot, { victim: o.slot, kind }, "faute");
+    const gx = this.ownGoalX(p.team); // but défendu par le fautif
+    const inBox = Math.abs(o.x - gx) < FIELD.BOX_D && Math.abs(o.z) < FIELD.BOX_HW;
+    this.startSetPiece(inBox ? "penalty" : "freekick", o);
+  }
+
+  startSetPiece(kind, taker) {
+    const t = this.time; const team = taker.team; const gx = this.goalX(team); const s = Math.sign(gx);
+    let x = clamp(taker.x, -FIELD.HX + 1, FIELD.HX - 1), z = clamp(taker.z, -FIELD.HZ + 1, FIELD.HZ - 1);
+    if (kind === "penalty") { x = gx - s * PEN_D; z = 0; }
+    this.setPiece = { kind, team, taker: taker.slot, x, z, readyAt: t + 1.2, until: t + (kind === "penalty" ? 9 : 8) };
+    this.phase = "setpiece"; this.pendingShot = null; this.pendingPass = null;
+    for (const q of this.players) { q.charging = false; q.charge = 0; q.diveUntil = 0; q.stunUntil = 0; q.vx = 0; q.vz = 0; q.feintedUntil = 0; }
+    // tireur derrière le ballon, face au but
+    taker.facing = Math.atan2(0 - z, gx - x);
+    Object.assign(this.ball, { x, y: BALL_R, z, vx: 0, vy: 0, vz: 0, owner: taker.slot, last: taker.slot, curl: 0 });
+    this.placeTaker(taker);
+    const defs = this.players.filter(q => q.team !== team);
+    if (kind === "penalty") {
+      const k = defs.find(q => this.isKeeper(q)); if (k) { k.x = gx - s * 0.4; k.z = 0; k.facing = s > 0 ? Math.PI : 0; }
+      for (const q of this.players) if (q !== taker && q !== k && Math.abs(q.x - gx) < FIELD.BOX_D + 1.2) q.x = gx - s * (FIELD.BOX_D + 1.6);
+    } else {
+      // mur de deux joueurs si le coup franc est dangereux
+      const dGoal = hyp(gx - x, z);
+      if (dGoal < 18) {
+        const wallers = defs.filter(q => !this.isKeeper(q)).sort((a, c) => hyp(a.x - x, a.z - z) - hyp(c.x - x, c.z - z)).slice(0, 2);
+        const ang = Math.atan2(0 - z, gx - x); const px = -Math.sin(ang), pz = Math.cos(ang);
+        wallers.forEach((q, i) => { const off = (i - 0.5) * 0.85; q.x = x + Math.cos(ang) * FK_DIST + px * off; q.z = z + Math.sin(ang) * FK_DIST + pz * off; q.facing = ang + Math.PI; });
+        this.setPiece.wall = wallers.map(q => ({ slot: q.slot, x: q.x, z: q.z }));
+      }
+    }
+    this.holdSetPiece();
+    this.event(kind === "penalty" ? "PENALTY" : "FREEKICK", taker.slot, { x: Math.round(x * 10) / 10, z: Math.round(z * 10) / 10 });
+  }
+
+  placeTaker(p) { const sp = this.setPiece; p.x = sp.x - Math.cos(p.facing) * 0.5; p.z = sp.z - Math.sin(p.facing) * 0.5; p.vx = 0; p.vz = 0; }
+
+  // Mouvements pendant un coup de pied arrêté ; renvoie false si le joueur ne peut pas encore agir.
+  setPieceMove(p, inp) {
+    const sp = this.setPiece;
+    if (p.slot === sp.taker) {
+      // le tireur oriente sa frappe (visée ou direction), sans bouger le ballon
+      const m = hyp(inp.mx, inp.mz);
+      if (m > 0.2) p.facing = Math.atan2(inp.mz, inp.mx); else if (inp.aimFace) p.facing = inp.aim;
+      this.placeTaker(p);
+      return this.time >= sp.readyAt;
+    }
+    // penalty : le gardien peut plonger (anticiper) dès que le tireur est prêt
+    if (sp.kind === "penalty" && this.isKeeper(p) && p.team !== sp.team && inp.tackle && this.time >= sp.readyAt) this.dive(p, inp);
+    return false; // les autres se placent seulement
+  }
+
+  // Distances réglementaires : adversaires à 4,5 m (coup franc), tout le monde hors de la surface (penalty)
+  holdSetPiece() {
+    const sp = this.setPiece; if (!sp) return;
+    const gx = this.goalX(sp.team), s = Math.sign(gx);
+    for (const q of this.players) {
+      if (q.slot === sp.taker) continue;
+      if (sp.kind === "penalty") {
+        if (this.isKeeper(q) && q.team !== sp.team) { if (q.diveUntil <= this.time) { q.x = gx - s * 0.4; q.z = clamp(q.z, -FIELD.GOAL_HW + 0.3, FIELD.GOAL_HW - 0.3); } continue; }
+        if (Math.abs(q.x - gx) < FIELD.BOX_D + 1.2) q.x = gx - s * (FIELD.BOX_D + 1.2);
+        const d = hyp(q.x - sp.x, q.z - sp.z); if (d < 4) { const k = 4 / (d || 1); q.x = sp.x + (d ? (q.x - sp.x) * k : -s * 4); q.z = sp.z + (q.z - sp.z) * (d ? k : 1); }
+      } else if (q.team !== sp.team) {
+        const d = hyp(q.x - sp.x, q.z - sp.z);
+        if (d < FK_DIST) { const k = FK_DIST / (d || 1); q.x = sp.x + (d ? (q.x - sp.x) * k : -s * FK_DIST); q.z = sp.z + (q.z - sp.z) * (d ? k : 1); }
+      }
+    }
+  }
+
+  endSetPiece() { if (this.phase === "setpiece") { this.phase = "play"; this.setPiece = null; } }
+
+  // Délai écoulé : le tireur joue automatiquement (penalty : frappe, coup franc : passe)
+  autoTakeSetPiece() {
+    const sp = this.setPiece; const p = this.players[sp.taker];
+    if (this.ball.owner !== sp.taker) { this.endSetPiece(); return; }
+    if (sp.kind === "penalty") this.shoot(p, p.facing, 0.6); else this.pass(p, p.facing, false);
+  }
+
+  // ── Gestes techniques (efficacité = Dribble) ──────────────
+  // Direction du stick par rapport au regard : aucune → feinte de corps ; vers l'arrière → roulette ;
+  // de côté → crochet ; vers l'avant → petit pont (défenseur devant) ou passement de jambes ;
+  // vers une paroi proche → une-deux avec la paroi ; sans ballon, contre une paroi → appui mural.
   skillMove(p, inp) {
-    const side = inp.mx || inp.mz ? Math.sign(Math.cos(p.facing) * (inp.mz || 0) - Math.sin(p.facing) * (inp.mx || 0)) || 1 : (this.rng() < 0.5 ? -1 : 1);
-    const perp = p.facing + side * Math.PI / 2; const s = 4 + statOf(p, "Dribble", this) / 99 * 3;
-    p.vx += Math.cos(perp) * s; p.vz += Math.sin(perp) * s;
-    p.skillUntil = this.time + 0.4; p.skillCd = this.time + 1.6 - statOf(p, "Dribble", this) / 99 * 0.6;
-    p.action = "kick"; p.actionUntil = this.time + 0.2;
-    this.event("SKILL", p.slot, {}, "dribble_reussi");
+    const t = this.time; const q = statOf(p, "Dribble", this) / 99; const own = this.ball.owner === p.slot;
+    const m = hyp(inp.mx, inp.mz); const ix = m > 0.2 ? inp.mx / m : 0, iz = m > 0.2 ? inp.mz / m : 0;
+    const rel = m > 0.2 ? Math.atan2(Math.sin(Math.atan2(iz, ix) - p.facing), Math.cos(Math.atan2(iz, ix) - p.facing)) : null;
+    const wall = this.nearWall(p);
+    if (!own) { if (wall && wall.d < 1.3) this.wallKick(p, ix, iz, wall, q); return; }
+    let move;
+    if (wall && wall.d < 3.2 && m > 0.2 && ix * wall.nx + iz * wall.nz < -0.5) move = "wallpass";
+    else if (wall && wall.d < 1.1 && m > 0.2 && ix * wall.nx + iz * wall.nz > 0.5) move = "wallkick";
+    else if (rel == null) move = "feint";
+    else if (Math.abs(rel) > 2.2) move = "roulette";
+    else if (Math.abs(rel) < 0.7) move = this.defenderAhead(p) ? "nutmeg" : "stepover";
+    else move = "cut";
+    let ok = true;
+    const dodge = (dur, base) => { p.dodgeUntil = t + dur; p.dodge = clamp(base + q * 0.45, 0, 0.92); };
+    const burst = (ang, s) => { p.vx += Math.cos(ang) * s; p.vz += Math.sin(ang) * s; };
+    switch (move) {
+      case "cut": { const side = Math.sign(rel) || 1; burst(p.facing + side * Math.PI / 2, 4 + q * 3); dodge(0.4, 0.3); p.diveDir = -side; break; }
+      case "feint": { // les défenseurs proches sont mis dans le vent, on repart du côté opposé au plus proche
+        const opp = this.nearestOpp(p, 3.5);
+        for (const o of this.players) if (o.team !== p.team && hyp(o.x - p.x, o.z - p.z) < 3.5 && this.rng() < 0.4 + q * 0.45 - (statOf(o, "Réflexes", this) - 60) / 200) o.feintedUntil = t + 0.25 + q * 0.35;
+        const side = opp ? -Math.sign(Math.cos(p.facing) * (opp.z - p.z) - Math.sin(p.facing) * (opp.x - p.x)) || 1 : 1;
+        burst(p.facing + side * 0.8, 2.5 + q * 2.5); dodge(0.35, 0.2); p.diveDir = -side; break;
+      }
+      case "roulette": { // 360° ballon au pied : très dur à tacler, puis relance dans la direction voulue
+        p.spinUntil = t + 0.45; dodge(0.5, 0.4);
+        const ang = Math.atan2(iz, ix); p.facing = ang; burst(ang, 3 + q * 2.5); break;
+      }
+      case "stepover": { // passement de jambes : petite accélération et défenseur face à soi déstabilisé
+        const opp = this.nearestOpp(p, 3);
+        if (opp && this.rng() < 0.35 + q * 0.4) opp.feintedUntil = t + 0.2 + q * 0.3;
+        burst(p.facing, 2 + q * 2); dodge(0.3, 0.2); p.diveDir = this.rng() < 0.5 ? 1 : -1; break;
+      }
+      case "nutmeg": { // petit pont : le ballon passe entre les jambes du défenseur
+        const d = this.defenderAhead(p);
+        ok = this.rng() < clamp(0.25 + q * 0.55 - (statOf(d, "Réflexes", this) - 60) / 200 - (statOf(d, "Tacle", this) - 60) / 300, 0.08, 0.9);
+        if (ok) {
+          this.release(p); const b = this.ball; b.vx = Math.cos(p.facing) * 7; b.vz = Math.sin(p.facing) * 7; b.vy = 0.15;
+          this.pendingPass = { from: p.slot, t, self: true }; d.feintedUntil = t + 0.7; d.kickCd = 0.5; burst(p.facing, 4 + q * 2);
+        } else { this.release(p); this.giveBall(d); this.event("INTERCEPT", d.slot, {}, "tacle_reussi"); }
+        break;
+      }
+      case "wallpass": { // une-deux avec la paroi : frappe contre le mur, le ballon revient devant soi
+        const tx = -wall.nz, tz = wall.nx; const along = Math.sign(tx * Math.cos(p.facing) + tz * Math.sin(p.facing)) || 1;
+        const aimX = p.x - wall.nx * wall.d + tx * along * (2.5 + q * 1.5), aimZ = p.z - wall.nz * wall.d + tz * along * (2.5 + q * 1.5);
+        const dir = Math.atan2(aimZ - p.z, aimX - p.x) + (this.rng() - 0.5) * 2 * (1 - q) * 0.12 * (1.2 - statOf(p, "Vision", this) / 99 * 0.4);
+        const v = 11 + q * 4; this.release(p); const b = this.ball; b.vx = Math.cos(dir) * v; b.vz = Math.sin(dir) * v; b.vy = 0.3;
+        this.pendingPass = { from: p.slot, t, self: true }; p.boostUntil = t + 1; p.facing = Math.atan2(tz * along, tx * along); break;
+      }
+      case "wallkick": this.wallKick(p, ix, iz, wall, q); break;
+    }
+    p.skillCd = t + 1.5 - q * 0.6 + (move === "roulette" || move === "nutmeg" ? 0.4 : 0);
+    if (move !== "wallkick") { p.action = move; p.actionUntil = t + (move === "roulette" ? 0.45 : 0.35); }
+    this.event("SKILL", p.slot, { move, ok }, ok ? "dribble_reussi" : null);
+  }
+
+  // Appui mural : le joueur prend appui sur la paroi pour rebondir (esquive, relance)
+  wallKick(p, ix, iz, wall, q) {
+    const t = this.time; const tx = -wall.nz, tz = wall.nx;
+    const along = (p.vx * tx + p.vz * tz) || (ix * tx + iz * tz) || 1;
+    const sAlong = Math.sign(along) * Math.min(6, Math.abs(along) * 1.1 + 1.5);
+    const push = 4 + q * 2.5;
+    const wallSide = Math.sign(Math.cos(p.facing) * wall.nz - Math.sin(p.facing) * wall.nx) || 1; // paroi à droite (+1) ou à gauche
+    p.vx = tx * sAlong + wall.nx * push; p.vz = tz * sAlong + wall.nz * push; p.facing = Math.atan2(p.vz, p.vx); p.diveDir = wallSide;
+    p.dodgeUntil = t + 0.35; p.dodge = clamp(0.25 + q * 0.4, 0, 0.8); p.dashUntil = t + 0.25;
+    p.skillCd = t + 1.2 - q * 0.4; p.action = "wallkick"; p.actionUntil = t + 0.4;
+    this.event("SKILL", p.slot, { move: "wallkick", ok: true });
+  }
+
+  // paroi la plus proche (hors bouche de but) : distance et normale vers l'intérieur du terrain
+  nearWall(p) {
+    const walls = [{ d: FIELD.HZ - p.z, nx: 0, nz: -1 }, { d: FIELD.HZ + p.z, nx: 0, nz: 1 }];
+    if (Math.abs(p.z) > FIELD.GOAL_HW + 0.5) walls.push({ d: FIELD.HX - p.x, nx: -1, nz: 0 }, { d: FIELD.HX + p.x, nx: 1, nz: 0 });
+    return walls.sort((a, c) => a.d - c.d)[0];
+  }
+  nearestOpp(p, r) { let best = null; for (const o of this.players) { if (o.team === p.team) continue; const d = hyp(o.x - p.x, o.z - p.z); if (d < r && (!best || d < best.d)) best = { o, d }; } return best?.o || null; }
+  defenderAhead(p) {
+    for (const o of this.players) {
+      if (o.team === p.team) continue; const dx = o.x - p.x, dz = o.z - p.z, d = hyp(dx, dz);
+      if (d < 2.4 && Math.abs(Math.atan2(Math.sin(Math.atan2(dz, dx) - p.facing), Math.cos(Math.atan2(dz, dx) - p.facing))) < 0.6) return o;
+    }
+    return null;
   }
 
   dive(p, inp) {
@@ -647,10 +864,11 @@ export class ArenaSim {
     const b = this.ball; const cd = u => (u ? Math.max(0, r2(u.cd - this.time)) : 0);
     return {
       k: this.tick, t: r2(this.time), ph: this.phase, h: this.half, c: Math.ceil(this.clock()), s: [...this.score],
+      sp: this.setPiece ? { k: this.setPiece.kind, tm: this.setPiece.team, x: r2(this.setPiece.x), z: r2(this.setPiece.z), p: this.setPiece.taker, r: Math.max(0, r2(this.setPiece.until - this.time)) } : null,
       b: [r2(b.x), r2(b.y), r2(b.z), r2(b.vx), r2(b.vy), r2(b.vz), b.owner],
       // p : [x, z, vx, vz, regard, endurance, drapeaux, charge, action, recharge PU1, sens du plongeon, recharge PU2, PU actifs (bits)]
       p: this.players.map(p => { const act = p.pus.reduce((m, u, i) => m | (u.until > this.time ? 1 << i : 0), 0); return [r2(p.x), r2(p.z), r2(p.vx), r2(p.vz), r2(p.facing), Math.round(p.stamina),
-        (p.sprinting ? 1 : 0) | (p.stunUntil > this.time ? 2 : 0) | (p.diveUntil > this.time ? 4 : 0) | (act ? 8 : 0) | (p.charging ? 16 : 0) | (p.holdUntil > this.time ? 32 : 0) | (p.callUntil > this.time ? 64 : 0) | (p.dashUntil > this.time ? 128 : 0),
+        (p.sprinting ? 1 : 0) | (p.stunUntil > this.time ? 2 : 0) | (p.diveUntil > this.time ? 4 : 0) | (act ? 8 : 0) | (p.charging ? 16 : 0) | (p.holdUntil > this.time ? 32 : 0) | (p.callUntil > this.time ? 64 : 0) | (p.dashUntil > this.time ? 128 : 0) | (p.pressing ? 256 : 0) | (p.feintedUntil > this.time ? 512 : 0),
         r2(p.charge), p.action, cd(p.pus[0]), p.diveDir, cd(p.pus[1]), act]; }),
     };
   }

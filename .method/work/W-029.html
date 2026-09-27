@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Audit des touches affichées · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-029</span></header><main>
+<article data-method data-revision="2" data-owner="Claude (agent)" id="W-029" data-title="Audit des touches affichées" data-summary="Toutes les touches affichées correspondent aux touches actives (AZERTY, QWERTY, manette)." data-tags="touches clavier azerty aide affichage audit" data-kind="work" data-watch="src/three/controls.js|src/three/input.js|src/pages/Help.jsx|src/pages/arena/ArenaGame.jsx|tests/controls.test.js" data-status="review" data-components="arena-input">
+<p class="eyebrow">work / W-029</p><h1>Audit des touches affichées</h1>
+<dl><dt>Résultat attendu</dt><dd>Réglages, aide en jeu, entraînement, page Aide, accueil de l&#x27;Arène, bandeau de ralenti, tableau des joueurs et README affichent les touches réellement actives selon la disposition et les réaffectations.</dd>
+<dt>Périmètre / mandat</dt><dd>src. Mandat : demandes d&#x27;amélioration du PO (3e message du 2026-09-27) et arbitrages validés (profil d&#x27;origine ramené à un budget commun, archétype + poste idéal à la place de l&#x27;overall, suppression des cartons aussi en Manager, audit complet des touches).</dd>
+<dt>Dépendances</dt><dd>W-018.</dd>
+<dt>Vérification prévue</dt><dd>npm test (controls, i18n).</dd>
+<dt>Point d'étape</dt><dd>Livré : un seul modèle de touches pour l'affichage et la saisie (réglages, aide en jeu, entraînement, page Aide, accueil de l'Arène, ralenti, tableau, README) ; textes à lettres figées supprimés (ancien « power-up (R), crochet (A), appel (X) ») ; W/Z (touche du bas à gauche) sert au pressing, plus au tacle glissé étourdissant.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Test automatique : préréglages sans conflit, touche affichée = touche active, libellés AZERTY/QWERTY/QWERTZ.</p>
+<p data-criterion="A2">Plus aucun texte à lettre figée dans les catalogues FR/EN (hors raccourcis fixes).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/controls.test.js" data-ref="../../tests/controls.test.js" data-by="Claude (agent)" data-date="2026-09-27">Préréglages sans conflit, table touche → action identique à l&#x27;affichage, réaffectations et valeurs hostiles, libellés AZERTY / QWERTY / QWERTZ, manette complète.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="Audit scripté des catalogues FR/EN + npm test (i18n)" data-ref="../../src/i18n/fr.js" data-by="Claude (agent)" data-date="2026-09-27">Plus aucune lettre figée hors raccourcis fixes (1–6 et Espace du Manager, F1, F3, Échap dans les textes d&#x27;aide génériques).</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>
