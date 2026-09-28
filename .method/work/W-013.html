@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Comptes pseudo + mot de passe · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-013</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-013" data-title="Comptes pseudo + mot de passe" data-summary="Authentification sans donnée personnelle, sessions, suppression de compte." data-tags="auth security compte pseudo mot de passe session" data-kind="work" data-watch="server/auth.js|server/db.js|server/api.js" data-status="review" data-components="auth">
+<p class="eyebrow">work / W-013</p><h1>Comptes pseudo + mot de passe</h1>
+<dl><dt>Résultat attendu</dt><dd>Un joueur crée un compte avec uniquement un pseudo et un mot de passe (haché scrypt), se connecte, reste connecté via un jeton de session, et peut supprimer son compte ; aucune donnée personnelle n&#x27;est collectée.</dd>
+<dt>Périmètre / mandat</dt><dd>server/auth.js, server/db.js. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-002.</dd>
+<dt>Vérification prévue</dt><dd>npm test (tests/auth.test.js).</dd>
+<dt>Point d'étape</dt><dd>Livré : inscription/connexion pseudo + mot de passe (scrypt, sel aléatoire), jetons de session hachés (30 j glissants), limitation de débit, changement de mot de passe, suppression de compte ; aucune donnée personnelle. Audit de sécurité AC-001 : révocation des sessions au changement de mot de passe, limiteur par pseudo, IP fiable derrière proxy.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Mots de passe jamais stockés en clair ; mauvais mot de passe refusé ; limitation des tentatives (test).</p>
+<p data-criterion="A2">Suppression de compte efface l&#x27;utilisateur et ses sessions (test).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/auth.test.js tests/api.test.js" data-ref="../../tests/auth.test.js" data-by="Claude (agent)" data-date="2026-09-27">Mot de passe jamais en clair dans le fichier ; mauvais mot de passe refusé ; 429 après 10 tentatives/minute.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="idem" data-ref="../../tests/api.test.js" data-by="Claude (agent)" data-date="2026-09-27">Suppression du compte : utilisateur et sessions effacés.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

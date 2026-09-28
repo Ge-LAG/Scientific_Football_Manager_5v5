@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Restructuration du dépôt et archivage Rust · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-002</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-002" data-title="Restructuration du dépôt et archivage Rust" data-summary="Archiver Rust/mobile/tests Python, créer le socle Node + Vite + React." data-tags="repo archive rust vite node structure" data-kind="work" data-watch="package.json|vite.config.js|index.html|archive/README.md|server/index.js" data-status="review" data-components="repo">
+<p class="eyebrow">work / W-002</p><h1>Restructuration du dépôt et archivage Rust</h1>
+<dl><dt>Résultat attendu</dt><dd>Le dépôt ne contient plus de code Rust actif ; un socle JavaScript (client Vite/React, serveur Node, code partagé) démarre en une commande.</dd>
+<dt>Périmètre / mandat</dt><dd>Structure du dépôt, package.json, outillage. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-001.</dd>
+<dt>Vérification prévue</dt><dd>npm run build ; curl /api/health.</dd>
+<dt>Point d'étape</dt><dd>Livré : Rust, mobile, tests Python et prototype déplacés sous <code>archive/</code> (git mv) ; socle Node ESM + Vite 8 + React 19 + Three.js ; <code>npm run dev</code>, <code>build</code>, <code>start</code>, <code>test</code>.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">desktop_app, mobile_app, tests Python et prototype .md sont déplacés sous archive/ avec un README d&#x27;archive.</p>
+<p data-criterion="A2">npm install puis npm run build produit dist/ sans erreur.</p>
+<p data-criterion="A3">npm start sert le client construit et répond sur /api/health.</p>
+<p data-evidence-for="A1" data-result="pass" data-check="git status ; lecture de archive/README.md" data-ref="../../archive/README.md" data-by="Claude (agent)" data-date="2026-09-27">desktop_app, mobile_app, tests Python, journal et guide Rust archivés ; prototype app.jsx sous archive/prototype-react.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="npx vite build" data-ref="../../vite.config.js" data-by="Claude (agent)" data-date="2026-09-27">Build réussi (bundle principal ~505 Ko, vue 3D chargée à la demande ~620 Ko).</p>
+<p data-evidence-for="A3" data-result="pass" data-check="npm test (tests/server.test.js « santé et fichiers statiques ») + curl http://localhost:8787/api/health" data-ref="../../tests/server.test.js" data-by="Claude (agent)" data-date="2026-09-27">Réponse {&quot;ok&quot;:true} ; le site construit est servi par le même port.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

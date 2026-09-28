@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Qualité et tests · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-016</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-016" data-title="Qualité et tests" data-summary="Suite de tests Node (données, moteur, arène, auth, salons, serveur) et smoke navigateur." data-tags="tests qualite ci smoke" data-kind="work" data-watch="tests/data.test.js|tests/i18n.test.js|tests/manager-engine.test.js|tests/arena-sim.test.js|tests/server.test.js|scripts/smoke-browser.mjs" data-status="review" data-components="quality">
+<p class="eyebrow">work / W-016</p><h1>Qualité et tests</h1>
+<dl><dt>Résultat attendu</dt><dd>Une commande (npm test) vérifie données, i18n, moteurs, IA, authentification, progression, salons et serveur ; un smoke test navigateur couvre les parcours principaux.</dd>
+<dt>Périmètre / mandat</dt><dd>tests. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>Tous les lots.</dd>
+<dt>Vérification prévue</dt><dd>npm test ; preview navigateur.</dd>
+<dt>Point d'étape</dt><dd>Livré : 10 fichiers de tests node:test (données, i18n, moteur, Arène, salles, championnat, comptes, progression, API, serveur temps réel), smoke navigateur (scripts/smoke-browser.mjs) et E2E à deux navigateurs (scripts/smoke-online.mjs). Deux relectures de code indépendantes : 5 puis 8 bugs corrigés (messages perdus à la reconnexion, rejouer en solo, identité invité, manette, raccourcis AZERTY, mi-temps, prédiction réseau, fronts de boutons…). E2E en ligne : parcours Manager complet validé (salle par code → draft → match → rapport XP/ELO) ; salon Arène partagé validé ; rendu 3D à deux non terminé faute de GPU (rendu logiciel sur machine saturée).</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">npm test passe intégralement.</p>
+<p data-criterion="A2">Smoke navigateur : accueil, match Manager vs bot, Arène vs bots sans erreur console.</p>
+<p data-evidence-for="A1" data-result="pass" data-check="npm test" data-ref="../../package.json" data-by="Claude (agent)" data-date="2026-09-27">npm test : 72 tests, 72 réussis, 0 échec (2026-09-27, 07h40), dont tests/security.test.js, tests/rooms.test.js, tests/season.test.js.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="node scripts/smoke-browser.mjs http://localhost:8787" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Smoke navigateur final (07h35) : accueil FR, contenus, bascule EN, Manager contre bot (2D + 3D), Arène contre bots, mobile 390 px — tout vert, aucune erreur console.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

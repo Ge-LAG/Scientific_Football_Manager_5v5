@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Progression, classement, publications · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-014</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-014" data-title="Progression, classement, publications" data-summary="XP et grades académiques, ELO, historique, succès « Publications »." data-tags="progression xp grade classement elo leaderboard succes" data-kind="work" data-watch="shared/progression.js|server/api.js" data-status="review" data-components="progression">
+<p class="eyebrow">work / W-014</p><h1>Progression, classement, publications</h1>
+<dl><dt>Résultat attendu</dt><dd>Chaque match joué en ligne alimente XP, grade académique, classement (ELO Manager, stats Arène), historique et publications débloquées, visibles sur le profil et le classement public.</dd>
+<dt>Périmètre / mandat</dt><dd>shared/progression.js, server. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-013.</dd>
+<dt>Vérification prévue</dt><dd>npm test (tests/progression.test.js).</dd>
+<dt>Point d'étape</dt><dd>Livré : XP et 7 grades académiques, ELO Manager (humain contre humain), statistiques Arène, historique (30), 18 publications, classement public et profils. Ajout : écussons et couleurs de club débloqués par grade.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Victoire contre un humain ⇒ ELO gagnant augmente, perdant diminue, somme conservée (test).</p>
+<p data-criterion="A2">Les publications se débloquent selon leurs conditions (test).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/progression.test.js tests/server.test.js" data-ref="../../tests/progression.test.js" data-by="Claude (agent)" data-date="2026-09-27">Somme des variations ELO nulle ; vainqueur en hausse.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="node --test tests/progression.test.js" data-ref="../../tests/progression.test.js" data-by="Claude (agent)" data-date="2026-09-27">Publications débloquées selon leurs conditions.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+/data/
+*.log
+.env
+.DS_Store
+# Copie de travail du kit méthode (la méthode active vit dans .method/)
+Méthode Template V6/
+smoke-out/

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Interface Manager : club, composition, match, rapport · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-006</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-006" data-title="Interface Manager : club, composition, match, rapport" data-summary="Création de club, composition, match en direct (vue tactique néon) et rapport d&#x27;après-match." data-tags="ui manager club composition match rapport canvas" data-kind="work" data-watch="src/pages/manager/MatchView.jsx|src/pages/manager/DraftView.jsx|src/pages/manager/SetupView.jsx|src/pages/manager/ReportView.jsx|src/render2d/pitch.js" data-status="review" data-components="manager-ui">
+<p class="eyebrow">work / W-006</p><h1>Interface Manager : club, composition, match, rapport</h1>
+<dl><dt>Résultat attendu</dt><dd>Le joueur crée son club, compose 5 titulaires + remplaçants, joue un match en direct contre un bot en pilotant stratégie/power-ups/remplacements et consulte un rapport complet.</dd>
+<dt>Périmètre / mandat</dt><dd>src/pages/manager, src/render2d. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-004, W-005.</dd>
+<dt>Vérification prévue</dt><dd>Parcours manuel dans le navigateur (preview) + build.</dd>
+<dt>Point d'étape</dt><dd>Livré : club (nom, couleurs, écusson, tactique), draft (manuel/auto/automatique complet), composition, match en direct (vue tactique 2D néon + vue Stade 3D), stratégies avec indicateurs de la matrice, power-ups, remplacements, pause/vitesse, fil narratif FR/EN, statistiques en direct, rapport complet. Ajouts vague 2 : courbe xG du match dans le rapport, draft automatique complète.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Parcours complet club → match → rapport jouable sans compte contre un bot.</p>
+<p data-criterion="A2">Vue tactique fluide (canvas) avec ballon, joueurs, effets de power-up et fil du match narratif FR/EN.</p>
+<p data-evidence-for="A1" data-result="pass" data-check="Parcours dans le navigateur intégré (localhost:5173) puis node scripts/smoke-browser.mjs" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Accueil → draft → composition → match → rapport (score, stats, notes, homme du match, conseils) sans compte ni erreur console.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="Captures 11-match-2d / 12-match-3d du smoke test" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Vue tactique animée (ballon, traînée, auras, particules) ; vue Stade 3D fonctionnelle après correction de la caméra (pas de temps négatif).</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

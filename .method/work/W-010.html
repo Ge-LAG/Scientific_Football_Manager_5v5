@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Rendu 3D de l&#x27;Arène (Three.js) · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-010</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-010" data-title="Rendu 3D de l&#x27;Arène (Three.js)" data-summary="Stade néon, avatars procéduraux, caméra 3e personne, effets, HUD, sons." data-tags="3d three rendu graphisme camera hud audio" data-kind="work" data-watch="src/three/arenaView.js|src/three/visual/stadium.js|src/three/visual/avatar.js|src/pages/arena/ArenaGame.jsx" data-status="review" data-components="arena-render">
+<p class="eyebrow">work / W-010</p><h1>Rendu 3D de l&#x27;Arène (Three.js)</h1>
+<dl><dt>Résultat attendu</dt><dd>L&#x27;Arène est rendue en 3D : stade néon vitré, avatars scientifiques distincts (couleur de domaine, blouse, lunettes…), caméra à la 3e personne, effets de power-up, HUD (score, chrono, endurance, cooldown) et sons synthétisés.</dd>
+<dt>Périmètre / mandat</dt><dd>src/three, src/pages/arena. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-008.</dd>
+<dt>Vérification prévue</dt><dd>Vérification manuelle navigateur (preview) + build.</dd>
+<dt>Point d'étape</dt><dd>Livré : stade néon vitré (foule animée, tribunes, écrans LED, tours d'éclairage), avatars procéduraux distincts, ballon et effets, caméra 3e personne (proche/éloignée/télé), HUD (score, chrono, endurance, power-up, charge de tir, fil, mini-carte, indicateur de passe), sons synthétisés, résolution dynamique. Limite : performance non mesurée sur un portable avec GPU (27 images/s dans le panneau de test, 1 image/s en rendu logiciel). Ajouts vague 2 : ralenti automatique des buts (caméra cinéma, passable), mini-carte, indicateur de passe, entraînement guidé avec objectifs.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">60 images/s visées sur portable ordinaire ; pas d&#x27;erreur console.</p>
+<p data-criterion="A2">Chaque personnage est identifiable (nom, couleur, silhouette).</p>
+<p data-evidence-for="A1" data-result="pending" data-check="Mesure images/s dans le navigateur intégré et Chrome SwiftShader" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Aucune erreur console. 60 images/s non démontrées faute de GPU dans l&#x27;environnement de test : à confirmer en recette PO.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="Captures 15/16-arene du smoke test et du navigateur intégré" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Personnages identifiables : étiquette nom + numéro, couleur de domaine, coiffures/accessoires distincts, maillot d&#x27;équipe.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

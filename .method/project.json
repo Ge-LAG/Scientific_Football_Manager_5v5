@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "method_version": "6.1.0",
+  "template": false,
+  "name": "Lab League — Scientific Football Manager 5v5",
+  "revision": 10,
+  "updated_at": "2026-09-28",
+  "mode": "cto",
+  "po": "Guillaume",
+  "cto": "Robertson Andersen",
+  "focus_id": "W-031",
+  "next_action": "Guillaume : relire W-031 (TD-002, TD-003, TD-006, TD-007, TD-008 clôturés ; TD-004 en revue) et valider visuellement TD-004 sur carte graphique ; décider du commit. Puis reprendre la recette UAT-002 sur le code corrigé (retests dans Edge, heures restantes) ; TD-005 (Higgsfield) reste à traiter ; UAT-001 demeure l'acceptation produit de Guillaume.",
+  "profile_id": "profile",
+  "roadmap_id": "roadmap",
+  "blocked_on": [],
+  "pending_acceptance": [
+    "UAT-001"
+  ],
+  "external_authorizations": []
+}

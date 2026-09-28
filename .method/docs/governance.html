@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Authority and decisions · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>guide · governance</span></header><main>
+<article data-method data-revision="1" data-owner="CTO" id="governance" data-title="Authority and decisions" data-summary="PO authority, CTO mandate, durable authorization and targeted escalation." data-tags="authority governance mandat permissions consent push merge deploy po cto" data-kind="guide" data-status="active">
+<p class="eyebrow">guide / governance</p><h1>Authority and decisions</h1>
+<table><thead><tr><th>Actor</th><th>Owns</th><th>Consult when</th></tr></thead><tbody>
+<tr><td>Guillaume · PO</td><td>Product outcomes, priority, material scope/budget changes, product acceptance.</td><td>A product tradeoff exceeds the agreed mandate.</td></tr>
+<tr><td>Robertson Andersen · CTO</td><td>Technical sequencing, architecture, task instructions and technical review within the product mandate.</td><td>A cross-component decision or technical mandate is missing.</td></tr>
+<tr><td>Codex · implementation</td><td>Investigation, implementation, tests, evidence and current state.</td><td>A decision materially changes correctness, scope or permitted external effects.</td></tr>
+</tbody></table>
+<p>Preferred route: Guillaume → Robertson (ChatGPT Work, computer use) → Codex. In direct mode, Guillaume supplies task intent without a CTO relay. CTO technical approval is distinct from PO product acceptance. A mode change keeps the same work IDs and updates project.json.</p>
+<p>Apply platform and safety constraints, then explicit user instructions and valid delegated instructions within their mandate. Project-specific agreements refine this method. Code and execution establish implementation facts; documentation records intent. Resolve clear stale documentation from evidence. Ask the responsible actor only for an unresolved decision; continue independent authorized work.</p>
+<p>Inspection, reversible edits, checks and preparation are covered by an implementation request. Push, merge, deployment, paid provisioning, external messages and destructive operations require coverage by the request or a recorded mandate specifying actor, action, target and limits. Do not ask again for covered actions because a session changed. Do not expand a technical mandate into unrelated external authority.</p>
+<p>For reusable authorization, create an <a href="../templates/authorization.html#tpl-authorization">authorization record</a> and reference it in project.json. The record points to observed authorization; it creates no authority. Store no secrets. For unapproved effects, finish the reviewable preparation and ask at the action boundary.</p>
+<p>Routine documentary corrections follow the task. Material authority, product-scope or release-acceptance changes need the relevant owner's decision. Record enduring tradeoffs as <a href="../templates/decision.html#tpl-decision">decisions</a>; Git carries routine edit history.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

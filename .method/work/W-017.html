@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Caméras 3D des matchs simulés · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-017</span></header><main>
+<article data-method data-revision="2" data-owner="Claude (agent)" id="W-017" data-title="Caméras 3D des matchs simulés" data-summary="Vue Stade 3D du Manager et spectateurs : réalisateur automatique, latérale, tribune, frontale, ballon, joueur suivi, caméra libre." data-tags="camera 3d manager spectateur realisateur libre ballon joueur" data-kind="work" data-watch="src/three/cameraRig.js|src/ui/CamBar.jsx|src/pages/manager/MatchView.jsx" data-status="review" data-components="arena-render manager-ui">
+<p class="eyebrow">work / W-017</p><h1>Caméras 3D des matchs simulés</h1>
+<dl><dt>Résultat attendu</dt><dd>Pendant un match simulé, le joueur bascule en 3D et choisit sa caméra : réalisateur automatique, latérale (télé), tribune, frontale (derrière le but), centrée sur le ballon, centrée sur un joueur choisi, ou libre (orbite, déplacement, zoom) ; plein écran disponible.</dd>
+<dt>Périmètre / mandat</dt><dd>src/three, src/ui, src/pages/manager. Mandat : demandes d&#x27;amélioration du PO (2e message du 2026-09-27) et arbitrages validés par le PO (apparence visible de tous, 2 power-ups choisis avant le match, ressources CC0 autorisées, commit sur la branche lab-league-v3).</dd>
+<dt>Dépendances</dt><dd>W-010.</dd>
+<dt>Vérification prévue</dt><dd>Parcours navigateur (smoke) + build.</dd>
+<dt>Point d'étape</dt><dd>Livré : <code>src/three/cameraRig.js</code> (réalisateur automatique, latérale, tribune, frontale, ballon, joueur suivi, libre ; proche / éloignée ; ralenti), barre de caméras <code>CamBar</code> (match Manager en 3D, spectateurs de l'Arène), plein écran, touche C. Les scientifiques du match Manager en 3D animent frappes, passes, tacles et plongeons.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Les 7 caméras sont sélectionnables pendant un match Manager en 3D (boutons et touche C) ; la caméra joueur suit le scientifique choisi.</p>
+<p data-criterion="A2">La caméra libre se pilote à la souris (glisser, clic droit, molette) et au clavier ; les spectateurs de l&#x27;Arène disposent des mêmes caméras.</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node scripts/smoke-browser.mjs http://localhost:8791 smoke-out (étape Manager : clic sur chaque caméra, lecture de window.__ll3d.camMode)" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Les 7 caméras répondent : goal, ball, player, tactical, free, tv, auto ; captures 12-cam-goal, 12-cam-player, 12-cam-free.</p>
+<p data-evidence-for="A2" data-result="pending" data-check="Relecture de src/three/cameraRig.js ; manipulation souris/clavier de la caméra libre non automatisée" data-ref="../../src/three/cameraRig.js" data-by="Claude (agent)" data-date="2026-09-27">Orbite, déplacement, zoom et plans spectateur implémentés ; la prise en main réelle (souris, molette) reste à valider en recette PO (UAT-001, étape caméras).</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

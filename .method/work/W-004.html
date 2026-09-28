@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Moteur de simulation Manager v3 · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-004</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-004" data-title="Moteur de simulation Manager v3" data-summary="Moteur déterministe : gardiens, xG, mi-temps, remplacements, cartons, synergies, notes." data-tags="engine simulation manager xg gardien remplacement synergie" data-kind="work" data-watch="shared/manager/engine.js" data-status="review" data-components="manager-engine">
+<p class="eyebrow">work / W-004</p><h1>Moteur de simulation Manager v3</h1>
+<dl><dt>Résultat attendu</dt><dd>Le moteur de match Manager est déterministe (graine), réaliste et exploite toutes les stats : le gardien influence les arrêts, les tirs ont une probabilité liée à la distance/angle/pression, deux mi-temps, remplacements, cartons et exclusions temporaires, synergies de domaine, notes et homme du match.</dd>
+<dt>Périmètre / mandat</dt><dd>shared/manager. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-003.</dd>
+<dt>Vérification prévue</dt><dd>npm test (tests/manager-engine.test.js).</dd>
+<dt>Point d'étape</dt><dd>Livré : moteur v3 déterministe (graine), gardiens (Réflexes), modèle xG, contres, matrice tactique, mi-temps, remplacements, fautes/cartons/exclusions, penalties, synergies, notes et homme du match. Calibrage : ~4,7 buts/match entre stratégies neutres. Vague 3 : causerie de mi-temps (4 discours, effets testés), timeline xG.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Même graine + mêmes commandes ⇒ même score et mêmes événements (test).</p>
+<p data-criterion="A2">Sur 200 matchs équipe forte vs faible, l&#x27;équipe forte gagne nettement plus souvent ; moyenne de buts entre 2 et 9 par match (test).</p>
+<p data-criterion="A3">Les 6 stratégies d&#x27;origine et les 16 power-ups agissent sur la simulation (test).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/manager-engine.test.js (déterminisme)" data-ref="../../tests/manager-engine.test.js" data-by="Claude (agent)" data-date="2026-09-27">Même graine + même commande ⇒ rapports et événements identiques.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="node --test tests/manager-engine.test.js (équipe bien construite)" data-ref="../../tests/manager-engine.test.js" data-by="Claude (agent)" data-date="2026-09-27">L&#x27;équipe bien construite gagne &gt; 1,5 × plus ; moyenne de buts dans [2 ; 9].</p>
+<p data-evidence-for="A3" data-result="pass" data-check="node --test tests/manager-engine.test.js (stratégies et power-ups)" data-ref="../../tests/manager-engine.test.js" data-by="Claude (agent)" data-date="2026-09-27">Modificateurs de stratégie et bonus des 16 power-ups appliqués, recharge respectée.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>
