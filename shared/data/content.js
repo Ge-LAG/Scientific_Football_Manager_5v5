@@ -3,7 +3,7 @@ import { ROSTER, POWER_UPS } from "./roster.js";
 import { EXTRA, ARENA_EFFECTS, domainColor } from "./enrichment.js";
 import { NARRATION_DOMAINE_FR, NARRATION_DEFAULT_FR } from "./narration.fr.js";
 import { NARRATION_DOMAINE_EN, NARRATION_DEFAULT_EN } from "./narration.en.js";
-import { ROSTER_EN, DOMAINS_EN, POSTES_EN, PROFILS_EN, POWER_UPS_EN, ATTRS_EN, TYPES_EN } from "./roster.en.js";
+import { ROSTER_EN, DOMAINS_EN, DOMAIN_WORDS_EN, POSTES_EN, PROFILS_EN, POWER_UPS_EN, ATTRS_EN, TYPES_EN } from "./roster.en.js";
 import { POWER_UPS_EXTRA } from "./powerups.extra.js";
 import { scaledProfile, cleanStats, STAT_KEYS } from "./stats.js";
 
@@ -98,6 +98,8 @@ export function pText(p, lang) {
     profil: e.profil || PROFILS_EN[p.profil] || p.profil, traits: e.traits || p.traits, bio: e.bio || p.bio };
 }
 export const domainName = (d, lang) => (lang === "en" ? DOMAINS_EN[d] || d : d);
+// fragment de domaine d'une synergie (« Physique » couvre « Physique et Mécanique » et « Physique et Chimie »)
+export const domainWord = (w, lang) => (lang === "en" ? DOMAIN_WORDS_EN[w] || DOMAINS_EN[w] || w : w);
 export const attrName = (a, lang) => (lang === "en" ? ATTRS_EN[a] || a : a);
 export const typeName = (t, lang) => (lang === "en" ? TYPES_EN[t] || t : t);
 export function puText(pu, lang) {

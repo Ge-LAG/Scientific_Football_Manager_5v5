@@ -57,6 +57,11 @@ des buts, grades académiques, ELO, 18 « publications » (succès), récompense
 
 Schéma « clavier + souris » (ZQSD / WASD, souris pour la caméra) disponible dans les réglages ; toutes les commandes sont réaffectables.
 
+**Menu (Échap)** : en solo contre les bots, le match est réellement suspendu (chrono, bots, recharges) jusqu'à « Reprendre » ;
+en ligne avec d'autres humains, il continue et le menu le signale. **Manager contre un bot** : composition sans limite de
+temps (départ sur « Prêt, coup d'envoi ! ») ; en ligne, 60 s. Réglage **Effets réduits** (Réglages et menu de l'Arène) :
+ni secousses, ni flashs plein écran, ni lignes de vitesse (activé d'office si le système demande de réduire les animations).
+
 Les **16 personnages**, leurs caractéristiques, postes, slogans, biographies et power-ups sont repris à l'identique
 du prototype (`archive/prototype-react/app.jsx`) — vérifié par test automatique — et enrichis (Réflexes de gardien,
 apparence 3D, effets Arène, synergies). Interface **français / anglais** (français par défaut). Comptes **sans donnée

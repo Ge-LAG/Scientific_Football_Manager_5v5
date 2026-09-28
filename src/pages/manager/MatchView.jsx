@@ -130,6 +130,16 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
     window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
   }, [room.phase, room.paused, me]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // coup d'envoi : recadrer sur le score et le terrain (le bouton « Prêt » était souvent en bas de page)
+  // et placer le focus sur la zone du match pour que Tab reparte de là
+  const topRef = useRef(null);
+  useEffect(() => {
+    const el = topRef.current; if (!el || room.phase !== "playing") return;
+    const hdr = document.querySelector(".header")?.getBoundingClientRect().height || 0;
+    window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - hdr - 8), behavior: "auto" });
+    el.focus({ preventScroll: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const feedRef = useRef(null);
   useEffect(() => { if (feedRef.current) feedRef.current.scrollTop = feedRef.current.scrollHeight; }, [feed]);
 
@@ -143,7 +153,7 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
 
   return (
     <div>
-      <Card elevated className="mb16" style={{ padding: "12px 18px" }}>
+      <Card elevated className="mb16 mv-top" style={{ padding: "12px 18px" }} ref={topRef} tabIndex={-1} role="region" aria-label={t("mr.liveRegion")}>
         <div className="scoreboard">
           <TeamHead team={setup.home} you={me === "home"} />
           <div className="center">
@@ -160,7 +170,7 @@ export function MatchView({ room, init, report, navigate, onLeave }) {
         <div className="grid split" style={{ gridTemplateColumns: "1fr 340px" }}>
           <div>
             <div className="row mb8"><div className="seg" role="radiogroup" aria-label={t("mr.view")}>{["2d", "3d"].map(v => <button key={v} role="radio" aria-checked={(view3d ? "3d" : "2d") === v} className={(view3d ? "3d" : "2d") === v ? "on" : ""} onClick={() => setSettings({ managerView: v })}>{t("mr.view." + v)}</button>)}</div></div>
-            <div className="pitch-wrap" style={{ position: "relative" }} ref={wrapRef}>
+            <div className="pitch-wrap mv-pitch" style={{ position: "relative" }} ref={wrapRef}>
               <canvas ref={canvasRef} aria-label={t("mr.pitchLabel")} style={view3d ? { visibility: "hidden" } : undefined} />
               {view3d && <div ref={box3dRef} style={{ position: "absolute", inset: 0 }} />}
               {view3d && <CamBar mode={cam} follow={follow} slots={slots3d} onMode={chooseCam} onFollow={chooseFollow} fullscreen={fs} onFullscreen={toggleFs} onZoom={d => v3Ref.current?.zoomCam(d)} />}

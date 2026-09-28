@@ -10,6 +10,7 @@ import { CamBar } from "../../ui/CamBar.jsx";
 import { useBindings } from "../../ui/bindings.js";
 import { ACHIEVEMENTS } from "../../../shared/progression.js";
 import { speak, stopSpeaking } from "../../audio/voice.js";
+import { reducedFxOn } from "../../ui/reducedFx.js";
 
 const FEED_TYPES = new Set(["GOAL", "SAVE", "TACKLE", "POWERUP", "FOUL", "FREEKICK", "PENALTY", "POST", "FIREWALL", "SKILL", "HALFTIME", "SECOND_HALF", "END"]);
 
@@ -38,6 +39,7 @@ export function ArenaGame({ room, init, end, onLeave }) {
       slots: init.slots, teams: init.teams, mySlot, settings: { ...settings, specCam }, interactive: !spectator,
       onInput: m => conn?.send({ t: "a.in", ...m }),
       onSwitch: to => conn?.send({ t: "a.switch", to }),
+      onMenu: open => conn?.send({ t: "a.pause", on: open }), // le serveur ne suspend qu'en solo contre les bots
       getRtt: () => conn?.rtt || 0,
       onHud: h => { setHud(h); const ms = mySlotRef.current; if (h.me) { if (h.players[ms] && (h.players[ms].flags & 1)) done("sprint"); if (h.me.hasBall && h.phase === "play") done("control"); } },
       onEvent: ev => {
@@ -54,6 +56,8 @@ export function ArenaGame({ room, init, end, onLeave }) {
     return () => { window.removeEventListener("pointerdown", unlock); window.removeEventListener("keydown", unlock); v.dispose(); viewRef.current = null; stopSpeaking(); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { viewRef.current?.setSlots(slots); }, [slots]);
+  // pause confirmée par la salle : la vue se fige ; reconnexion à un match en pause : menu rouvert
+  useEffect(() => { viewRef.current?.setPaused(!!room.paused); if (room.paused) viewRef.current?.setMenu(true); }, [room.paused]);
   // changement de joueur (validé par le serveur) : la vue suit le nouveau joueur contrôlé
   const firstSlot = useRef(mySlot);
   useEffect(() => { viewRef.current?.setMySlot(mySlot); if (mySlot !== firstSlot.current) done("switch"); }, [mySlot]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -166,12 +170,14 @@ export function ArenaGame({ room, init, end, onLeave }) {
             {ended && end ? <EndScreen end={end} slots={slots} mySlot={mySlot} onLeave={onLeave} again={() => { const kind = game.joined?.kind; const o = room.opts; onLeave(); if (kind === "local") setTimeout(() => game.create("local", "arena", { botLevel: o.botLevel, halfSeconds: o.halfSeconds, training: o.training }), 50); }} />
               : ended ? <Card elevated><p>{t("common.loading")}</p></Card> : (
               <Card elevated style={{ width: "min(440px, 92vw)" }}>
-                <div className="h2">⏸ {t("arena.menu")}</div>
+                <div className="h2">{room.canPause ? "⏸ " + t("arena.menu") : "☰ " + t("arena.menuLive")}</div>
+                <p className={"small mb8" + (room.paused ? "" : " muted")} role="status">{room.paused ? t("arena.pausedNote") : room.canPause ? t("arena.pausing") : t("arena.liveNote")}</p>
                 <button className="btn primary block mb8" onClick={() => viewRef.current?.setMenu(false)}>▶ {t("arena.resume")}</button>
                 <div className="label mt16">{t("settings.sensitivity")} — {settings.sensitivity.toFixed(1)}</div>
                 <input className="range" type="range" min="0.3" max="2.5" step="0.1" value={settings.sensitivity} onChange={e => setSettings({ sensitivity: +e.target.value })} />
                 <div className="label mt16">{t("settings.volume")}</div>
                 <input className="range" type="range" min="0" max="1" step="0.05" value={settings.volume} onChange={e => setSettings({ volume: +e.target.value })} />
+                <div className="row mt8"><label className="row small"><input type="checkbox" checked={reducedFxOn(settings)} onChange={e => setSettings({ reducedFx: e.target.checked })} /> {t("settings.reducedFx")}</label></div>
                 <div className="label mt16">{t("settings.camera")}</div>
                 <Seg value={hud?.cam || "near"} onChange={v => viewRef.current?.setCam(v)} options={[{ value: "near", label: t("settings.cam.near") }, { value: "far", label: t("settings.cam.far") }, { value: "broadcast", label: t("settings.cam.broadcast") }]} />
                 <p className="tiny muted mt8">{t("arena.camHint", { key: keys.keyOf("cam") })}</p>

@@ -115,6 +115,19 @@ await step("Arène en ligne : deux humains dans la même partie, apparence visib
   const clockA = await A.evaluate(`document.querySelector(".hud-top")?.textContent || ""`), clockB = await B.evaluate(`document.querySelector(".hud-top")?.textContent || ""`);
   if (!clockA || !clockB) throw new Error("HUD absent");
 });
+await step("Arène en ligne : avec un autre humain, le menu prévient que le match continue (pas de pause)", async () => {
+  await A.evaluate(`window.dispatchEvent(new KeyboardEvent("keydown", { code: "Escape", bubbles: true })); setTimeout(() => window.dispatchEvent(new KeyboardEvent("keyup", { code: "Escape", bubbles: true })), 150); true`);
+  await A.waitFor(A.has("le match continue"), 20000);
+  // le match avance chez les deux joueurs (une pause donnerait 0 tick ; rendu logiciel : instantanés reçus au ralenti)
+  const a0 = await A.evaluate(`window.__ll3d.latest.k`), k0 = await B.evaluate(`window.__ll3d.latest.k`); await sleep(6000);
+  const a1 = await A.evaluate(`window.__ll3d.latest.k`), k1 = await B.evaluate(`window.__ll3d.latest.k`);
+  const paused = await A.evaluate(`!!window.__llGame.room.paused || !!window.__llGame.room.canPause`);
+  await A.shot("on-08-arene-menu-A");
+  if (paused) throw new Error("la salle à deux humains accepte la pause");
+  if (!(k1 >= k0 + 5 && a1 >= a0 + 5)) throw new Error(`le match ne continue pas pendant le menu de A (A ${a0} → ${a1}, B ${k0} → ${k1})`);
+  console.log(`ℹ menu ouvert chez A : ticks A ${a0} → ${a1}, B ${k0} → ${k1} en 6 s`);
+  await A.click("Reprendre");
+});
 
 console.log("\n" + results.map(r => r.join(" ")).join("\n"));
 const logs = [...A.logs, ...B.logs]; if (logs.length) console.log("\nConsole :\n" + [...new Set(logs)].slice(0, 20).join("\n"));

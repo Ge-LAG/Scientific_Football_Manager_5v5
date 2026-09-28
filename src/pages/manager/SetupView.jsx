@@ -22,8 +22,9 @@ export function SetupView({ room }) {
   const [loadouts, setLoadouts] = useState(() => ({ ...(seat?.loadouts || {}) }));
   const [puOpen, setPuOpen] = useState(null); // scientifique dont on règle les power-ups
   const chooseLoadout = (id, ids) => { const v = sanitizeLoadout(id, ids); setLoadouts(l => ({ ...l, [id]: v })); setLoadout(id, v); game.send({ t: "m.loadout", id, ids: v }); };
-  const [left, setLeft] = useState(Math.ceil(room.setupRemainingMs / 1000));
-  useEffect(() => { const h = setInterval(() => setLeft(x => Math.max(0, x - 1)), 1000); return () => clearInterval(h); }, []);
+  const timed = room.setupRemainingMs != null; // sans délai contre un bot (préparation libre)
+  const [left, setLeft] = useState(Math.ceil((room.setupRemainingMs || 0) / 1000));
+  useEffect(() => { if (!timed) return; const h = setInterval(() => setLeft(x => Math.max(0, x - 1)), 1000); return () => clearInterval(h); }, [timed]);
   const syn = useMemo(() => activeSynergies(lineup.map(getPlayer)), [lineup]);
   // chaque modification est transmise (sans valider) : si le temps expire, c'est cette composition qui joue
   useEffect(() => { if (seat && !seat.ready && lineup.length === 5) { syncTimer.current = setTimeout(() => game.send({ t: "m.setup", lineup, formation, strategy, ready: false }), 300); return () => clearTimeout(syncTimer.current); } }, [lineup, formation, strategy]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -43,7 +44,7 @@ export function SetupView({ room }) {
   return (
     <div className="grid split" style={{ gridTemplateColumns: "1.4fr 1fr" }}>
       <Card elevated>
-        <div className="row between mb8"><Kicker>{t("setup.title")}</Kicker><span className="num" style={{ color: left < 10 ? "var(--coral)" : "var(--muted)" }}>⏱ {left}s</span></div>
+        <div className="row between mb8"><Kicker>{t("setup.title")}</Kicker>{timed ? <span className="num" style={{ color: left < 10 ? "var(--coral)" : "var(--muted)" }} aria-label={t("setup.timeLeft", { n: left })}>⏱ {left}s</span> : <span className="chip" title={t("setup.noLimitHelp")}>⏳ {t("setup.noLimit")}</span>}</div>
         <div className="pitch-wrap" style={{ aspectRatio: "5 / 3", position: "relative", background: "linear-gradient(90deg,#04200f,#073018,#04200f)" }}>
           <div style={{ position: "absolute", inset: "4%", border: "2px solid rgba(220,255,255,.35)", borderRadius: 4 }} />
           <div style={{ position: "absolute", left: "50%", top: "4%", bottom: "4%", width: 2, background: "rgba(220,255,255,.25)" }} />

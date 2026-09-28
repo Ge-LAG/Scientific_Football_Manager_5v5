@@ -14,7 +14,7 @@ export function createCameraRig(camera, canvas, { interactive = true, mode } = {
   const list = interactive ? PLAYER_CAMS : SPEC_CAMS;
   let cur = list.includes(mode) ? mode : list[0];
   let follow = -1;           // joueur suivi par la caméra « joueur » (-1 : porteur du ballon)
-  let shakeAmt = 0, cut = true;
+  let shakeAmt = 0, cut = true, shakeOn = true;
   let specZoom = 0; // plans spectateur : -1 (éloigné) … +1 (proche)
   const pos = new THREE.Vector3(12, 10, 0), look = new THREE.Vector3(), dPos = new THREE.Vector3(), dLook = new THREE.Vector3();
   const chaseDir = new THREE.Vector2(1, 0);
@@ -53,6 +53,28 @@ export function createCameraRig(camera, canvas, { interactive = true, mode } = {
   window.addEventListener("keydown", kd); window.addEventListener("keyup", ku);
   function clampTarget() { free.target.x = Math.max(-FIELD.HX - 10, Math.min(FIELD.HX + 10, free.target.x)); free.target.z = Math.max(-FIELD.HZ - 8, Math.min(FIELD.HZ + 8, free.target.z)); }
 
+  // Caméras qui suivent un joueur : la caméra reste à l'intérieur de la cage de verre. Près d'un but ou d'une
+  // paroi, la perche (joueur → caméra) se raccourcit et la caméra monte d'autant : ni vitre, ni filet, ni
+  // tribune entre la caméra et l'action (TD-004).
+  const IN_X = FIELD.HX - 0.7, IN_Z = FIELD.HZ - 0.7;
+  function keepInside(ax, az, lift = 0.45) {
+    const dx = dPos.x - ax, dz = dPos.z - az; let k = 1;
+    // raccourcir la perche seulement si elle sort de la cage alors que le joueur est à l'intérieur de la marge
+    if (Math.abs(dPos.x) > IN_X && Math.abs(ax) < IN_X && dx) k = Math.min(k, (Math.sign(dx) * IN_X - ax) / dx);
+    if (Math.abs(dPos.z) > IN_Z && Math.abs(az) < IN_Z && dz) k = Math.min(k, (Math.sign(dz) * IN_Z - az) / dz);
+    k = Math.max(0, Math.min(1, k));
+    const pulled = Math.hypot(dx, dz) * (1 - k);
+    dPos.x = ax + dx * k; dPos.z = az + dz * k;
+    // joueur collé à une paroi ou dans son but : simple translation vers l'intérieur
+    dPos.x = Math.max(-IN_X, Math.min(IN_X, dPos.x)); dPos.z = Math.max(-IN_Z, Math.min(IN_Z, dPos.z));
+    if (pulled > 0) {
+      dPos.y += pulled * lift;
+      // caméra plus haute et plus proche : on vise plus près du joueur pour qu'il reste au centre (pas sous le HUD)
+      const w = Math.min(0.7, pulled * 0.09); dLook.x += (ax - dLook.x) * w; dLook.z += (az - dLook.z) * w;
+    }
+    return pulled;
+  }
+
   function avatarOf(ctx, slot) { return slot >= 0 ? ctx.avatars?.[slot]?.group || null : null; }
   function forwardOf(g) { const r = g.rotation.y; return { x: Math.sin(r), z: Math.cos(r) }; } // les avatars regardent leur +Z local
 
@@ -66,6 +88,9 @@ export function createCameraRig(camera, canvas, { interactive = true, mode } = {
         const dist = (far ? 10 : 5.8) * zoom, h = ((far ? 4.2 : 2.2) + ctx.pitch * (far ? 7 : 5)) * Math.sqrt(zoom);
         dPos.set(me.position.x - Math.cos(ctx.yaw) * dist, h, me.position.z - Math.sin(ctx.yaw) * dist);
         dLook.set(me.position.x + Math.cos(ctx.yaw) * 4, 1.1, me.position.z + Math.sin(ctx.yaw) * 4);
+        keepInside(me.position.x, me.position.z);
+        // le long d'une paroi latérale : caméra légèrement rentrée vers le terrain (moins de vitre et de tribune à l'écran)
+        const SZ = FIELD.HZ - 2.5; if (Math.abs(dPos.z) > SZ) dPos.z = Math.sign(dPos.z) * (SZ + (Math.abs(dPos.z) - SZ) * 0.4);
         return 12;
       }
       case "broadcast": dPos.set(bx * 0.8, 17, 24); dLook.set(bx * 0.9, 0, bz * 0.3); return 3;
@@ -80,6 +105,7 @@ export function createCameraRig(camera, canvas, { interactive = true, mode } = {
         const v = ctx.ballVel; if (v && Math.hypot(v.x, v.z) > 1.2) { chaseDir.set(v.x, v.z).normalize(); }
         dPos.set(bx - chaseDir.x * 7.5, Math.max(2.6, B.y + 2.4), bz - chaseDir.y * 7.5);
         dLook.set(bx + chaseDir.x * 5, Math.max(0.5, B.y * 0.6), bz + chaseDir.y * 5);
+        keepInside(bx, bz);
         return 4.5;
       }
       case "player": {
@@ -87,12 +113,14 @@ export function createCameraRig(camera, canvas, { interactive = true, mode } = {
         const g = avatarOf(ctx, slot); if (!g) return shot("tv", ctx);
         const f = forwardOf(g); const p = g.position;
         dPos.set(p.x - f.x * 5.4, 2.7, p.z - f.z * 5.4); dLook.set(p.x + f.x * 3.5, 1.2, p.z + f.z * 3.5);
+        keepInside(p.x, p.z);
         return 5;
       }
       case "celebrate": { // plan serré de face sur le buteur
         const g = avatarOf(ctx, dir.focus); if (!g) return shot("goal", ctx);
         const p = g.position; const f = forwardOf(g);
         dPos.set(p.x + f.x * 3.6, 1.9, p.z + f.z * 3.6 + 0.8); dLook.set(p.x, 1.25, p.z);
+        keepInside(p.x, p.z);
         return 4;
       }
       case "free": {
@@ -156,7 +184,8 @@ export function createCameraRig(camera, canvas, { interactive = true, mode } = {
     get zoom() { return specZoom; },
     setZoom(z) { specZoom = Math.max(-1, Math.min(1, z)); },
     setFollow(slot) { follow = Number.isInteger(slot) ? slot : -1; if (follow >= 0 && !interactive && cur !== "player") cur = "player"; },
-    shake(v) { shakeAmt = Math.max(shakeAmt, v); },
+    shake(v) { if (shakeOn) shakeAmt = Math.max(shakeAmt, v); },
+    setShake(on) { shakeOn = !!on; if (!on) shakeAmt = 0; },
     onGoal(slot) { if (cur === "auto" && slot >= 0) { dir.focus = slot; dir.celebrateUntil = now() + 3.2; dir.until = now() + 3.2; cut = true; } },
     onShot() { /* le réalisateur reste sur son plan : pas de coupe pendant une frappe */ if (cur === "auto") dir.until = Math.max(dir.until, now() + 1.2); },
     dispose() {

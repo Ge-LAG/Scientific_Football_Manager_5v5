@@ -307,7 +307,7 @@ export function createPipeline(renderer, scene, camera, { quality = "high", ao, 
     const u = c.final.uniforms;
     u.uVignette.value = g.vignette; u.uContrast.value = g.contrast; u.uSaturation.value = g.saturation;
     u.uGrain.value = g.grain; u.uChroma.value = g.chroma; u.uSplit.value = g.split;
-    if (gradeOverride.bloomStrength != null) c.bloom.strength = gradeOverride.bloomStrength;
+    c.bloom.strength = (gradeOverride.bloomStrength ?? p.bloom.strength) * (gradeOverride.bloomScale ?? 1);
     if (gradeOverride.bloomThreshold != null) c.bloom.threshold = gradeOverride.bloomThreshold;
     if (gradeOverride.bloomRadius != null) c.bloom.radius = gradeOverride.bloomRadius;
   }
@@ -379,7 +379,7 @@ export function createPipeline(renderer, scene, camera, { quality = "high", ao, 
       if (chain) { chain.renderPass.camera = cam; if (chain.gtao) chain.gtao.camera = cam; }
       applySize();
     },
-    /** Surcharge de l'étalonnage : { vignette, contrast, saturation, grain, chroma, split, bloomStrength, bloomThreshold, bloomRadius, exposure } */
+    /** Surcharge de l'étalonnage : { vignette, contrast, saturation, grain, chroma, split, bloomStrength, bloomScale, bloomThreshold, bloomRadius, exposure } */
     setGrade(o = {}) {
       for (const [k, v] of Object.entries(o)) { if (k === "exposure") exposureOverride = v; else if (v == null) delete gradeOverride[k]; else gradeOverride[k] = v; }
       applyGrade();

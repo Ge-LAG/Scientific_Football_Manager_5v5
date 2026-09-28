@@ -142,7 +142,10 @@ export class ManagerRoom extends BaseRoom {
 
   // ── Composition ──────────────────────────────────────────
   startSetup() {
-    this.phase = "setup"; this.setupDeadline = Date.now() + SETUP_MS;
+    // contre un bot, préparation libre : le joueur lit les pouvoirs et stratégies puis lance quand il veut ;
+    // entre deux humains, délai explicite pour ne pas bloquer l'adversaire
+    const free = this.soloVsBot();
+    this.phase = "setup"; this.setupDeadline = free ? null : Date.now() + SETUP_MS;
     for (const side of SIDES) {
       const s = this.seats[side];
       const formation = s.bot ? Object.keys(FORMATIONS).map(f => ({ f, v: teamValue(s.picks, f) })).sort((a, b) => b.v - a.v)[0].f : "2-2";
@@ -158,7 +161,7 @@ export class ManagerRoom extends BaseRoom {
       if (client) this.applyLooks(s, client); else { s.looks = {}; s.stats = {}; }
     }
     this.broadcastState();
-    this.after(SETUP_MS, () => { if (this.phase === "setup") this.startMatch(); });
+    if (!free) this.after(SETUP_MS, () => { if (this.phase === "setup") this.startMatch(); });
     this.maybeStart();
   }
 
@@ -239,7 +242,7 @@ export class ManagerRoom extends BaseRoom {
       t: "room.state", code: this.code, mode: "manager", phase: this.phase, opts: this.publicOpts(), paused: this.paused,
       you: { seat: m?.seat || "spec", host: clientId === this.hostId }, seats,
       draft: this.draft && { turn: this.draft.turn, order: this.draft.order, available: this.draft.available, remainingMs: Math.max(0, this.draft.deadline - Date.now()) },
-      setupRemainingMs: this.phase === "setup" ? Math.max(0, this.setupDeadline - Date.now()) : 0,
+      setupRemainingMs: this.phase === "setup" ? (this.setupDeadline ? Math.max(0, this.setupDeadline - Date.now()) : null) : 0,
       spectators: [...this.members.values()].filter(x => !x.seat).map(x => x.client.pseudo),
     };
   }

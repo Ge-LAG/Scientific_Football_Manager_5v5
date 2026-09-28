@@ -1,5 +1,6 @@
 import { useI18n, LANGS } from "../i18n/index.jsx";
 import { useSession } from "../store/session.jsx";
+import { reducedFxOn } from "../ui/reducedFx.js";
 import { Card, Kicker, Seg } from "../ui/components.jsx";
 import { ControlsPanel } from "../ui/ControlsPanel.jsx";
 
@@ -25,6 +26,8 @@ export default function Settings({ navigate }) {
         <Seg value={settings.quality || "auto"} onChange={v => setSettings({ quality: v })} label={t("settings.quality")} options={["auto", "low", "medium", "high", "ultra"].map(q => ({ value: q, label: t("settings.q." + q) }))} />
         <p className="tiny muted mt8">{t("settings.qualityNote")}</p>
         <div className="row mt8"><label className="row small"><input type="checkbox" checked={settings.adaptiveQuality !== false} onChange={e => setSettings({ adaptiveQuality: e.target.checked })} /> {t("settings.adaptive")}</label></div>
+        <div className="row mt8"><label className="row small"><input type="checkbox" checked={reducedFxOn(settings)} onChange={e => setSettings({ reducedFx: e.target.checked })} /> {t("settings.reducedFx")}</label></div>
+        <p className="tiny muted">{t("settings.reducedFxNote")}</p>
         <div className="row mt8" style={{ gap: 8 }}>{navigate && <button className="btn small ghost" onClick={() => navigate("/bench")}>📊 {t("settings.bench")}</button>}<span className="tiny muted">{t("settings.statsHint")}</span></div>
       </Card>
       <Card>

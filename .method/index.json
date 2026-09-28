@@ -1246,6 +1246,592 @@
       ]
     },
     {
+      "id": "TD-002",
+      "path": "records/TD-002.html",
+      "title": "Arène solo : le menu Pause ne suspend pas le match",
+      "summary": "Défaut confirmé : chronomètre et buts progressent sous Pause en solo contre bots.",
+      "tags": [
+        "arene",
+        "gameplay",
+        "pause",
+        "solo",
+        "ux"
+      ],
+      "kind": "finding",
+      "status": "accepted",
+      "sha256": "9121b699b2c99d71a0a5a192ffd5dfec94117cdf3f0def5743e35b7da83e86fd",
+      "chars": 3897,
+      "size": 6101,
+      "mtime_ns": 1790603142065898400,
+      "revision": 3,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/rooms/arenaRoom.js",
+        "src/three/arenaView.js",
+        "src/pages/arena/ArenaGame.jsx",
+        "src/i18n/fr.js",
+        "src/i18n/en.js",
+        "scripts/smoke-online.mjs",
+        "tests/uat2-fixes.test.js",
+        "scripts/smoke-uat2.mjs"
+      ],
+      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
+      "evidence_digest": "69ee0edc9ca5fa040d0e8c26ced089878934c24b980c8d1593e0cbbcb712e299",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Pause solo maintenue au moins 30 secondes : temps, score et états de jeu inchangés ; reprise sans saut de simulation ; retest FR/EN et à l'approche d'un but/mi-temps."
+        },
+        {
+          "id": "A2",
+          "text": "En ligne avec un autre humain, le menu ne suspend pas le match et prévient qu'il continue."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/uat2-fixes.test.js",
+          "check": "node --test tests/uat2-fixes.test.js (3 tests TD-002)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "35 s de pause simulée : temps, tick, chrono, score, positions et recharge d'un power-up identiques, aucun instantané ; reprise = un seul tick ; pause juste avant la mi-temps et pendant la phase de but figées, puis déroulement normal."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/resultats-uat2.txt",
+          "check": "node scripts/smoke-uat2.mjs … td002 (Échap, attente 31 s, Reprendre ; FR puis EN)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "pause FR : horloge 2:58, score 0-0, tick 130, recharges 49.967/-4.333 ; reprise : +1.70 s de simulation pour 5.84 s réelles (pas de rattrapage des 31 s de pause) ; EN : horloge 2:57 figée 6 s, reprise OK ; aide en match : « Call for the ball » = B ; pause FR : horloge 2:59, score 0-0, tick 172, recharges -5.733/-5.733 ; reprise : +2.20 s de simulation pour 3.66 s réelles (pas de rattrapage des 31 s de pause) ; mi-temps après la reprise uniquement (horloge figée à 1.8000000000000114 s pendant 8 s) ; but imminent : score 0-0 figé pendant 6 s de pause → 1-0 juste après la reprise (phase goal) ; EN : horloge 2:54 figée 6 s, reprise OK ; aide en match : « Call for the ball » = B Captures : FR 31 s , EN ."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/smoke-online.txt",
+          "check": "node scripts/smoke-online.mjs (deux navigateurs isolés) + npm test « pas de pause avec un autre humain »",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A2",
+          "text": "Chez A, Échap affiche « Menu — le match continue » ; la salle refuse la pause ; le match avance chez A et chez B (menu ouvert chez A : ticks A 459 → 524, B 459 → 524 en 6 s). Salle publique et spectateur : pause refusée (test). Capture du menu ."
+        }
+      ],
+      "body_digest": "5fa42a70252d201f15c49c2a4105ac535c524a2fe8b6710b3bda3bacda893aa0",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "UAT-002.html#UAT-002",
+        "../evidence/UAT-002/TD-002-pause.png",
+        "../work/W-011.html#W-011",
+        "../work/W-008.html#W-008",
+        "../evidence/UAT-002/TD-002-pause-edge.png",
+        "../work/W-031.html#W-031",
+        "../../tests/uat2-fixes.test.js",
+        "../evidence/W-031/resultats-uat2.txt",
+        "../evidence/W-031/td002-fr-pause-31s.jpg",
+        "../evidence/W-031/td002-en-pause.jpg",
+        "../evidence/W-031/smoke-online.txt",
+        "../evidence/W-031/on-08-arene-menu-A.png",
+        "UAT-002.html#UAT-002"
+      ],
+      "anchors": [
+        "TD-002"
+      ]
+    },
+    {
+      "id": "TD-003",
+      "path": "records/TD-003.html",
+      "title": "Manager solo : laisser le temps de découvrir la composition",
+      "summary": "Manager solo : laisser le temps de découvrir la composition — préparation de la prochaine session.",
+      "tags": [
+        "recette",
+        "ux",
+        "gameplay",
+        "qualite",
+        "amelioration"
+      ],
+      "kind": "finding",
+      "status": "accepted",
+      "sha256": "51fafb76b5f60c250a83749fffe672c8c9655a13393c4e0261c460f56ab4918e",
+      "chars": 1965,
+      "size": 3737,
+      "mtime_ns": 1790603159226342700,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/rooms/managerRoom.js",
+        "src/pages/manager/SetupView.jsx",
+        "src/i18n/fr.js",
+        "src/i18n/en.js",
+        "tests/uat2-fixes.test.js",
+        "scripts/smoke-uat2.mjs"
+      ],
+      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
+      "evidence_digest": "579ca1bb05ad4396338e47f02ae553952568d37c0b56c3574b84dc080eeea2f2",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Un débutant peut comparer les descriptions et partir explicitement sans départ imposé pendant la découverte. Retest FR/EN."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/uat2-fixes.test.js",
+          "check": "node --test tests/uat2-fixes.test.js (TD-003)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "Solo : aucun délai transmis ni départ programmé, toujours en composition tant que le joueur ne valide pas ; entre humains : délai de 60 s transmis et programmé."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/resultats-uat2.txt",
+          "check": "node scripts/smoke-uat2.mjs … td003 (FR 886×620, attente 62 s ; EN 1366×768)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "TD-003 : toujours en composition après 62 s, départ uniquement sur « Prêt, coup d'envoi ! » Libellés « Sans limite de temps » / « No time limit ». Captures : FR , EN ."
+        }
+      ],
+      "body_digest": "db1c1775e9056c576c0a2fad7c02e27c9f46c436d370e1a565c557a3fe6ca791",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "UAT-002.html#UAT-002",
+        "../work/W-006.html#W-006",
+        "../work/W-031.html#W-031",
+        "../../tests/uat2-fixes.test.js",
+        "../evidence/W-031/resultats-uat2.txt",
+        "../evidence/W-031/td003-fr-sans-limite.jpg",
+        "../evidence/W-031/td003-en-no-limit.jpg",
+        "UAT-002.html#UAT-002"
+      ],
+      "anchors": [
+        "TD-003"
+      ]
+    },
+    {
+      "id": "TD-004",
+      "path": "records/TD-004.html",
+      "title": "Arène : préserver la lisibilité près des cages et des parois",
+      "summary": "Arène : préserver la lisibilité près des cages et des parois — préparation de la prochaine session.",
+      "tags": [
+        "recette",
+        "ux",
+        "gameplay",
+        "qualite",
+        "amelioration"
+      ],
+      "kind": "finding",
+      "status": "review",
+      "sha256": "726172499fc1ceefbac09ca5cf959f5b366d1f93a0bbaebc6266c1973bf0bccc",
+      "chars": 3604,
+      "size": 5464,
+      "mtime_ns": 1790603207695646800,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/three/cameraRig.js",
+        "src/three/visual/stadium.js",
+        "src/three/render/pipeline.js",
+        "src/three/arenaView.js",
+        "src/ui/reducedFx.js",
+        "src/pages/Settings.jsx",
+        "src/pages/arena/ArenaGame.jsx",
+        "tests/uat2-fixes.test.js",
+        "scripts/smoke-uat2.mjs"
+      ],
+      "candidate": "25a2547e27ee7787646149f277f78602f0e74fb1",
+      "environment": "Windows ; recette locale ; 28 septembre 2026",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Comparer les deux surfaces et parois, trois qualités et deux tailles de fenêtre ; ballon et équipes identifiables sans coût de rendu accru."
+        },
+        {
+          "id": "A2",
+          "text": "Validation visuelle par Guillaume sur carte graphique réelle (Edge) : lisibilité près des deux buts et des parois en caméras proche et éloignée, effets réduits jugés conformes au style."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/resultats-uat2.txt",
+          "check": "node --test tests/uat2-fixes.test.js (TD-004) + node scripts/smoke-uat2.mjs … td004 (qualités basse, moyenne, haute ; 886×620 et 1366×768 ; caméras proche et éloignée ; son but, but adverse, paroi, coin)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "Test : caméra toujours dans la cage (deux buts, deux parois, coins, joueur dans son but ou collé à la paroi), inchangée au centre. Navigateur : caméra dans la cage pour les 48 relevés ; captures lisibles (ballon, joueurs et couleurs d'équipe identifiables). TD-004 low : 2 i/s (SwiftShader, sans GPU), 45 appels de dessin par image ; TD-004 medium : 1 i/s (SwiftShader, sans GPU), 65 appels de dessin par image ; TD-004 high : 1 i/s (SwiftShader, sans GPU), 65 appels de dessin par image Limite : rendu logiciel à 1–2 i/s, certains relevés moyenne/haute pris avant stabilisation de la caméra. Captures : son but (basse) , paroi , but adverse (haute) , voile avant / après bloom adaptatif ."
+        },
+        {
+          "result": "pending",
+          "ref": "../evidence/W-031/README.md",
+          "check": "Validation visuelle du PO sur GPU réel",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A2",
+          "text": "À faire par Guillaume : non vérifiable ici (pas de carte graphique, pilotage d'Edge indisponible)."
+        }
+      ],
+      "body_digest": "141c33c1281616945359fafef76c016fabe516835ed0485c27ecac10747e2d2c",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "UAT-002.html#UAT-002",
+        "../work/W-022.html#W-022",
+        "../evidence/W-031/resultats-uat2.txt",
+        "../evidence/W-031/td004-low-886x620-far-but-propre.jpg",
+        "../evidence/W-031/td004-medium-886x620-near-paroi.jpg",
+        "../evidence/W-031/td004-high-886x620-far-but-adverse.jpg",
+        "../evidence/W-031/diag-0-base.jpg",
+        "../evidence/W-031/diag-0-base-adaptatif.jpg",
+        "../evidence/W-031/README.md"
+      ],
+      "anchors": [
+        "TD-004"
+      ]
+    },
+    {
+      "id": "TD-005",
+      "path": "records/TD-005.html",
+      "title": "Évaluer Higgsfield pour les assets et les commentaires du jeu",
+      "summary": "Évaluer Higgsfield pour les assets et les commentaires du jeu — préparation de la prochaine session.",
+      "tags": [
+        "recette",
+        "ux",
+        "gameplay",
+        "qualite",
+        "amelioration"
+      ],
+      "kind": "finding",
+      "status": "active",
+      "sha256": "38c8194fc4a46a2ee5ed640f933ce58a749e2762ff85b3763d8a4c268e4ae7be",
+      "chars": 1127,
+      "size": 2012,
+      "mtime_ns": 1790576460907436500,
+      "revision": 1,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "25a2547e27ee7787646149f277f78602f0e74fb1",
+      "environment": "Windows ; recette locale ; 28 septembre 2026",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Pilote comparé à l’existant par Guillaume ; coût par asset accepté et droits consignés, performances et chargement vérifiés, noms intelligibles, répétitions et mixage évalués."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "36896897e0679c9575a5268a66eb6f55618357c82de2f594fe322cf3d0055dd3",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "UAT-002.html#UAT-002",
+        "../work/W-022.html#W-022",
+        "../evidence/UAT-002/higgsfield-etude.md"
+      ],
+      "anchors": [
+        "TD-005"
+      ]
+    },
+    {
+      "id": "TD-006",
+      "path": "records/TD-006.html",
+      "title": "Manager : recadrer le terrain au lancement du match",
+      "summary": "Le défilement de la composition est conservé au coup d’envoi ; terrain et score hors écran.",
+      "tags": [
+        "manager",
+        "ux",
+        "navigation",
+        "scroll"
+      ],
+      "kind": "finding",
+      "status": "accepted",
+      "sha256": "8df80a5f1507775cdee780d825369fde8f3ab3eb3bc5a581e590fad9aad478c0",
+      "chars": 2353,
+      "size": 3978,
+      "mtime_ns": 1790603175091208300,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/pages/manager/MatchView.jsx",
+        "src/styles.css",
+        "src/i18n/fr.js",
+        "src/i18n/en.js",
+        "tests/uat2-fixes.test.js",
+        "scripts/smoke-uat2.mjs"
+      ],
+      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
+      "evidence_digest": "0b77d2b146988816e18dd41dd65e47d69ac3fb9337232008e1c22a7c02d2e89f",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Lancer depuis le bas de page en fenêtre étroite et large : premier écran du match centré sur score et terrain, sans défilement manuel ; retest FR/EN."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/resultats-uat2.txt",
+          "check": "node scripts/smoke-uat2.mjs … td006 (clic réel sur « Prêt, coup d'envoi ! » après défilement en bas de page)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "td006-fr-886x620 : défilement 1387 → 66px ; score à y=70 (en-tête 62px), terrain 281–603 / 620px ; focus sur la zone du match : true ; td006-en-1366x768 : défilement 613 → 66px ; score à y=70 (en-tête 62px), terrain 281–751 / 768px ; focus sur la zone du match : true ; td006-fr-390x844 : défilement 1349 → 58px ; score à y=127 (en-tête 119px), terrain 320–597 / 992px ; focus sur la zone du match : true Captures : 886×620 , 1366×768 EN , mobile ."
+        }
+      ],
+      "body_digest": "c49fa06d2ca87b102a5f0c40be3d5fb10b8c727e005a65195da098d6095e65c6",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "UAT-002.html#UAT-002",
+        "../evidence/UAT-002/manager-debut-scroll.png",
+        "../work/W-006.html#W-006",
+        "../work/W-031.html#W-031",
+        "../evidence/W-031/resultats-uat2.txt",
+        "../evidence/W-031/td006-fr-886x620.jpg",
+        "../evidence/W-031/td006-en-1366x768.jpg",
+        "../evidence/W-031/td006-fr-390x844.jpg",
+        "UAT-002.html#UAT-002"
+      ],
+      "anchors": [
+        "TD-006"
+      ]
+    },
+    {
+      "id": "TD-007",
+      "path": "records/TD-007.html",
+      "title": "Vestiaire : aperçu 3D recouvrant les contrôles en fenêtre étroite",
+      "summary": "Le modèle 3D recouvre les coiffures ; sélection souris empêchée, clavier fonctionnel.",
+      "tags": [
+        "vestiaire",
+        "responsive",
+        "ux",
+        "clavier"
+      ],
+      "kind": "finding",
+      "status": "accepted",
+      "sha256": "25c795b49013fce80e9ac090c447cd656ff62f741ac348e90fe8efbda3524b8a",
+      "chars": 2985,
+      "size": 4677,
+      "mtime_ns": 1790603190087537600,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/styles.css",
+        "src/pages/LookEditor.jsx",
+        "tests/uat2-fixes.test.js",
+        "scripts/smoke-uat2.mjs"
+      ],
+      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
+      "evidence_digest": "2d4ab82b7e6be1b54131a54375a62ee91c1539592a08cbadfa110f716ec5180e",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "À 886 × 620 et aux autres seuils responsive du produit, sélectionner au clic toutes les coiffures et pilosités après défilement ; aucun contrôle masqué. Répéter FR/EN et vérifier au clavier."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/resultats-uat2.txt",
+          "check": "node scripts/smoke-uat2.mjs … td007 (Roland, onglet Cheveux et barbe ; pour chaque option : défilement, point central au premier plan, clic souris réel, aria-checked ; puis focus + Espace)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "td007-en-886x620-avant : 0/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky ; td007-en-886x620-avant : témoin — ancienne règle CSS réinjectée, 30 options masquées par l'aperçu (défaut de la recette reproduit) ; td007-en-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-fr-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-fr-390x844 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-en-768x1024 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-fr-1366x768 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky Captures : témoin avant , après (EN 886×620) , mobile ."
+        }
+      ],
+      "body_digest": "bbe8f30e09052a360443bcadffcff894795e46b08d6b3fa810e1e75267d5b176",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "UAT-002.html#UAT-002",
+        "../evidence/UAT-002/vestiaire-chevauchement.png",
+        "../work/W-031.html#W-031",
+        "../evidence/W-031/resultats-uat2.txt",
+        "../evidence/W-031/td007-en-886x620-avant.jpg",
+        "../evidence/W-031/td007-en-886x620.jpg",
+        "../evidence/W-031/td007-fr-390x844.jpg",
+        "UAT-002.html#UAT-002"
+      ],
+      "anchors": [
+        "TD-007"
+      ]
+    },
+    {
+      "id": "TD-008",
+      "path": "records/TD-008.html",
+      "title": "Aide : appel de balle et localisation incohérents",
+      "summary": "La FAQ conserve X pour appeler une passe alors que le tableau affiche correctement Z ou la touche remappée.",
+      "tags": [
+        "aide",
+        "controles",
+        "localisation",
+        "onboarding"
+      ],
+      "kind": "finding",
+      "status": "accepted",
+      "sha256": "fe8aed2df14785770a4e404ba43dbca4a9790e571adb4fdacb3226819f04cb16",
+      "chars": 4100,
+      "size": 6353,
+      "mtime_ns": 1790603398397217900,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/pages/Help.jsx",
+        "src/i18n/fr.js",
+        "src/i18n/en.js",
+        "shared/data/content.js",
+        "shared/data/roster.en.js",
+        "src/pages/arena/ArenaGame.jsx",
+        "tests/uat2-fixes.test.js",
+        "scripts/smoke-uat2.mjs"
+      ],
+      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
+      "evidence_digest": "06143ec2dc08a13f26333d384584636f6b31fec3e9aff96a08e28f013c2a2184",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "En FR et EN, avec AZERTY/QWERTY puis un remappage personnalisé, tableau, FAQ, aide de match et entraînement indiquent tous la même commande pour appeler le ballon."
+        },
+        {
+          "id": "A2",
+          "text": "Les domaines des synergies sont traduits dans la langue choisie et correspondent aux filtres de la liste des scientifiques."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/uat2-fixes.test.js",
+          "check": "node --test tests/uat2-fixes.test.js (2 tests TD-008)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "Aucune touche d'action ni bouton de manette figé dans les catalogues FR/EN (raccourci fixe du Stade 3D excepté) ; FAQ paramétrée ; Z (AZERTY), W (QWERTY) et B (réaffectation) injectés ; chaque domaine de synergie traduit et présent dans les domaines anglais de la liste."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/resultats-uat2.txt",
+          "check": "node scripts/smoke-uat2.mjs … td008 + aide en match (EN, appel réaffecté sur B)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "EN : horloge 2:57 figée 6 s, reprise OK ; aide en match : « Call for the ball » = B ; td008-fr-azerty : tableau = Z, FAQ = Z (« Appuyez sur Z (ou R3 / ↑ à la manette) pour faire un appel d… ») ; td008-fr-qwerty : tableau = W, FAQ = W (« Appuyez sur W (ou R3 / ↑ à la manette) pour faire un appel d… ») ; td008-en-qwerty : tableau = W, FAQ = W (« Press W (or R3 / ↑ on a gamepad) to call for the ball: a vir… ») ; td008-en-remap-b : tableau = B, FAQ = B (« Press B (or R3 / ↑ on a gamepad) to call for the ball: a vir… ») ; td008-fr-remap-b : tableau = B, FAQ = B (« Appuyez sur B (ou R3 / ↑ à la manette) pour faire un appel d… ») ; EN : horloge 2:54 figée 6 s, reprise OK ; aide en match : « Call for the ball » = B Captures : FAQ EN B , FAQ FR AZERTY , synergies EN , aide en match ."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/resultats-uat2.txt",
+          "check": "node --test tests/uat2-fixes.test.js (« domaines des synergies traduits ») + node scripts/smoke-uat2.mjs … td008 (page Aide en anglais)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A2",
+          "text": "Chaque fragment de domaine des synergies a sa traduction anglaise, présente mot pour mot dans les domaines affichés par le filtre de la liste des scientifiques (ex. « Physics » ↔ « Physics & Mechanics », « Physics & Chemistry ») ; la page Aide anglaise n'affiche plus aucun terme français (« Computer Science / Cybersecurity », « Biology / Medicine / Agri-Food »…). Capture ."
+        }
+      ],
+      "body_digest": "927340940da596a2683a5ff8e934446e6717e0ad5683dbe5ad477ed1b50e800c",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "UAT-002.html#UAT-002",
+        "../work/W-031.html#W-031",
+        "../../tests/uat2-fixes.test.js",
+        "../evidence/W-031/resultats-uat2.txt",
+        "../evidence/W-031/td008-en-remap-b.jpg",
+        "../evidence/W-031/td008-fr-azerty.jpg",
+        "../evidence/W-031/td008-en-synergies.jpg",
+        "../evidence/W-031/td008-en-aide-match.jpg",
+        "../evidence/W-031/resultats-uat2.txt",
+        "../evidence/W-031/td008-en-synergies.jpg",
+        "UAT-002.html#UAT-002"
+      ],
+      "anchors": [
+        "TD-008"
+      ]
+    },
+    {
       "id": "UAT-001",
       "path": "records/UAT-001.html",
       "title": "Recette PO — Lab League v3",
@@ -1298,6 +1884,78 @@
       ],
       "anchors": [
         "UAT-001"
+      ]
+    },
+    {
+      "id": "UAT-002",
+      "path": "records/UAT-002.html",
+      "title": "Recette exploratoire joueur — trois heures effectives",
+      "summary": "Recette inachevée, sans modification source ; objectif révisé le 28/09 à 08:50:48 Paris, pilotage navigateur à rétablir.",
+      "tags": [
+        "recette",
+        "joueur",
+        "gameplay",
+        "ui",
+        "ux",
+        "audit"
+      ],
+      "kind": "acceptance",
+      "status": "draft",
+      "sha256": "a4adcc62b00f1b88720359d6a7d0c140c8fdb04c222ef0a45b134178c2e2c52b",
+      "chars": 4918,
+      "size": 6354,
+      "mtime_ns": 1790603210600003500,
+      "revision": 8,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "25a2547e27ee7787646149f277f78602f0e74fb1",
+      "environment": "Windows ; Edge extension et navigateur intégré ; production locale 127.0.0.1:8787",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Parcours exécutés et limites traçables ; trois heures effectives démontrées dans le décompte."
+        },
+        {
+          "id": "A2",
+          "text": "Défauts confirmés séparés des améliorations et dotés de reproduction et retest."
+        },
+        {
+          "id": "A3",
+          "text": "Code source inchangé ; méthode indexée et validée."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "6d00364e52c497416a8523f5627cd5b1c21c7c90d0a5c561ef801e6aa99a3288",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../evidence/UAT-002/temps-effectif.md",
+        "../work/W-030.html#W-030",
+        "UAT-001.html#UAT-001",
+        "../evidence/UAT-002/multijoueur-arene.md",
+        "TD-002.html#TD-002",
+        "TD-003.html#TD-003",
+        "TD-004.html#TD-004",
+        "TD-005.html#TD-005",
+        "../evidence/UAT-002/higgsfield-etude.md",
+        "TD-006.html#TD-006",
+        "TD-007.html#TD-007",
+        "TD-008.html#TD-008",
+        "../evidence/UAT-002/reprise.md",
+        "../evidence/UAT-002/chronologie-initiale.html.txt"
+      ],
+      "anchors": [
+        "UAT-002"
       ]
     },
     {
@@ -4262,11 +4920,11 @@
       ],
       "kind": "work",
       "status": "review",
-      "sha256": "c8793916d03c1b2123af1934c281ebfeccadb6ea384b0a4d40201f17df0ef967",
-      "chars": 1470,
-      "size": 3057,
-      "mtime_ns": 1790539448550953400,
-      "revision": 2,
+      "sha256": "f789a0b684a55d5ac63d60c6cdf30bcafd75fcae6b1639b14ca1d17988e42ba5",
+      "chars": 1735,
+      "size": 3358,
+      "mtime_ns": 1790603210784244500,
+      "revision": 3,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -4321,16 +4979,242 @@
           "text": "Plus aucune lettre figée hors raccourcis fixes (1–6 et Espace du Manager, F1, F3, Échap dans les textes d'aide génériques)."
         }
       ],
-      "body_digest": "b975b1fe12d461edc0981293617323de9bb722127cf454511e824e7474f91bb5",
+      "body_digest": "96afc623ce329fa0c88e126ec376bebeccf4833e62285eff28e4ffcb388d6dab",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
         "../../tests/controls.test.js",
-        "../../src/i18n/fr.js"
+        "../../src/i18n/fr.js",
+        "../records/TD-008.html#TD-008",
+        "W-031.html#W-031"
       ],
       "anchors": [
         "W-029"
+      ]
+    },
+    {
+      "id": "W-030",
+      "path": "work/W-030.html",
+      "title": "Recette exploratoire joueur et backlog de corrections",
+      "summary": "Mission révisée : trois heures effectives dès le 28/09 à 08:50:48 Paris, sans changement du code ; UAT-002 et TD documentent les observations.",
+      "tags": [
+        "recette",
+        "tests",
+        "joueur",
+        "gameplay",
+        "ux",
+        "backlog"
+      ],
+      "kind": "work",
+      "status": "active",
+      "sha256": "4a13caa2c22928d7a777a1aaec3d06fa427d4ce3543756c99ff442dd55cf1a51",
+      "chars": 1504,
+      "size": 2381,
+      "mtime_ns": 1790603210577884200,
+      "revision": 3,
+      "owner": "Codex",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/**/*.jsx",
+        "src/**/*.js",
+        "shared/**/*.js",
+        "server/*.js",
+        "package-lock.json"
+      ],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Les parcours et limites de test sont documentés, avec une durée réelle honnête."
+        },
+        {
+          "id": "A2",
+          "text": "Les défauts et pistes priorisés disposent d'étapes de reproduction et de critères de retest."
+        },
+        {
+          "id": "A3",
+          "text": "Le code source reste inchangé ; méthode réindexée et validée."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "98df6048b0bb75aaa002caac0fa4f4826ca67bc2f25064c22f0d41969dc9be6d",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../records/UAT-002.html#UAT-002",
+        "../records/TD-002.html#TD-002",
+        "../records/UAT-001.html#UAT-001",
+        "W-031.html#W-031"
+      ],
+      "anchors": [
+        "W-030"
+      ]
+    },
+    {
+      "id": "W-031",
+      "path": "work/W-031.html",
+      "title": "Correctifs issus de la recette UAT-002",
+      "summary": "TD-002, TD-003, TD-006, TD-007 et TD-008 corrigés, retestés et clôturés ; TD-004 mis en œuvre, validation visuelle sur GPU à faire ; TD-005 exclu.",
+      "tags": [
+        "correctifs",
+        "recette",
+        "uat",
+        "pause",
+        "arene",
+        "manager",
+        "composition",
+        "vestiaire",
+        "aide",
+        "faq",
+        "synergies",
+        "camera",
+        "lisibilite",
+        "bloom",
+        "effets",
+        "i18n"
+      ],
+      "kind": "work",
+      "status": "review",
+      "sha256": "4bbd9e42e6f977bbb1da0427b3c6686e569fe3e4f090197b6377845f5aecf6e4",
+      "chars": 4063,
+      "size": 7338,
+      "mtime_ns": 1790603208517768100,
+      "revision": 2,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-sim",
+        "arena-input",
+        "arena-render",
+        "manager-online",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "shared/rooms/arenaRoom.js",
+        "shared/rooms/managerRoom.js",
+        "shared/data/content.js",
+        "shared/data/roster.en.js",
+        "src/three/arenaView.js",
+        "src/three/cameraRig.js",
+        "src/three/visual/stadium.js",
+        "src/three/render/pipeline.js",
+        "src/pages/arena/ArenaGame.jsx",
+        "src/pages/manager/SetupView.jsx",
+        "src/pages/manager/MatchView.jsx",
+        "src/pages/Help.jsx",
+        "src/pages/Settings.jsx",
+        "src/ui/reducedFx.js",
+        "src/net/connection.js",
+        "src/styles.css",
+        "src/i18n/fr.js",
+        "src/i18n/en.js",
+        "README.md",
+        "tests/uat2-fixes.test.js",
+        "scripts/smoke-uat2.mjs",
+        "scripts/smoke-online.mjs"
+      ],
+      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Défauts TD-002, TD-006, TD-007 et TD-008 corrigés et retestés selon leurs critères (FR/EN, tailles de fenêtre, clavier), fiches clôturées avec preuves."
+        },
+        {
+          "id": "A2",
+          "text": "Améliorations TD-003 et TD-004 mises en œuvre sans dénaturer le style néon ; TD-003 retesté FR/EN ; TD-004 vérifié automatiquement (3 qualités, 2 tailles) et soumis à validation visuelle."
+        },
+        {
+          "id": "A3",
+          "text": "Non-régression : npm test, build, smoke navigateur mono-joueur et en ligne sans erreur."
+        },
+        {
+          "id": "A4",
+          "text": "Périmètre respecté : TD-005 et Higgsfield exclus ; UAT-002 et W-030 non clôturés ; aucun commit, push ni déploiement."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/resultats-uat2.txt",
+          "check": "node --test tests/uat2-fixes.test.js ; node scripts/smoke-uat2.mjs http://localhost:8791 … all",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "TD-002, TD-006, TD-007, TD-008 : tous les contrôles réussis (15 étapes navigateur) ; fiches passées en « accepted »."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/README.md",
+          "check": "idem + captures TD-004",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A2",
+          "text": "TD-003 : 2 étapes navigateur réussies ; TD-004 : 3 passages (basse, moyenne, haute) réussis, caméra toujours dans la cage ; validation visuelle PO en attente (TD-004 A2)."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-031/npm-test.txt",
+          "check": "npm test ; npm run build ; node scripts/smoke-browser.mjs ; node scripts/smoke-online.mjs (serveur 127.0.0.1:8791)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A3",
+          "text": "npm test : 134/134 ; build Vite réussi ; smoke navigateur : 8 étapes réussies ; smoke en ligne : 5 étapes réussies ; aucune exception console."
+        },
+        {
+          "result": "pass",
+          "ref": "../records/UAT-002.html",
+          "check": "git status ; relecture du périmètre",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A4",
+          "text": "Aucun fichier TD-005/Higgsfield modifié ; UAT-002 (draft) et W-030 (active) inchangés dans leur statut ; aucun commit ni push."
+        }
+      ],
+      "body_digest": "19f4d4ca410b73d295d02201ff8147d77efbe6c4ec26c2bd4fb131ccf0d05411",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../records/TD-002.html#TD-002",
+        "../records/TD-003.html#TD-003",
+        "../records/TD-004.html#TD-004",
+        "../records/TD-006.html#TD-006",
+        "../records/TD-007.html#TD-007",
+        "../records/TD-008.html#TD-008",
+        "../records/TD-005.html#TD-005",
+        "../records/UAT-002.html#UAT-002",
+        "../evidence/W-031/resultats-uat2.txt",
+        "../evidence/W-031/README.md",
+        "../evidence/W-031/npm-test.txt",
+        "../records/UAT-002.html"
+      ],
+      "anchors": [
+        "W-031"
       ]
     }
   ]

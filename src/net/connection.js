@@ -15,6 +15,7 @@ export function createLocalConnection({ pseudo = "Joueur", club = null, getProfi
   const lobby = new Lobby({ closeDelayMs: 1000 });
   const client = { id: "local", pseudo, guestId: "local0000", club, send: m => queueMicrotask(() => ev.emit(m)) };
   lobby.connect(client);
+  if (typeof window !== "undefined") window.__llLocal = lobby; // inspection (diagnostic) : parties locales uniquement, sans XP ni classement
   if (getProfile) lobby.handle("local", JSON.parse(JSON.stringify({ t: "profile", ...getProfile() })));
   queueMicrotask(() => ev.emit({ t: "welcome", id: "local", pseudo, guest: true, local: true }));
   return {

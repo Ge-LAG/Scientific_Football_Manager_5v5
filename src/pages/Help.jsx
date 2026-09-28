@@ -3,7 +3,7 @@ import { Card, Kicker } from "../ui/components.jsx";
 import { STRATEGIES } from "../../shared/data/content.js";
 import { SYNERGIES, PLURI } from "../../shared/data/enrichment.js";
 import { matchupFactor } from "../../shared/manager/engine.js";
-import { attrName } from "../../shared/data/content.js";
+import { attrName, domainWord } from "../../shared/data/content.js";
 
 import { useBindings } from "../ui/bindings.js";
 import { STAT_BUDGET, STAT_MIN, STAT_MAX } from "../../shared/data/stats.js";
@@ -16,6 +16,8 @@ export const CONTROLS = ["sprint", "shoot", "pass", "lob", "skill", "tackle", "p
 
 export default function Help({ navigate }) {
   const { t, lang } = useI18n(); const keys = useBindings();
+  // réponses de la FAQ : touches effectives (schéma, disposition et réaffectations du joueur)
+  const faq = { 5: { key: keys.keyOf("call"), pad: keys.padOf("call") } };
   return (
     <div className="page mid">
       <h1 className="h1">{t("help.title")}</h1>
@@ -73,11 +75,11 @@ export default function Help({ navigate }) {
       </Card>
       <Card className="mt16">
         <Kicker color="var(--lime)">🔗 {t("help.synergies")}</Kicker>
-        <div className="grid g2">{[...SYNERGIES, { ...PLURI, match: [], min: 5 }].map(s => <div key={s.id} className="small"><b>{s[lang]}</b> — <span className="muted">{s.id === "pluri" ? t("help.pluri") : t("help.synergyRule", { n: s.min, list: s.match.join(" / ") })}</span><div className="tiny" style={{ color: "var(--lime)" }}>{Object.entries(s.bonus).map(([k, v]) => `${attrName(k, lang)} +${v}`).join(" · ")}</div></div>)}</div>
+        <div className="grid g2">{[...SYNERGIES, { ...PLURI, match: [], min: 5 }].map(s => <div key={s.id} className="small"><b>{s[lang]}</b> — <span className="muted">{s.id === "pluri" ? t("help.pluri") : t("help.synergyRule", { n: s.min, list: s.match.map(w => domainWord(w, lang)).join(" / ") })}</span><div className="tiny" style={{ color: "var(--lime)" }}>{Object.entries(s.bonus).map(([k, v]) => `${attrName(k, lang)} +${v}`).join(" · ")}</div></div>)}</div>
       </Card>
       <Card className="mt16">
         <Kicker>❓ {t("help.faq")}</Kicker>
-        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="mb16"><div style={{ fontWeight: 800 }}>{t(`help.q${i}`)}</div><div className="small muted" style={{ lineHeight: 1.6 }}>{t(`help.a${i}`)}</div></div>)}
+        {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="mb16"><div style={{ fontWeight: 800 }}>{t(`help.q${i}`)}</div><div className="small muted" style={{ lineHeight: 1.6 }}>{t(`help.a${i}`, faq[i])}</div></div>)}
       </Card>
     </div>
   );

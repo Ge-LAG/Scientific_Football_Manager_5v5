@@ -116,6 +116,13 @@ export const ROSTER_EN = {
   },
 };
 
+// fragments de domaine utilisés par les synergies (mêmes termes que DOMAINS_EN)
+export const DOMAIN_WORDS_EN = {
+  "Informatique": "Computer Science", "Cybersécurité": "Cybersecurity", "Chimie": "Chemistry", "Bancaire": "Banking",
+  "Business": "Business", "Physique": "Physics", "Electronique": "Electronics", "Biologie": "Biology", "Médecine": "Medicine",
+  "Agroalimentaire": "Agri-Food", "Mathématiques": "Mathematics",
+};
+
 export const DOMAINS_EN = {
   "Informatique": "Computer Science",
   "Physique et Mécanique": "Physics & Mechanics",

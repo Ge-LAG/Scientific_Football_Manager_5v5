@@ -29,10 +29,22 @@ export class ArenaRoom extends BaseRoom {
     this.touchBy = new Array(10).fill(null); this.lastSeen = -1;
     this.teams = [{ name: "Labo Alpha", color: "#00F0FF" }, { name: "Labo Oméga", color: "#FF00E5" }];
     this.sim = null; this.brain = null; this.evSent = 0; this.inputs = {}; this.startAt = null;
+    this.paused = false;
   }
 
   isPublicJoinable() { return this.opts.public && this.phase !== "ended" && this.humanCount() < 10; }
   humanCount() { return this.slots.filter(s => s.memberId).length; }
+  // pause réelle seulement en solo contre les bots (un seul humain connecté, salle non publique) :
+  // dès qu'un autre humain est présent, le match continue pendant le menu
+  canPause() { return this.phase === "playing" && !this.opts.public && this.members.size === 1 && this.humanCount() === 1; }
+  setPaused(on) {
+    on = !!on && this.canPause();
+    if (on === this.paused) return;
+    this.paused = on;
+    // pas d'entrée maintenue (course, pressing…) conservée à travers la pause
+    for (const k of Object.keys(this.inputs)) delete this.inputs[k];
+    this.broadcastState();
+  }
 
   // ── Membres ───────────────────────────────────────────────
   join(client) {
@@ -44,6 +56,7 @@ export class ArenaRoom extends BaseRoom {
     this.broadcastState();
     if (this.phase === "playing" || this.phase === "ended") this.send(client.id, { t: "a.init", slots: this.slotInfo(), teams: this.teams, events: this.sim.events.slice(-20) });
     if (this.results) this.send(client.id, { t: "a.end", ...this.results });
+    if (this.paused && !this.canPause()) this.setPaused(false); // un autre humain arrive : le match reprend
     if (this.opts.quick && this.phase === "lobby" && !this.startAt) { this.startAt = Date.now() + 12000; this.after(12000, () => this.start()); this.broadcastState(); }
     return s ? s.slot : "spec";
   }
@@ -139,6 +152,7 @@ export class ArenaRoom extends BaseRoom {
       } break;
       case "a.loadout": if (s && this.phase === "lobby" && s.charId) { s.loadout = sanitizeLoadout(s.charId, msg.ids); this.broadcastState(); } break;
       case "a.switch": if (s && this.phase === "playing") this.switchTo(clientId, msg.to); break;
+      case "a.pause": if (s && this.phase === "playing") this.setPaused(msg.on); break;
       case "a.opts": if (isHost && this.phase === "lobby") {
         if (HALVES.includes(msg.halfSeconds)) this.opts.halfSeconds = msg.halfSeconds;
         if (BOT_LEVELS[msg.botLevel]) this.opts.botLevel = msg.botLevel;
@@ -215,7 +229,7 @@ export class ArenaRoom extends BaseRoom {
   }
 
   step() {
-    if (this.phase !== "playing") return;
+    if (this.phase !== "playing" || this.paused) return; // en pause : ni chrono, ni IA, ni recharges
     const sim = this.sim;
     for (const s of this.slots) {
       if (!s.memberId) continue;
@@ -237,7 +251,7 @@ export class ArenaRoom extends BaseRoom {
 
   async end() {
     if (this.phase === "ended") return;
-    this.phase = "ended"; this.clearTimers();
+    this.phase = "ended"; this.paused = false; this.clearTimers();
     const sim = this.sim; const { ratings, mvp } = sim.ratings();
     // homme du match humain : meilleure note personnelle (actions créditées), au moins égale à la meilleure note du match
     const zero = Object.fromEntries(STAT_KEYS.map(k => [k, 0]));
@@ -265,7 +279,7 @@ export class ArenaRoom extends BaseRoom {
   stateFor(clientId) {
     const m = this.members.get(clientId);
     return {
-      t: "room.state", code: this.code, mode: "arena", phase: this.phase, opts: this.publicOpts(), teams: this.teams,
+      t: "room.state", code: this.code, mode: "arena", phase: this.phase, opts: this.publicOpts(), teams: this.teams, paused: this.paused, canPause: this.canPause(),
       you: { slot: typeof m?.seat === "number" ? m.seat : null, host: clientId === this.hostId },
       slots: this.slotInfo(), startInMs: this.startAt && this.phase === "lobby" ? Math.max(0, this.startAt - Date.now()) : null,
     };

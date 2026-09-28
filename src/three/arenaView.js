@@ -14,6 +14,7 @@ import { createPerfOverlay } from "./render/perfOverlay.js";
 import { getPlayer, getPowerUp, defaultLoadout, withStats } from "../../shared/data/content.js";
 import { FIELD, statOf, stepMovement } from "../../shared/action/sim.js";
 import { BTN } from "../../shared/rooms/arenaRoom.js";
+import { reducedFxOn } from "../ui/reducedFx.js";
 
 const INTERP_DELAY = 0.1; // s
 // ralenti des buts : 2,8 s avant le but jusqu'à 0,3 s après, à 65 % de la vitesse, 0,9 s après le but
@@ -23,7 +24,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const lerpAngle = (a, b, t) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * t;
 
 export function createArenaView(container, options) {
-  let { slots, teams, mySlot, settings, onInput, onEvent, onHud, onSwitch, interactive = true } = options;
+  let { slots, teams, mySlot, settings, onInput, onEvent, onHud, onSwitch, onMenu, interactive = true } = options;
   // l'anticrénelage, la tonalité et les ombres sont gérés par le pipeline de rendu (SMAA / MSAA selon la qualité)
   const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance", stencil: false });
   const auto = !settings.quality || settings.quality === "auto";
@@ -100,6 +101,14 @@ export function createArenaView(container, options) {
   const myTeam = () => (mySlot != null ? slots[mySlot].team : 0);
   input.state.yaw = myTeam() === 0 ? 0 : Math.PI;
   const rig = createCameraRig(camera, canvas, { interactive, mode: interactive ? settings.camera || "near" : settings.specCam || "auto" });
+  // effets réduits : ni secousses, ni flashs plein écran, ni lignes de vitesse ; bloom plus doux (style néon conservé)
+  let reducedFx = false;
+  function applyFx(s) {
+    reducedFx = reducedFxOn(s);
+    rig.setShake(!reducedFx);
+    pipeline.setGrade({ bloomStrength: reducedFx ? 0.28 : null, chroma: reducedFx ? 0 : null, grain: reducedFx ? 0 : null });
+  }
+  applyFx(settings);
 
   // ── Instantanés ────────────────────────────────────────
   const buffer = []; let lastRecvLocal = 0, lastSnapT = 0, latest = null;
@@ -123,7 +132,7 @@ export function createArenaView(container, options) {
     const mine = ev.slot === mySlot && mySlot != null;
     switch (ev.type) {
       case "GOAL": {
-        rig.shake(0.35); const gx = ev.team === 0 ? FIELD.HX : -FIELD.HX; effects.goalExplosion(new THREE.Vector3(gx, 1.1, 0), teams[ev.team].color); stadium.flash(teams[ev.team].color, { side: gx > 0 ? 1 : -1 }); pipeline.flash?.(teams[ev.team].color, 0.2); sfx.goal();
+        rig.shake(0.35); const gx = ev.team === 0 ? FIELD.HX : -FIELD.HX; effects.goalExplosion(new THREE.Vector3(gx, 1.1, 0), teams[ev.team].color); if (!reducedFx) { stadium.flash(teams[ev.team].color, { side: gx > 0 ? 1 : -1 }); pipeline.flash?.(teams[ev.team].color, 0.2); } sfx.goal();
         stadium.netImpact?.(Math.sign(gx), new THREE.Vector3(gx, latest?.b[1] || 1, latest?.b[2] || 0));
         if (mySlot != null && slots[mySlot].team === ev.team) input.rumble?.(0.8, 0.6, 450);
         if (options.replays !== false) replay = { start: ev.t - REPLAY.before, end: ev.t + REPLAY.after, beginAt: performance.now() / 1000 + REPLAY.delay, team: ev.team, gx };
@@ -158,7 +167,7 @@ export function createArenaView(container, options) {
   function sample(rtOverride) {
     if (!buffer.length) return null;
     const now = performance.now() / 1000;
-    const rt = rtOverride ?? lastSnapT + (now - lastRecvLocal) - INTERP_DELAY;
+    const rt = rtOverride ?? (pausedRt ?? lastSnapT + (now - lastRecvLocal) - INTERP_DELAY);
     let a = buffer[0], b = buffer[buffer.length - 1];
     for (let i = buffer.length - 1; i > 0; i--) if (buffer[i - 1].t <= rt) { a = buffer[i - 1]; b = buffer[i]; break; }
     const k = b.t > a.t ? Math.max(0, Math.min(1.2, (rt - a.t) / (b.t - a.t))) : 1;
@@ -174,6 +183,22 @@ export function createArenaView(container, options) {
   let raf = 0, last = performance.now(), alive = true, inputAcc = 0, hudAcc = 0, lastInputSent = null, fpsAcc = 0, fpsN = 0, lastFps = 60, switchAcc = 0, pendingEdges = new Set();
   const ballPos = new THREE.Vector3(), ballVel = new THREE.Vector3();
   let menuOpen = false, boardOpen = false;
+  let bloomScale = 1; const _camDir = new THREE.Vector3();
+  // pause (solo) : l'image reste figée au temps de rendu du moment, sans prédiction ; à la reprise l'horloge
+  // d'interpolation repart de ce même instant (pas de saut)
+  let pausedRt = null;
+  function setMenuOpen(v) {
+    v = !!v; if (v === menuOpen) return;
+    menuOpen = v; if (v) input.unlock(); else input.lock();
+    onMenu?.(v);
+  }
+  function setPaused(v) {
+    const now = performance.now() / 1000;
+    if (v && pausedRt == null) pausedRt = lastSnapT + (now - lastRecvLocal) - INTERP_DELAY;
+    else if (!v && pausedRt != null) { lastRecvLocal = now - (pausedRt + INTERP_DELAY - lastSnapT); pausedRt = null; lastInputSent = null; }
+  }
+  const onHidden = () => { if (document.hidden && interactive && mySlot != null) setMenuOpen(true); }; // onglet masqué : menu (et pause en solo)
+  document.addEventListener("visibilitychange", onHidden);
 
   function frame(nowMs) {
     if (!alive) return;
@@ -191,7 +216,7 @@ export function createArenaView(container, options) {
     const inp = input.read(dt);
     if (replayRt != null && (inp.edges.has("pass") || inp.edges.has("shootPress") || inp.edges.has("menu"))) { replay = null; replayRt = null; } // passer le ralenti
     if (inp.edges.has("cam")) rig.cycle();
-    if (inp.edges.has("menu")) { menuOpen = !menuOpen; if (menuOpen) input.unlock(); }
+    if (inp.edges.has("menu")) setMenuOpen(!menuOpen);
     boardOpen = inp.board;
     const yaw = input.state.yaw;
     const dx = Math.cos(yaw), dz = Math.sin(yaw);
@@ -212,10 +237,12 @@ export function createArenaView(container, options) {
           // prédiction locale : on intègre ses propres entrées, recalées doucement sur le serveur
           const L = latest.p[i];
           if (!pred.ok) Object.assign(pred, { x: L[0], z: L[1], vx: L[2], vz: L[3], facing: L[4], ok: true });
-          predictStep(pred, i, mx, mz, inp.sprint, dt, L);
-          const lag = Math.min(0.35, (options.getRtt?.() || 0) + (performance.now() / 1000 - lastRecvLocal));
-          const ex = L[0] + L[2] * lag - pred.x, ez = L[1] + L[3] * lag - pred.z;
-          if (Math.hypot(ex, ez) > 3) { pred.x = L[0]; pred.z = L[1]; } else { const g = Math.min(1, dt * 4); pred.x += ex * g; pred.z += ez * g; }
+          if (pausedRt == null) { // en pause, son joueur reste où il est
+            predictStep(pred, i, mx, mz, inp.sprint, dt, L);
+            const lag = Math.min(0.35, (options.getRtt?.() || 0) + (performance.now() / 1000 - lastRecvLocal));
+            const ex = L[0] + L[2] * lag - pred.x, ez = L[1] + L[3] * lag - pred.z;
+            if (Math.hypot(ex, ez) > 3) { pred.x = L[0]; pred.z = L[1]; } else { const g = Math.min(1, dt * 4); pred.x += ex * g; pred.z += ez * g; }
+          }
           x = pred.x; z = pred.z; face = pred.facing;
           if (b.b[6] === i) { B[0] = x + Math.cos(face) * 0.5; B[2] = z + Math.sin(face) * 0.5; B[1] = latest.b[1]; }
         }
@@ -306,9 +333,15 @@ export function createArenaView(container, options) {
       const vis = av.group.position.distanceTo(camera.position) > 6.5 && !(interactive && av.slot === mySlot);
       if (av.lblVis !== vis) { av.lblVis = vis; av.setLabelVisible?.(vis); }
     }
-    stadium.update(dt, nowS, ballPos);
+    stadium.update(dt, nowS, ballPos, camera.position);
+    // vue très plongeante (caméra haute près d'un but, tribune) : les lignes néon remplissent l'image et le bloom
+    // voile le jeu ; on l'atténue progressivement (angles de caméra habituels inchangés)
+    camera.getWorldDirection(_camDir);
+    const tanDown = -_camDir.y / Math.max(0.05, Math.hypot(_camDir.x, _camDir.z));
+    const bs = Math.round((1 - 0.45 * THREE.MathUtils.smoothstep(tanDown, 1.0, 2.6)) * 20) / 20;
+    if (bs !== bloomScale) { bloomScale = bs; pipeline.setGrade({ bloomScale: bs }); }
     // lignes de vitesse quand son joueur sprinte vite
-    if (mySlot != null && interactive && latest) { const P = latest.p[mySlot]; const sp = Math.hypot(P[2], P[3]); effects.setSpeedLines?.(P[6] & 1 ? Math.min(1, Math.max(0, (sp - 6) / 3)) * 0.6 : 0, teams[slots[mySlot].team].color); }
+    if (mySlot != null && interactive && latest) { const P = latest.p[mySlot]; const sp = Math.hypot(P[2], P[3]); effects.setSpeedLines?.(P[6] & 1 && !reducedFx ? Math.min(1, Math.max(0, (sp - 6) / 3)) * 0.6 : 0, teams[slots[mySlot].team].color); }
     effects.update(dt, camera);
     if (latest) { const ex = 0.3 + Math.min(0.5, Math.abs(latest.b[0]) / 40); sfx.crowd(ex); stadium.setCrowdExcitement?.(ex); }
     pipeline.render(dt);
@@ -370,7 +403,7 @@ export function createArenaView(container, options) {
       score: L.s, clock: L.c, half: L.h, phase: L.ph, mySlot, sp: L.sp || null,
       me: me && { stamina: me[5], charging: !!(me[6] & 16), charge: me[7], puActive: !!(me[6] & 8), puCd: me[9], hasBall: L.b[6] === mySlot,
         pus: lo.map((id, k) => ({ id, cd: k === 0 ? me[9] : me[11] || 0, active: !!((me[12] || 0) & (1 << k)) })) },
-      fps: lastFps, quality: qm.level, replay: !!replay && performance.now() / 1000 >= replay.beginAt, locked: input.state.locked, menu: menuOpen, board: boardOpen, cam: rig.mode, follow: rig.follow, usingPad: input.state.usingPad,
+      fps: lastFps, quality: qm.level, replay: !!replay && performance.now() / 1000 >= replay.beginAt, locked: input.state.locked, menu: menuOpen, paused: pausedRt != null, board: boardOpen, cam: rig.mode, follow: rig.follow, usingPad: input.state.usingPad,
       players: L.p.map(p => ({ stamina: p[5], flags: p[6], x: p[0], z: p[1] })), ball: [L.b[0], L.b[2]], owner: L.b[6],
     };
   }
@@ -397,18 +430,19 @@ export function createArenaView(container, options) {
       if (s != null) { const q = avatars[s]?.group.position; if (q) effects.ring(new THREE.Vector3(q.x, 0.1, q.z), teams[slots[s].team].color, { radius: 1.6, duration: 0.45 }); }
     },
     setTeams(t) { teams = t; stadium.setTeamColors?.(t[0].color, t[1].color); },
-    setMenu(v) { menuOpen = v; if (!v) input.lock(); },
+    setMenu: v => setMenuOpen(v),
+    setPaused: v => setPaused(v),
     setCam(v) { rig.setMode(v); },
     setFollow(slot) { rig.setFollow(slot); },
     zoomCam(d) { rig.setZoom(rig.zoom + d * 0.34); },
     switchTo: to => requestSwitch(to),
-    setSettings(s) { sfx.setVolume(s.volume ?? 0.7); input.setSensitivity(s.sensitivity, s.invertY); controls = controlsOf(s); input.setControls?.(controls); qm.lock(s.adaptiveQuality === false ? qm.level : null); },
+    setSettings(s) { applyFx(s); sfx.setVolume(s.volume ?? 0.7); input.setSensitivity(s.sensitivity, s.invertY); controls = controlsOf(s); input.setControls?.(controls); qm.lock(s.adaptiveQuality === false ? qm.level : null); },
     toggleStats: () => overlay.toggle(),
     unlockAudio: () => sfx.unlock(),
     touch: input.touch,
     lock: () => input.lock(),
     dispose() {
-      alive = false; cancelAnimationFrame(raf); ro.disconnect(); input.dispose(); rig.dispose(); window.removeEventListener("keydown", onF3); overlay.dispose(); pipeline.dispose();
+      alive = false; cancelAnimationFrame(raf); ro.disconnect(); document.removeEventListener("visibilitychange", onHidden); input.dispose(); rig.dispose(); window.removeEventListener("keydown", onF3); overlay.dispose(); pipeline.dispose();
       for (const a of avatars) disposeAvatar(a); ball.dispose?.(); passRing.geometry.dispose(); passRing.material.dispose(); meRing.geometry.dispose(); meRing.material.dispose(); effects.dispose(); puVisuals.dispose(); stadium.dispose(); sfx.dispose();
       renderer.dispose(); canvas.remove();
     },

@@ -468,6 +468,7 @@ export function createStadium(scene, { quality = "high", homeColor = NEON.coral,
         float f = fract((vW.x + vW.z) * 0.012 + vW.y * 0.05 - uTime * 0.03);
         float diag = (1.0 - smoothstep(0.0, 0.025, abs(f - 0.5))) * 0.06;
         vec3 col = uColor * (t.rgb * t.a * 0.9 + fres * 0.12 + band + diag) + uFlashColor * uFlash * (0.08 + fres * 0.5);
+        col *= smoothstep(0.6, 3.5, length(vV)); // paroi collée à la caméra : presque invisible (lisibilité)
         gl_FragColor = vec4(col, 1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
@@ -547,7 +548,7 @@ export function createStadium(scene, { quality = "high", homeColor = NEON.coral,
     vertexShader: /* glsl */`
       attribute float aW; attribute vec3 aN;
       uniform vec3 uImp; uniform float uT, uAmp, uTime;
-      varying vec2 vUv; varying float vGlow; varying float vFade;
+      varying vec2 vUv; varying float vGlow; varying float vFade; varying float vNear;
       void main() {
         vec3 p = position;
         float sway = sin(uTime * 1.3 + p.z * 1.7 + p.y * 0.9) * 0.012;
@@ -561,13 +562,14 @@ export function createStadium(scene, { quality = "high", homeColor = NEON.coral,
         vUv = uv;
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         vFade = 1.0 - smoothstep(30.0, 90.0, -mv.z);
+        vNear = smoothstep(1.0, 3.5, -mv.z); // filet au premier plan (caméra dans l'axe du but) : estompé
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: /* glsl */`
       uniform sampler2D uMap; uniform vec3 uColor, uGlow;
-      varying vec2 vUv; varying float vGlow; varying float vFade;
+      varying vec2 vUv; varying float vGlow; varying float vFade; varying float vNear;
       void main() {
-        float a = texture2D(uMap, vUv).a;
+        float a = texture2D(uMap, vUv).a * vNear;
         if (a < 0.02) discard;
         vec3 col = uColor * 0.85 + uGlow * vGlow * 4.0;
         gl_FragColor = vec4(col, a * (0.55 + 0.25 * vFade));
@@ -618,7 +620,7 @@ export function createStadium(scene, { quality = "high", homeColor = NEON.coral,
     const glowPanel = new THREE.Mesh(planeFacing(7, 3.2, V(HL + GOAL_D + 0.25, 1.6, 0), V(-1, 0, 0)), glowMat);
     glowPanel.renderOrder = 3;
     g.add(glowPanel);
-    goalPanels.push(glowMat);
+    glowMat.userData.side = side; goalPanels.push(glowMat);
     // zone lumineuse au sol dans le but
     const floorMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.2, depthWrite: false, blending: THREE.AdditiveBlending });
     g.add(new THREE.Mesh(new THREE.PlaneGeometry(GOAL_D, 2 * GOAL_HW).rotateX(-Math.PI / 2).translate(HL + GOAL_D / 2, 0.012, 0), floorMat));
@@ -1111,7 +1113,7 @@ export function createStadium(scene, { quality = "high", homeColor = NEON.coral,
     }
   }
 
-  function update(dt, time, ball) {
+  function update(dt, time, ball, cam) {
     dt = Math.min(dt || 0, 0.1);
     clockT += dt;
     if (!Number.isFinite(time)) time = clockT;
@@ -1139,7 +1141,8 @@ export function createStadium(scene, { quality = "high", homeColor = NEON.coral,
       m.uniforms.uGoalOffset.value = (m.uniforms.uGoalOffset.value + dt * (m === ledMat ? 0.25 : 0)) % 1;
     }
     const pulse = 0.5 + 0.1 * Math.sin(time * 2.2) + goalPulse * 0.45;
-    for (const m of goalPanels) m.opacity = pulse;
+    // halo derrière le filet : atténué quand la caméra est tout près du but (il ne doit pas masquer le jeu)
+    for (const m of goalPanels) { const d = cam ? Math.hypot(cam.x - m.userData.side * (HL + 0.6), cam.z) : 99; m.opacity = pulse * (0.35 + 0.65 * THREE.MathUtils.smoothstep(d, 3, 10)); }
     pitchU.uPulse.value = goalPulse > 0.02 ? goalPulse : 0;
     pitchMat.emissiveIntensity = HDR.lines * (1 + goalPulse * 0.8);
     glassU.uFlash.value = flashI * 0.25;
