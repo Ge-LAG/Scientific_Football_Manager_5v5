@@ -1,0 +1,20 @@
+📸 on-01-lobby-A
+📸 on-02-composition-B
+📸 on-03-match-B
+📸 on-04-rapport-A
+📸 on-09-rematch-lobby-A
+📸 on-10-rematch-lobby-B
+ℹ revanche YYCDKZ → G6EEUV : mêmes côtés (A home, B away), mêmes clubs, match relancé
+📸 on-05-arene-lobby-A
+📸 on-06-arene-A
+📸 on-07-arene-B
+📸 on-08-arene-menu-A
+ℹ menu ouvert chez A : ticks A 371 → 383, B 372 → 381 en 11 s
+
+✔ Connexion des deux comptes (jeton de session)
+✔ Manager en ligne : salle privée, invitation par code, draft, composition
+✔ Manager en ligne : match synchronisé puis rapport avec XP et ELO
+✔ Revanche en ligne (Manager) : les deux votent, même nouvelle salle, mêmes côtés et clubs, draft relancée
+✔ Arène en ligne : deux humains dans la même partie, apparence visible de l'adversaire
+✔ Arène en ligne : avec un autre humain, le menu prévient que le match continue (pas de pause)
+EXIT=0

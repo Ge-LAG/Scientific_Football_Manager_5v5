@@ -11,6 +11,7 @@ import { useBindings } from "../../ui/bindings.js";
 import { ACHIEVEMENTS } from "../../../shared/progression.js";
 import { speak, stopSpeaking } from "../../audio/voice.js";
 import { reducedFxOn } from "../../ui/reducedFx.js";
+import { Rematch } from "../../ui/Rematch.jsx";
 
 const FEED_TYPES = new Set(["GOAL", "SAVE", "TACKLE", "POWERUP", "FOUL", "FREEKICK", "PENALTY", "POST", "FIREWALL", "SKILL", "HALFTIME", "SECOND_HALF", "END"]);
 
@@ -167,7 +168,7 @@ export function ArenaGame({ room, init, end, onLeave }) {
         {isTouch && viewRef.current && !ended && !spectator && <TouchControls touch={viewRef.current.touch} t={t} canSwitch={canSwitch} onMenu={() => viewRef.current?.setMenu(true)} />}
         {(menu || ended) && (
           <div className="hud-menu">
-            {ended && end ? <EndScreen end={end} slots={slots} mySlot={mySlot} onLeave={onLeave} again={() => { const kind = game.joined?.kind; const o = room.opts; onLeave(); if (kind === "local") setTimeout(() => game.create("local", "arena", { botLevel: o.botLevel, halfSeconds: o.halfSeconds, training: o.training }), 50); }} />
+            {ended && end ? <EndScreen end={end} slots={slots} mySlot={mySlot} onLeave={onLeave} again={() => { const kind = game.joined?.kind; const o = room.opts; onLeave(); if (kind === "local") setTimeout(() => game.create("local", "arena", { botLevel: o.botLevel, halfSeconds: o.halfSeconds, training: o.training }), 50); }} rematch={game.joined?.kind === "online" ? room.rematch : null} onRematch={() => game.send({ t: "a.rematch" })} onJoinRematch={code => game.send({ t: "room.join", code })} />
               : ended ? <Card elevated><p>{t("common.loading")}</p></Card> : (
               <Card elevated style={{ width: "min(440px, 92vw)" }}>
                 <div className="h2">{room.canPause ? "⏸ " + t("arena.menu") : "☰ " + t("arena.menuLive")}</div>
@@ -237,7 +238,7 @@ function Scoreboard({ slots, hud, teams, keyBoard }) {
   );
 }
 
-function EndScreen({ end, slots, mySlot, onLeave, again }) {
+function EndScreen({ end, slots, mySlot, onLeave, again, rematch, onRematch, onJoinRematch }) {
   const { t, lang } = useI18n();
   const myTeam = mySlot != null ? slots[mySlot].team : 0;
   const res = end.score[myTeam] > end.score[1 - myTeam] ? "W" : end.score[myTeam] < end.score[1 - myTeam] ? "L" : "D";
@@ -257,7 +258,7 @@ function EndScreen({ end, slots, mySlot, onLeave, again }) {
         <thead><tr><th>{t("arena.player")}</th><th>⚽</th><th>🅰️</th><th>🎯</th><th>🧤</th><th>🛡️</th><th>{t("arena.rating")}</th></tr></thead>
         <tbody>{order.map(s => { const p = getPlayer(s.charId); return <tr key={s.slot} className={s.slot === mySlot ? "me" : ""}><td><span className="dot" style={{ background: end.teams[s.team].color, marginRight: 6 }} />{p.nom} <span className="tiny muted">{s.human ? s.pseudo : "🤖"}</span></td><td className="num">{s.st.goals}</td><td className="num">{s.st.assists}</td><td className="num">{s.st.onTarget}/{s.st.shots}</td><td className="num">{s.st.saves}</td><td className="num">{s.st.tackles}</td><td className="num" style={{ color: s.rating >= 7.5 ? "var(--lime)" : "var(--cyan)" }}>{s.rating.toFixed(1)}</td></tr>; })}</tbody>
       </table>
-      <div className="row mt16" style={{ justifyContent: "center" }}><button className="btn magenta" onClick={again}>🔄 {t("report.again")}</button><button className="btn ghost" onClick={onLeave}>🏠 {t("arena.backToMenu")}</button></div>
+      <div className="row mt16" style={{ justifyContent: "center" }}>{rematch ? <Rematch rematch={rematch} onVote={onRematch} onJoin={onJoinRematch} /> : <button className="btn magenta" onClick={again}>🔄 {t("report.again")}</button>}<button className="btn ghost" onClick={onLeave}>🏠 {t("arena.backToMenu")}</button></div>
     </Card>
   );
 }

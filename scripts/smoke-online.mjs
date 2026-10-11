@@ -96,7 +96,39 @@ if (!ONLY || ONLY === "manager") await step("Manager en ligne : match synchronis
   await A.shot("on-04-rapport-A");
   const txt = await A.evaluate(`document.body.innerText`);
   if (!/XP/.test(txt)) throw new Error("XP absente du rapport"); // (l'ELO ne s'affiche pas en cas de variation nulle)
-  await A.click("Accueil"); await B.click("Accueil");
+  // les deux joueurs restent sur le rapport : l'étape suivante vote « Revanche » depuis cet écran
+});
+if (!ONLY || ONLY === "manager") await step("Revanche en ligne (Manager) : les deux votent, même nouvelle salle, mêmes côtés et clubs, draft relancée", async () => {
+  const code0 = await A.evaluate(`window.__llGame.joined.code`);
+  const seatOf = P => P.evaluate(`window.__llGame.joined.seat`);
+  const clubOf = (P, side) => P.evaluate(`window.__llGame.room.seats.${side}.club.name`);
+  const seatA0 = await seatOf(A), seatB0 = await seatOf(B), clubA0 = await clubOf(A, seatA0), clubB0 = await clubOf(B, seatB0);
+  // bouton et compteur visibles chez les deux joueurs, puis votes successifs
+  const hasVote = `[...document.querySelectorAll("button")].some(b => b.textContent.includes("Revanche"))`;
+  await A.waitFor(hasVote, 60000); await B.waitFor(hasVote, 30000);
+  await A.click("Revanche");
+  await B.waitFor(`[...document.querySelectorAll("button")].some(b => b.textContent.includes("⚔") && b.textContent.includes("1/2"))`, 30000); // la voix de A est comptée chez B
+  await B.click("Revanche");
+  // les deux votants entrent automatiquement dans la même nouvelle salle, même côté, même club
+  await A.waitFor(`window.__llGame?.joined?.code && window.__llGame.joined.code !== ${JSON.stringify(code0)}`, 120000);
+  await B.waitFor(`window.__llGame?.joined?.code && window.__llGame.joined.code !== ${JSON.stringify(code0)}`, 60000);
+  const codeA = await A.evaluate(`window.__llGame.joined.code`), codeB = await B.evaluate(`window.__llGame.joined.code`);
+  if (codeA !== codeB) throw new Error(`codes différents : ${codeA} / ${codeB}`);
+  await A.waitFor(`window.__llGame?.room?.phase === "lobby"`, 60000); await B.waitFor(`window.__llGame?.room?.phase === "lobby"`, 60000);
+  const seatA1 = await seatOf(A), seatB1 = await seatOf(B);
+  if (seatA1 !== seatA0 || seatB1 !== seatB0) throw new Error(`côtés changés : A ${seatA0}→${seatA1}, B ${seatB0}→${seatB1}`);
+  await A.shot("on-09-rematch-lobby-A"); await B.shot("on-10-rematch-lobby-B");
+  // l'hôte relance : nouvelle draft, puis match
+  await A.click("Lancer la draft");
+  await A.waitFor(`window.__llGame?.room?.phase === "draft"`, 60000); await B.waitFor(`window.__llGame?.room?.phase === "draft"`, 60000);
+  // mêmes clubs qu'au match précédent (vérifié après dédup éventuelle au démarrage de la draft)
+  const clubA1 = await clubOf(A, seatA1), clubB1 = await clubOf(B, seatB1);
+  if (clubA1 !== clubA0 || clubB1 !== clubB0) throw new Error(`clubs changés : ${clubA0}→${clubA1}, ${clubB0}→${clubB1}`);
+  await A.click("Draft automatique"); await B.click("Draft automatique");
+  await A.waitFor(A.has("Prêt, coup d'envoi"), 120000); await B.waitFor(B.has("Prêt, coup d'envoi"), 60000);
+  await A.click("Prêt, coup d'envoi"); await B.click("Prêt, coup d'envoi");
+  await A.waitFor(`window.__llGame?.room?.phase === "playing"`, 120000); await B.waitFor(`window.__llGame?.room?.phase === "playing"`, 60000);
+  console.log(`ℹ revanche ${code0} → ${codeA} : mêmes côtés (A ${seatA1}, B ${seatB1}), mêmes clubs, match relancé`);
 });
 await step("Arène en ligne : deux humains dans la même partie, apparence visible de l'adversaire", async () => {
   // B personnalise tous ses scientifiques (tenue médiévale, mulet rasé) : A doit la voir dans la salle
@@ -126,13 +158,14 @@ await step("Arène en ligne : avec un autre humain, le menu prévient que le mat
   await A.evaluate(`window.dispatchEvent(new KeyboardEvent("keydown", { code: "Escape", bubbles: true })); setTimeout(() => window.dispatchEvent(new KeyboardEvent("keyup", { code: "Escape", bubbles: true })), 150); true`);
   await A.waitFor(A.has("le match continue"), 20000);
   // le match avance chez les deux joueurs (une pause donnerait 0 tick ; rendu logiciel : instantanés reçus au ralenti)
-  const a0 = await A.evaluate(`window.__ll3d.latest.k`), k0 = await B.evaluate(`window.__ll3d.latest.k`); await sleep(6000);
-  const a1 = await A.evaluate(`window.__ll3d.latest.k`), k1 = await B.evaluate(`window.__ll3d.latest.k`);
+  const a0 = await A.evaluate(`window.__ll3d.latest.k`), k0 = await B.evaluate(`window.__ll3d.latest.k`);
+  let a1 = a0, k1 = k0; const t0 = Date.now(); // sondage borné : la progression compte, pas le débit
+  while ((a1 < a0 + 5 || k1 < k0 + 5) && Date.now() - t0 < waitMs(30000)) { await tick(1000); a1 = await A.evaluate(`window.__ll3d.latest.k`); k1 = await B.evaluate(`window.__ll3d.latest.k`); }
   const paused = await A.evaluate(`!!window.__llGame.room.paused || !!window.__llGame.room.canPause`);
   await A.shot("on-08-arene-menu-A");
   if (paused) throw new Error("la salle à deux humains accepte la pause");
   if (!(k1 >= k0 + 5 && a1 >= a0 + 5)) throw new Error(`le match ne continue pas pendant le menu de A (A ${a0} → ${a1}, B ${k0} → ${k1})`);
-  console.log(`ℹ menu ouvert chez A : ticks A ${a0} → ${a1}, B ${k0} → ${k1} en 6 s`);
+  console.log(`ℹ menu ouvert chez A : ticks A ${a0} → ${a1}, B ${k0} → ${k1} en ${Math.round((Date.now() - t0) / 1000)} s`);
   await A.click("Reprendre");
 });
 

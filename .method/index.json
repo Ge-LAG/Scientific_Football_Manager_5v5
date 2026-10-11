@@ -5905,12 +5905,12 @@
         "match"
       ],
       "kind": "work",
-      "status": "ready",
-      "sha256": "98d28c5f3ccc38a2996abb4f62447a988c2de5202a0e41b047977eeae33f5b74",
-      "chars": 2656,
-      "size": 4199,
-      "mtime_ns": 1791738402422285700,
-      "revision": 1,
+      "status": "review",
+      "sha256": "d9ce5e75d46040cf9904bdd8821835acc01f5cb1b9d7f06e27ae080cf0741277",
+      "chars": 3844,
+      "size": 6481,
+      "mtime_ns": 1791750843620074200,
+      "revision": 2,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -5952,12 +5952,68 @@
           "text": "Smoke en ligne : revanche jouée à deux navigateurs ; textes FR/EN ; npm test et build verts."
         }
       ],
-      "evidence": [],
-      "body_digest": "cd4a7a614b3033ce5606a61acf00045e55ce2707f15dfaeb4f675e602ed79135",
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../evidence/W-035/smoke-online.txt",
+          "check": "node scripts/smoke-online.mjs http://localhost:8791 smoke-w035 (EXIT=0)",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A1",
+          "text": "Bouton « Revanche » et compteur « x/2 » visibles par les deux navigateurs sur le rapport Manager (clics effectifs A puis B ; capture on-04-rapport-A). En salle Arène, le même composant est câblé dans EndScreen (tests/rematch.test.js)."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-035/smoke-online.txt",
+          "check": "node --test tests/rooms.test.js ; smoke-online EXIT=0",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A2",
+          "text": "Tous votants → une seule salle privée créée, options copiées, entrée automatique. Vérifié en salle (Arène : mêmes places ; Manager : mêmes côtés/clubs, nouvelle draft) et en navigateur réel : YYCDKZ → G6EEUV, A home / B away, mêmes clubs, draft relancée (captures on-09/on-10)."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/rooms.test.js",
+          "check": "node --test tests/rooms.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A3",
+          "text": "« après le délai, part avec les seuls votants ; les autres voient le code » : rematchDelayMs abaissé dans le test → salle créée avec les seuls votants, code diffusé aux non-votants ; « un votant parti n'est pas entraîné »."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/rooms.test.js",
+          "check": "node --test tests/rooms.test.js ; node --test tests/rematch.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A4",
+          "text": "Vote ignoré hors phase ended ; doublon de vote sans effet ; la salle créée n'en crée pas une seconde (garde rematchCode). 11/11 tests de salles, 3/3 tests statiques."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-035/smoke-online.txt",
+          "check": "npm test (155/155) ; npm run build ; smoke-online EXIT=0",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A5",
+          "text": "Smoke en ligne complet vert : 6/6 étapes dont « Revanche en ligne (Manager) : les deux votent, même nouvelle salle, mêmes côtés et clubs, draft relancée ». Libellés FR/EN présents (tests/rematch.test.js) ; bouton cliqué via /Revanche|Rematch/. npm test 155/155, build OK."
+        }
+      ],
+      "body_digest": "4e6a345fec1e53835f837a25de9118d3eeb9ca02b0d25b1ea70812e2c3e4c7f0",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
+        "../evidence/W-035/smoke-online.txt",
+        "../evidence/W-035/smoke-online.txt",
+        "../../tests/rooms.test.js",
+        "../../tests/rooms.test.js",
+        "../evidence/W-035/smoke-online.txt",
         "../docs/roadmap.html#roadmap"
       ],
       "anchors": [

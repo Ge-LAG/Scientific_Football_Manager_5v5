@@ -51,6 +51,8 @@ export class ArenaRoom extends BaseRoom {
     const id = BaseRoom.identity(client);
     this.addMember(client);
     let s = this.slots.find(x => x.identity === id);
+    // revanche : le votant retrouve sa place (même équipe) si elle est libre
+    if (!s && this.rematchSeats?.has(id)) { const i = this.rematchSeats.get(id); if (Number.isInteger(i) && this.slots[i] && !this.slots[i].memberId) s = this.slots[i]; }
     if (!s) s = this.freeSlot();
     if (s) this.occupy(s, client, id);
     this.broadcastState();
@@ -126,6 +128,7 @@ export class ArenaRoom extends BaseRoom {
       else { s.left = true; if (this.sim) { this.sim.setControl(s.slot, false); this.brain?.forget(s.slot); } }
       delete this.inputs[s.slot];
     }
+    if (this.phase === "ended") this.maybeRematch(); // un non-votant qui part peut compléter les voix
     this.broadcastState();
   }
 
@@ -153,6 +156,7 @@ export class ArenaRoom extends BaseRoom {
       case "a.loadout": if (s && this.phase === "lobby" && s.charId) { s.loadout = sanitizeLoadout(s.charId, msg.ids); this.broadcastState(); } break;
       case "a.switch": if (s && this.phase === "playing") this.switchTo(clientId, msg.to); break;
       case "a.pause": if (s && this.phase === "playing") this.setPaused(msg.on); break;
+      case "a.rematch": this.voteRematch(clientId); break;
       case "a.opts": if (isHost && this.phase === "lobby") {
         if (HALVES.includes(msg.halfSeconds)) this.opts.halfSeconds = msg.halfSeconds;
         if (BOT_LEVELS[msg.botLevel]) this.opts.botLevel = msg.botLevel;
@@ -281,6 +285,7 @@ export class ArenaRoom extends BaseRoom {
     return {
       t: "room.state", code: this.code, mode: "arena", phase: this.phase, opts: this.publicOpts(), teams: this.teams, paused: this.paused, canPause: this.canPause(),
       you: { slot: typeof m?.seat === "number" ? m.seat : null, host: clientId === this.hostId },
+      rematch: this.rematchState(clientId),
       slots: this.slotInfo(), startInMs: this.startAt && this.phase === "lobby" ? Math.max(0, this.startAt - Date.now()) : null,
     };
   }

@@ -3,6 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { ManagerRoom, DRAFT_ORDER } from "../shared/rooms/managerRoom.js";
 import { ArenaRoom } from "../shared/rooms/arenaRoom.js";
+import { Lobby } from "../shared/lobby.js";
 
 const client = (id, extra = {}) => { const msgs = []; return { id, pseudo: id, guestId: "g" + id.padEnd(8, "0"), send: m => msgs.push(m), msgs, ...extra }; };
 const last = (c, t) => [...c.msgs].reverse().find(m => m.t === t);
@@ -144,3 +145,129 @@ test("Manager : abandon en plein match — bot en relève, résultat enregistré
 
 // membre → client factice (pour lire l'état qui lui est diffusé)
 function client0(room, id) { return room.members.get(id).client; }
+
+// ── W-035 : revanche en ligne ───────────────────────────────
+
+// vrai lobby (clients factices) : createRoom + enter font circuler les membres
+function mkLobby() {
+  const lobby = new Lobby({ onResults: async () => [] });
+  return { lobby, room: null, enter: (cl, room) => lobby.enter(lobby.clients.get(cl.id), room) };
+}
+const seatOf = (room, id) => room.members.get(id)?.seat;
+const roomOf = (lobby, id) => lobby.clients.get(id)?.room;
+
+// fin de match d'Arène accélérée : dernière seconde de la seconde période
+async function endArena(room) {
+  room.sim.halfSeconds = 0.5; room.sim.half = 2;
+  if (room.sim.phase === "setpiece") room.sim.endSetPiece();
+  if (room.sim.phase === "goal" || room.sim.phase === "kickoff") room.sim.phase = "play";
+  await until(() => room.phase === "ended", 8000);
+}
+
+test("revanche Arène : vote ignoré en match ; tous votants → nouvelle salle privée, mêmes options, mêmes places", async () => {
+  const { lobby, enter } = mkLobby();
+  const a = client("a1"), b = client("b1");
+  lobby.connect(a); lobby.connect(b);
+  const room = lobby.createRoom("arena", { halfSeconds: 120, botLevel: "easy" });
+  enter(a, room); enter(b, room);
+  room.handle("a1", { t: "a.rematch" }); // hors phase « ended » : ignoré
+  assert.equal(room.rematch.votes.size, 0, "vote hors fin de match ignoré");
+  room.handle("a1", { t: "a.start" });
+  const aSeat = seatOf(room, "a1"), bSeat = seatOf(room, "b1");
+  await endArena(room);
+
+  room.handle("a1", { t: "a.rematch" });
+  const st = last(client0(room, "b1"), "room.state");
+  assert.equal(st.rematch.votes, 1); assert.equal(st.rematch.humans, 2); assert.equal(st.rematch.you, false);
+  assert.equal(last(client0(room, "a1"), "room.state").rematch.you, true, "le votant se voit compté");
+  assert.equal(roomOf(lobby, "a1"), room, "pas de salle tant que tout le monde n'a pas voté");
+
+  room.handle("b1", { t: "a.rematch" });
+  const newRoom = roomOf(lobby, "a1");
+  assert.ok(newRoom && newRoom !== room, "les votants entrent dans la nouvelle salle");
+  assert.equal(room.rematch.code, newRoom.code, "le code de la revanche est diffusé");
+  assert.equal(newRoom.opts.halfSeconds, 120); assert.equal(newRoom.opts.botLevel, "easy");
+  assert.equal(newRoom.opts.public, false); assert.equal(newRoom.opts.quick, false);
+  assert.equal(seatOf(newRoom, "a1"), aSeat, "même place (même équipe)");
+  assert.equal(seatOf(newRoom, "b1"), bSeat, "même place (même équipe)");
+  assert.equal(last(a, "room.joined").code, newRoom.code, "room.joined envoyé au votant");
+  assert.equal(last(b, "room.joined").code, newRoom.code);
+  room.close(); newRoom.close(); lobby.shutdown();
+});
+
+test("revanche Arène : après le délai, part avec les seuls votants ; les autres voient le code", async () => {
+  const { lobby, enter } = mkLobby();
+  const a = client("a1"), b = client("b1"), c = client("c1");
+  lobby.connect(a); lobby.connect(b); lobby.connect(c);
+  const room = lobby.createRoom("arena", { halfSeconds: 60 });
+  enter(a, room); enter(b, room); enter(c, room);
+  room.handle("a1", { t: "a.start" });
+  await endArena(room);
+  room.rematchDelayMs = 60; // délai simulé (30 s en jeu)
+  room.handle("a1", { t: "a.rematch" });
+  assert.equal(roomOf(lobby, "a1"), room);
+  await until(() => roomOf(lobby, "a1") !== room, 3000);
+  const newRoom = roomOf(lobby, "a1");
+  assert.equal(roomOf(lobby, "b1"), room, "le non-votant n'est pas entraîné");
+  assert.equal(roomOf(lobby, "c1"), room, "le troisième non-votant reste aussi");
+  const st = last(client0(room, "b1"), "room.state");
+  assert.equal(st.rematch.code, newRoom.code, "le code est visible pour rejoindre à la main");
+  // une seule salle de revanche : un vote tardif n'en recrée pas
+  room.handle("b1", { t: "a.rematch" });
+  assert.equal(room.rematch.code, newRoom.code);
+  assert.equal([...lobby.rooms.values()].filter(r => r !== room).length, 1, "une seule salle créée");
+  // le non-votant peut rejoindre la revanche par le code (place libre)
+  lobby.handle("b1", { t: "room.join", code: newRoom.code });
+  assert.equal(roomOf(lobby, "b1"), newRoom);
+  room.close(); newRoom.close(); lobby.shutdown();
+});
+
+test("revanche Arène : un votant parti n'est pas entraîné", async () => {
+  const { lobby, enter } = mkLobby();
+  const a = client("a1"), b = client("b1");
+  lobby.connect(a); lobby.connect(b);
+  const room = lobby.createRoom("arena", { halfSeconds: 60 });
+  enter(a, room); enter(b, room);
+  room.handle("a1", { t: "a.start" });
+  await endArena(room);
+  room.handle("a1", { t: "a.rematch" });
+  lobby.handle("a1", { t: "room.leave" }); // a quitte avant la création
+  room.handle("b1", { t: "a.rematch" }); // b, seul présent et votant, déclenche
+  const newRoom = roomOf(lobby, "b1");
+  assert.ok(newRoom && newRoom !== room);
+  assert.equal(roomOf(lobby, "a1"), null, "le votant parti n'est pas entraîné");
+  assert.equal(room.members.size, 0, "l'ancienne salle est vide (fermeture classique)");
+  room.close(); newRoom.close(); lobby.shutdown();
+});
+
+test("revanche Manager : mêmes côtés et mêmes clubs, nouvelle draft", async () => {
+  const { lobby, enter } = mkLobby();
+  const a = client("coach", { userId: "u-a", club: { name: "Atomes FC", colors: ["#123456", "#654321"], crest: "⚛" } });
+  const b = client("coach2", { userId: "u-b", club: { name: "Pions United", colors: ["#FF0000", "#00FF00"], crest: "🧪" } });
+  lobby.connect(a); lobby.connect(b);
+  const room = lobby.createRoom("manager", { speed: 4, halfTicks: 300 });
+  enter(a, room); enter(b, room);
+  room.handle("coach", { t: "m.start" });
+  room.handle("coach", { t: "m.autodraft" }); room.handle("coach2", { t: "m.autodraft" });
+  await until(() => room.phase === "setup", 20000);
+  for (const [id, side] of [["coach", "home"], ["coach2", "away"]]) { const s = room.seats[side]; room.handle(id, { t: "m.setup", lineup: s.lineup, formation: s.formation, strategy: "equilibre", ready: true }); }
+  await until(() => room.phase === "playing", 5000);
+  const clubHome = room.seats.home.club, clubAway = room.seats.away.club;
+  room.engine.time = room.engine.maxTime; room.engine.phase = "play"; room.engine.phaseTimer = 0;
+  await until(() => room.phase === "ended", 15000);
+
+  room.handle("coach", { t: "m.rematch" }); room.handle("coach2", { t: "m.rematch" });
+  const newRoom = roomOf(lobby, "coach");
+  assert.ok(newRoom && newRoom !== room);
+  assert.equal(newRoom.phase, "lobby");
+  assert.equal(seatOf(newRoom, "coach"), "home", "même côté");
+  assert.equal(seatOf(newRoom, "coach2"), "away", "même côté");
+  assert.deepEqual(newRoom.seats.home.club, clubHome, "même club");
+  assert.deepEqual(newRoom.seats.away.club, clubAway, "même club");
+  assert.equal(newRoom.opts.speed, 4); assert.equal(newRoom.opts.halfTicks, 300);
+  // nouvelle draft : l'hôte lance comme d'habitude
+  newRoom.handle("coach", { t: "m.start" });
+  assert.equal(newRoom.phase, "draft");
+  assert.equal(newRoom.seats.home.picks.length, 0, "draft repartie de zéro");
+  room.close(); newRoom.close(); lobby.shutdown();
+});
