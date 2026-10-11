@@ -621,7 +621,7 @@
       "id": "roadmap",
       "path": "docs/roadmap.html",
       "title": "Product roadmap",
-      "summary": "Plan d'implémentation Lab League v3 : jalons M0–M5 et lots W-001…W-029.",
+      "summary": "Plan Lab League v3 : jalons M0–M5 livrés (W-001…W-031) ; sprints 7 à 11 (M6–M10, W-032…W-047) proposés le 11/10/2026.",
       "tags": [
         "roadmap",
         "milestones",
@@ -634,11 +634,11 @@
       ],
       "kind": "project",
       "status": "active",
-      "sha256": "5ee969aa2fa6f96d006476b28e3aa68a64a19712ec4dba9433368965653bc564",
-      "chars": 2965,
-      "size": 4416,
-      "mtime_ns": 1790534436077117700,
-      "revision": 4,
+      "sha256": "638b99fc24083f97bd0e979774b3cbc2fbc217335dc437d08631955497d92c1a",
+      "chars": 6068,
+      "size": 8260,
+      "mtime_ns": 1791738402524731000,
+      "revision": 5,
       "owner": "CTO",
       "reviewed": "",
       "review_by": "",
@@ -655,7 +655,7 @@
       "evidence_digest": "",
       "criteria": [],
       "evidence": [],
-      "body_digest": "b54764502b6ae16428311507ed97b0a2f168ae249aa0ac06ec3fa3995687ecc6",
+      "body_digest": "baf5f9264966810b59e2781309e11a00d69dbfee272ee3fe40a94d1520f68fb9",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -688,7 +688,30 @@
         "../work/W-026.html#W-026",
         "../work/W-027.html#W-027",
         "../work/W-028.html#W-028",
-        "../work/W-029.html#W-029"
+        "../work/W-029.html#W-029",
+        "../work/W-030.html#W-030",
+        "../work/W-031.html#W-031",
+        "../records/D-001.html#D-001",
+        "../work/W-032.html#W-032",
+        "../work/W-033.html#W-033",
+        "../work/W-034.html#W-034",
+        "../work/W-035.html#W-035",
+        "../work/W-036.html#W-036",
+        "../work/W-037.html#W-037",
+        "../work/W-038.html#W-038",
+        "../work/W-039.html#W-039",
+        "../work/W-040.html#W-040",
+        "../work/W-041.html#W-041",
+        "../work/W-042.html#W-042",
+        "../work/W-043.html#W-043",
+        "../work/W-044.html#W-044",
+        "../work/W-045.html#W-045",
+        "../work/W-046.html#W-046",
+        "../work/W-047.html#W-047",
+        "../records/TD-005.html#TD-005",
+        "../records/TD-004.html#TD-004",
+        "../records/UAT-002.html#UAT-002",
+        "../records/UAT-001.html#UAT-001"
       ],
       "anchors": [
         "roadmap"
@@ -1174,6 +1197,63 @@
       ],
       "anchors": [
         "AC-003"
+      ]
+    },
+    {
+      "id": "AC-004",
+      "path": "records/AC-004.html",
+      "title": "Tactile : aucun accès au menu Pause de l'Arène",
+      "summary": "Audit de code : sur écran tactile, aucun bouton n'ouvre le menu de l'Arène (pause solo, quitter).",
+      "tags": [
+        "tactile",
+        "mobile",
+        "tablette",
+        "menu",
+        "pause",
+        "arene",
+        "audit",
+        "defaut"
+      ],
+      "kind": "finding",
+      "status": "active",
+      "sha256": "8cbaca785c272bd5591b1dd27e1a4c30c037a25526fcbdcdc36075301e57a449",
+      "chars": 991,
+      "size": 2136,
+      "mtime_ns": 1791738402518159500,
+      "revision": 1,
+      "owner": "Claude (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-input",
+        "ui"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Sur appareil tactile, le joueur ouvre le menu, suspend le match solo, reprend ou quitte sans clavier ni manette."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "06a26ec9c08544a824751d31b542765c352a8f85e230cf4776f62beb89102827",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../work/W-033.html#W-033"
+      ],
+      "anchors": [
+        "AC-004"
       ]
     },
     {
@@ -5334,6 +5414,1160 @@
       ],
       "anchors": [
         "W-031"
+      ]
+    },
+    {
+      "id": "W-032",
+      "path": "work/W-032.html",
+      "title": "Outillage de vérification fiable (tests navigateur et CI manuelle)",
+      "summary": "Scripts de test navigateur robustes sur machine lente, commande npm dédiée et workflow GitHub manuel avec captures.",
+      "tags": [
+        "tests",
+        "navigateur",
+        "smoke",
+        "ci",
+        "github",
+        "actions",
+        "outillage",
+        "fiabilite"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "122e45b87857a449c5dc0fbf793bfde287a8de9335a445b0cbe0749169d6ea70",
+      "chars": 2412,
+      "size": 3980,
+      "mtime_ns": 1791738402402334400,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "repo"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "SMOKE_SLOW=2 double toutes les attentes des trois scripts (une seule fonction d'attente partagée par script)."
+        },
+        {
+          "id": "A2",
+          "text": "npm run smoke:uat2 existe et passe sur un serveur local de test."
+        },
+        {
+          "id": "A3",
+          "text": ".github/workflows/smoke.yml (déclenchement manuel) : build, serveur de test sur un port dédié, smoke mono-joueur et retest UAT-002 hors TD-004, captures publiées en artefact."
+        },
+        {
+          "id": "A4",
+          "text": "README : section « Vérifier » (commandes, serveur de test, variable SMOKE_SLOW) en français."
+        },
+        {
+          "id": "A5",
+          "text": "npm test et npm run build verts ; aucun fichier du jeu modifié."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "c53312adf4ae82cdc4923b76034bfc8f675887f956390ec946c2d0f7f41b5e81",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-032"
+      ]
+    },
+    {
+      "id": "W-033",
+      "path": "work/W-033.html",
+      "title": "Menu et pause accessibles au tactile",
+      "summary": "Corrige AC-004 : bouton tactile ouvrant le menu de l'Arène (pause en solo, « le match continue » en ligne).",
+      "tags": [
+        "tactile",
+        "mobile",
+        "tablette",
+        "menu",
+        "pause",
+        "arene",
+        "ac-004",
+        "accessibilite"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "8c6a5decedb975cf6cb9f6655cc39c6c41eca9369189d8685392506e66198c9b",
+      "chars": 1934,
+      "size": 3393,
+      "mtime_ns": 1791738402410272300,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-input",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Sur appareil tactile, un bouton ☰ visible pendant le match ouvre le menu ; en solo le match est suspendu (chrono figé)."
+        },
+        {
+          "id": "A2",
+          "text": "« Reprendre » referme le menu et le match repart sans saut."
+        },
+        {
+          "id": "A3",
+          "text": "En ligne avec un autre humain, le menu affiche « Menu — le match continue »."
+        },
+        {
+          "id": "A4",
+          "text": "Bouton ≥ 44×44 px, aria-label FR/EN, sans chevauchement du score ni des boutons d'action à 390×844 et 1024×768."
+        },
+        {
+          "id": "A5",
+          "text": "AC-004 passé en review avec la preuve ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "9f88e01c42bccd88abaa4a00efc89260d9e5e21a97a808900671ecd47d61527d",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../records/AC-004.html#AC-004",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-033"
+      ]
+    },
+    {
+      "id": "W-034",
+      "path": "work/W-034.html",
+      "title": "Scénarios réseau couverts par des tests",
+      "summary": "Tests serveur automatiques des cas multijoueurs non vérifiés en recette (hôte qui part, arrivée en match, reconnexion tardive, deux humains dans la même équipe), défauts corrigés.",
+      "tags": [
+        "reseau",
+        "multijoueur",
+        "tests",
+        "serveur",
+        "hote",
+        "reconnexion",
+        "arrivee",
+        "en",
+        "match",
+        "websocket"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "c197e1a7fe32c50ceb527ca9a723f77384a81b37379c09417cbe5ec3b1b7f3b0",
+      "chars": 2244,
+      "size": 3734,
+      "mtime_ns": 1791738402415307200,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "manager-online",
+        "arena-sim"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Salon d'attente (Arène et Manager) : l'hôte part → un autre humain devient hôte et peut lancer la partie."
+        },
+        {
+          "id": "A2",
+          "text": "Arène : un humain qui rejoint en cours de match remplace un bot de l'équipe la moins pourvue et reçoit l'état initial puis les instantanés."
+        },
+        {
+          "id": "A3",
+          "text": "Reconnexion tardive (≥ 30 s après la coupure) au même match → le joueur retrouve sa place (même identité), sans dupliquer de joueur."
+        },
+        {
+          "id": "A4",
+          "text": "Arène à deux humains dans la même équipe : le changement de joueur (manuel ou automatique) ne prend jamais le joueur de l'autre humain."
+        },
+        {
+          "id": "A5",
+          "text": "Manager : un manager qui quitte en plein match est remplacé par le bot ; son résultat est enregistré comme abandon, sans erreur serveur ; npm test vert."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "5dd4908aba51fdfd904d825a0884718a9f03c26e12dae5db8b008c3b4da0a9e2",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-034"
+      ]
+    },
+    {
+      "id": "W-035",
+      "path": "work/W-035.html",
+      "title": "Revanche en ligne (Arène et Manager)",
+      "summary": "Bouton « Revanche » en fin de match en ligne : nouvelle salle privée avec les mêmes joueurs, côtés et options.",
+      "tags": [
+        "revanche",
+        "rematch",
+        "en",
+        "ligne",
+        "arene",
+        "manager",
+        "salle",
+        "code",
+        "fin",
+        "de",
+        "match"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "98d28c5f3ccc38a2996abb4f62447a988c2de5202a0e41b047977eeae33f5b74",
+      "chars": 2656,
+      "size": 4199,
+      "mtime_ns": 1791738402422285700,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "manager-online",
+        "arena-sim",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Fin de match en ligne : bouton « Revanche » et compteur de votes visibles par tous les humains présents."
+        },
+        {
+          "id": "A2",
+          "text": "Tous les humains présents votent → nouvelle salle privée, mêmes options, mêmes équipes/côtés, entrée automatique des votants."
+        },
+        {
+          "id": "A3",
+          "text": "Après 30 s, la revanche part avec les seuls votants ; les autres voient le code et peuvent la rejoindre."
+        },
+        {
+          "id": "A4",
+          "text": "Une seule salle de revanche par salle terminée ; votes hors phase de fin ignorés (tests)."
+        },
+        {
+          "id": "A5",
+          "text": "Smoke en ligne : revanche jouée à deux navigateurs ; textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "cd4a7a614b3033ce5606a61acf00045e55ce2707f15dfaeb4f675e602ed79135",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-035"
+      ]
+    },
+    {
+      "id": "W-036",
+      "path": "work/W-036.html",
+      "title": "Sauvegardes automatiques des données serveur",
+      "summary": "Copie quotidienne du fichier de données, rotation sur 7 jours, procédure de restauration documentée.",
+      "tags": [
+        "sauvegarde",
+        "backup",
+        "donnees",
+        "serveur",
+        "rotation",
+        "restauration",
+        "hostinger",
+        "exploitation"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "e7904f39f31f1cccac4bad41932c0f2a97f2774c5bc5d20570727fd2b0be93bd",
+      "chars": 1748,
+      "size": 3160,
+      "mtime_ns": 1791738402427807400,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "server",
+        "data"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Une copie datée par jour dans data/backups/ , au plus BACKUP_KEEP (défaut 7) conservées (test)."
+        },
+        {
+          "id": "A2",
+          "text": "Fichier principal illisible au démarrage : le serveur ne l'écrase pas, signale la dernière copie disponible (test)."
+        },
+        {
+          "id": "A3",
+          "text": "deploy/HOSTINGER.md : procédure de restauration pas à pas, en français."
+        },
+        {
+          "id": "A4",
+          "text": "Aucune donnée personnelle ajoutée ; npm test vert."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "09358225678a26bc4acaffeda5d4ee40c3cea481a79ed5492c53ffde869ed9ad",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-036"
+      ]
+    },
+    {
+      "id": "W-037",
+      "path": "work/W-037.html",
+      "title": "Carrière du Labo : divisions, montées, descentes et palmarès",
+      "summary": "Le Championnat du Labo devient une carrière à 3 divisions avec montées, descentes, trophées et palmarès.",
+      "tags": [
+        "championnat",
+        "carriere",
+        "divisions",
+        "montee",
+        "descente",
+        "palmares",
+        "trophee",
+        "manager",
+        "solo",
+        "saison"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "de83e95bd9fe80f5315229ebcd99d6016922d56d219f2cfed6e290c919355ef1",
+      "chars": 2277,
+      "size": 3766,
+      "mtime_ns": 1791738402437807200,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "manager-engine",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Trois divisions de six clubs ; difficulté croissante (niveau du bot par division)."
+        },
+        {
+          "id": "A2",
+          "text": "Fin de saison : 2 montées, 1 descente (aucune en Paillasse), titre de l'Institut = trophée (tests purs)."
+        },
+        {
+          "id": "A3",
+          "text": "Nouvelle saison enchaînée automatiquement ; la saison en cours reprend après rechargement."
+        },
+        {
+          "id": "A4",
+          "text": "Migration d'une saison existante sans perte (test) ; palmarès visible dans « Mon club »."
+        },
+        {
+          "id": "A5",
+          "text": "Textes FR/EN ; aucun effet sur XP/ELO ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "fb92b3f402c944a1f1a9437d1a40a7770e9d3e6f6a753b0420383ea514d911ca",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-037"
+      ]
+    },
+    {
+      "id": "W-038",
+      "path": "work/W-038.html",
+      "title": "Défis du jour",
+      "summary": "Trois défis quotidiens identiques pour tous, suivis automatiquement, avec série de jours.",
+      "tags": [
+        "defis",
+        "du",
+        "jour",
+        "quotidien",
+        "engagement",
+        "serie",
+        "objectifs",
+        "solo",
+        "arene",
+        "manager"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "3662d8dc12560e66b3e9b2983c23a64fc598ddbc1a37a335bf4ddcecf01b847a",
+      "chars": 1991,
+      "size": 3265,
+      "mtime_ns": 1791738402443552400,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "ui",
+        "i18n",
+        "data"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Trois défis du jour déterministes par date locale (tests)."
+        },
+        {
+          "id": "A2",
+          "text": "Progression mise à jour automatiquement en fin de match (Arène et Manager, solo et en ligne)."
+        },
+        {
+          "id": "A3",
+          "text": "Série de jours consécutifs affichée ; remise à zéro après un jour sans défi réussi (test)."
+        },
+        {
+          "id": "A4",
+          "text": "Aucun impact sur XP/ELO ; textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "bc0ec23641ae5f3bff1b50f1548ad7d35edb50ae972266fb3b322ab63eb9cd6e",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-038"
+      ]
+    },
+    {
+      "id": "W-039",
+      "path": "work/W-039.html",
+      "title": "Entraînement guidé v2 : gestes, coups de pied arrêtés, défense",
+      "summary": "Modules d'entraînement de l'Arène avec progression sauvegardée et situations de coup franc ou penalty rejouables.",
+      "tags": [
+        "entrainement",
+        "tutoriel",
+        "gestes",
+        "techniques",
+        "coup",
+        "franc",
+        "penalty",
+        "defense",
+        "arene",
+        "apprentissage"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "b7946996b738ae7485e7f4552f3dcfc20107e5f6086e971818a9a43a6f9e2778",
+      "chars": 2055,
+      "size": 3674,
+      "mtime_ns": 1791738402449090900,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-sim",
+        "arena-input",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Quatre modules sélectionnables ; Bases inchangé."
+        },
+        {
+          "id": "A2",
+          "text": "Objectifs de chaque module détectés à partir des événements de la simulation (tests)."
+        },
+        {
+          "id": "A3",
+          "text": "« Rejouer la situation » relance un coup franc ou un penalty ; refusé hors salle d'entraînement (test)."
+        },
+        {
+          "id": "A4",
+          "text": "Progression par module conservée après rechargement."
+        },
+        {
+          "id": "A5",
+          "text": "Touches affichées selon les réglages (AZERTY/QWERTY/réaffectation) ; textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "8fb144066cd8401397e2f6da8edd22263a90e3235c83a6f58f49dec906ac4886",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-039"
+      ]
+    },
+    {
+      "id": "W-040",
+      "path": "work/W-040.html",
+      "title": "Temps forts d'après-match (Arène)",
+      "summary": "Rediffusion des buts du match en fin de partie, avec la caméra de ralenti.",
+      "tags": [
+        "temps",
+        "forts",
+        "rediffusion",
+        "ralenti",
+        "buts",
+        "fin",
+        "de",
+        "match",
+        "arene",
+        "spectacle"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "25b1c394a926bdac9e5cc62316a5197877235ce9be8b18a1a0a70a4c532842fe",
+      "chars": 1772,
+      "size": 3106,
+      "mtime_ns": 1791738402458843300,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-render",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Bouton « Temps forts » en fin de match d'Arène dès qu'au moins un but a été marqué."
+        },
+        {
+          "id": "A2",
+          "text": "Chaque but rejoué avec la caméra de ralenti, légende buteur / passeur ; suivant / arrêter fonctionnent."
+        },
+        {
+          "id": "A3",
+          "text": "Au plus 8 buts conservés, fenêtre de 5 s chacun (test pur)."
+        },
+        {
+          "id": "A4",
+          "text": "Fonctionne aussi pour un spectateur ; textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "16262b73f1e759d731de45c5c8aa3e3147f4a2a429e56a62b81e1c05c4f87d76",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-040"
+      ]
+    },
+    {
+      "id": "W-041",
+      "path": "work/W-041.html",
+      "title": "Commentaire en direct : sous-titres et voix hiérarchisée",
+      "summary": "Sous-titres des commentaires, réglages de voix et file de priorité (but avant tout) pour l'Arène et le Manager.",
+      "tags": [
+        "commentaire",
+        "voix",
+        "sous-titres",
+        "synthese",
+        "vocale",
+        "narration",
+        "accessibilite",
+        "audio"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "3b2bba6bc20c1603a8d2274b0e66adbe4641305535cd5f8bb451bc4325751768",
+      "chars": 2010,
+      "size": 3451,
+      "mtime_ns": 1791738402466308700,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "ui",
+        "i18n",
+        "audio"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Sous-titres affichés et synchronisés, activables indépendamment de la voix."
+        },
+        {
+          "id": "A2",
+          "text": "File de priorité : but prioritaire, délai minimal 2,5 s, pas de répétition immédiate (tests purs)."
+        },
+        {
+          "id": "A3",
+          "text": "Réglages volume, débit et voix conservés ; sans synthèse vocale disponible, sous-titres seuls, sans erreur."
+        },
+        {
+          "id": "A4",
+          "text": "Arène et Manager concernés ; textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "4e6a93ac02f4519694315d56fc90c3bffa7d8dfd9015132aa380357a361ca044",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-041"
+      ]
+    },
+    {
+      "id": "W-042",
+      "path": "work/W-042.html",
+      "title": "Carte de résumé de match partageable (image)",
+      "summary": "Image PNG du résultat (score, équipes, homme du match, buteurs) à télécharger ou copier, générée localement.",
+      "tags": [
+        "partage",
+        "resume",
+        "image",
+        "carte",
+        "score",
+        "fin",
+        "de",
+        "match",
+        "manager",
+        "arene"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "871705ab7a2089e45a72a38188007ef402d8d9daadf24e007a90a8bbbee03487",
+      "chars": 1715,
+      "size": 3019,
+      "mtime_ns": 1791738402473034800,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Bouton « Partager l'image » en fin de match Manager et Arène."
+        },
+        {
+          "id": "A2",
+          "text": "Image PNG 1200×630 avec score, équipes, homme du match, buteurs, date localisée (test pur des données)."
+        },
+        {
+          "id": "A3",
+          "text": "Copie dans le presse-papiers si possible, sinon téléchargement."
+        },
+        {
+          "id": "A4",
+          "text": "Aucune requête réseau ; textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "ba7470b072e2303fcc288c98f97cbac97f0f4eb77c06bb13f7d3926035bdcc8d",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-042"
+      ]
+    },
+    {
+      "id": "W-043",
+      "path": "work/W-043.html",
+      "title": "Jeu hors ligne installable (PWA)",
+      "summary": "Après une première visite, le solo fonctionne sans réseau ; jeu installable ; état hors ligne clair.",
+      "tags": [
+        "pwa",
+        "hors",
+        "ligne",
+        "offline",
+        "service",
+        "worker",
+        "installable",
+        "manifest",
+        "solo"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "89df530c25896a56aecd26f09361f7e7a426b87bb8d45fd981885d6aa769b0b0",
+      "chars": 2301,
+      "size": 3708,
+      "mtime_ns": 1791738402479919400,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "repo",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Comportement hors ligne actuel vérifié et consigné avant toute modification."
+        },
+        {
+          "id": "A2",
+          "text": "Après une visite, rechargement sans réseau → accueil, Arène solo et Manager contre bot jouables (smoke)."
+        },
+        {
+          "id": "A3",
+          "text": "Fonctions en ligne : message « hors ligne » clair, aucune exception."
+        },
+        {
+          "id": "A4",
+          "text": "Manifeste valide (nom, icônes 192 et 512, start_url , display: standalone ) ; bandeau « Nouvelle version — recharger »."
+        },
+        {
+          "id": "A5",
+          "text": "/api/ et WebSocket jamais en cache ; textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "00782cd5322f7653dea1c759106332857168b4c1f1b4102faacc3bd2972d7372",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-043"
+      ]
+    },
+    {
+      "id": "W-044",
+      "path": "work/W-044.html",
+      "title": "Tablette et mobile : contrôles tactiles repensés",
+      "summary": "Joystick flottant, boutons contextuels comme au clavier, tailles réglables et paysage.",
+      "tags": [
+        "tactile",
+        "tablette",
+        "mobile",
+        "joystick",
+        "boutons",
+        "contextuels",
+        "paysage",
+        "arene",
+        "controles"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "9622b6fa1d065b70e51c6e83354baa79cc61a7ed6faacb2b70f136a608e21c70",
+      "chars": 1953,
+      "size": 3342,
+      "mtime_ns": 1791738402487743800,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-input",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Joystick flottant dans la moitié gauche, qui suit le pouce."
+        },
+        {
+          "id": "A2",
+          "text": "Boutons contextuels identiques au clavier (Tir → Tacle, Passe maintenue → Pressing en défense)."
+        },
+        {
+          "id": "A3",
+          "text": "Taille S/M/L conservée (≥ 56 px en M), bouton caméra, invitation au paysage en portrait."
+        },
+        {
+          "id": "A4",
+          "text": "Aucune régression clavier/manette ; textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "c6a2718ec24e7e369edce2e9dc64ac08adf29419aec6713e48761f1b6b43262b",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-044"
+      ]
+    },
+    {
+      "id": "W-045",
+      "path": "work/W-045.html",
+      "title": "Accessibilité visuelle : daltonisme, taille du texte, focus",
+      "summary": "Couleurs d'équipes distinguables par tous, motifs de secours, taille du texte réglable, focus visible partout.",
+      "tags": [
+        "accessibilite",
+        "daltonisme",
+        "contraste",
+        "taille",
+        "texte",
+        "focus",
+        "couleurs",
+        "equipes"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "01021a8c16f0bf168c53d9810ae767221ba71254c26db577946a00d92d7509f6",
+      "chars": 2106,
+      "size": 3482,
+      "mtime_ns": 1791738402499421400,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "ui",
+        "arena-render",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Option daltonisme : couleur de secours et motifs quand deux couleurs se confondent (tests purs)."
+        },
+        {
+          "id": "A2",
+          "text": "Taille du texte 100/115/130 % appliquée partout et conservée."
+        },
+        {
+          "id": "A3",
+          "text": "Focus clavier visible sur toutes les pages principales ; textes secondaires ≥ 4,5:1."
+        },
+        {
+          "id": "A4",
+          "text": "Option désactivée par défaut, sans effet sur le rendu actuel ; textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "994d3f7c5f3c8608e436e5d1ffcac4567270b2a784d99dd86333dd70454d1110",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-045"
+      ]
+    },
+    {
+      "id": "W-046",
+      "path": "work/W-046.html",
+      "title": "Nouveaux scientifiques et domaines (contenu du PO)",
+      "summary": "Ajouter des scientifiques (astrophysique, neurosciences…) avec 4 power-ups chacun, sans toucher aux 16 d'origine.",
+      "tags": [
+        "nouveaux",
+        "scientifiques",
+        "domaines",
+        "contenu",
+        "personnages",
+        "power-ups",
+        "roster"
+      ],
+      "kind": "work",
+      "status": "draft",
+      "sha256": "43ff04f8e2994661c84d1e0f3695d580be99c51a297ca52c217054776a007ca8",
+      "chars": 1700,
+      "size": 3026,
+      "mtime_ns": 1791738402504434200,
+      "revision": 1,
+      "owner": "Guillaume (PO)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "data",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Contenu validé par Guillaume (noms, domaines, textes FR/EN, power-ups)."
+        },
+        {
+          "id": "A2",
+          "text": "Nouveaux scientifiques jouables dans les deux modes ; les 16 d'origine strictement inchangés (test)."
+        },
+        {
+          "id": "A3",
+          "text": "Draft et composition cohérentes avec le nouveau nombre de scientifiques (décision du PO)."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "137cab2e6e51da5f0b7f2a7d19faf063596d701d95e9f6a81dd8ad69b277d532",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-046"
+      ]
+    },
+    {
+      "id": "W-047",
+      "path": "work/W-047.html",
+      "title": "Tournoi entre amis (Manager)",
+      "summary": "Tournoi à élimination directe pour 4 managers via un code, avec bots en complément.",
+      "tags": [
+        "tournoi",
+        "amis",
+        "manager",
+        "elimination",
+        "bracket",
+        "code",
+        "salon",
+        "en",
+        "ligne"
+      ],
+      "kind": "work",
+      "status": "draft",
+      "sha256": "617fcca3e23931e8c09dc7b7009814bac8d4e505d0b3867b77d5fc4fc54c9c78",
+      "chars": 1431,
+      "size": 2638,
+      "mtime_ns": 1791738402510998400,
+      "revision": 1,
+      "owner": "Guillaume (PO)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "manager-online",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Format, récompense et effet sur l'ELO arbitrés par Guillaume."
+        },
+        {
+          "id": "A2",
+          "text": "Tournoi à 4 places complété par des bots, joué de bout en bout (tests et smoke)."
+        },
+        {
+          "id": "A3",
+          "text": "Textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "60cd350b24be72db84d60132a13789bf8293ce849abaefbd2a2b82a2ce71629f",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-047"
       ]
     }
   ]
