@@ -288,25 +288,26 @@ if (run("td008")) {
   });
 }
 
-// ── Arène (TD-004) : caméras proche / éloignée près des deux buts et le long d'une paroi ──
+// ── Arène (TD-004, décision D-001) : caméra traversante d'origine près des deux buts et des parois ; vitres et filets estompés ──
 if (run("td004")) {
   const SCENES = [
     // [nom, x, z, cible du regard] : son propre but dans le dos (cas de la recette), but adverse devant, paroi latérale
     ["but-propre", -17.5, 1.5], ["but-adverse", 18.2, -1.2], ["paroi", -2, 11.4], ["coin", -18.8, -10.8],
   ];
   // rendu logiciel (1–2 i/s) : la caméra est lissée image par image ; on attend qu'elle soit stabilisée sur la scène
-  const settle = async (x, z) => {
-    let prev = null, stable = 0; const t0 = Date.now();
+  // (sous 1,4 i/s, deux relevés peuvent tomber entre deux images : on attend la position attendue, pas une simple immobilité)
+  const settle = async (x, z, want) => {
+    let hits = 0, c = null; const t0 = Date.now();
     while (Date.now() - t0 < 90000) {
       await sleep(700);
       const r = await evaluate(`(() => { const L = window.__ll3d.latest.p[window.__ll3d.mySlot]; const c = window.__ll3d.camera.position; return { d: Math.hypot(L[0] - ${x}, L[1] - ${z}), c: [c.x, c.y, c.z] }; })()`);
-      if (r.d < 0.6 && prev && Math.max(...r.c.map((v, i) => Math.abs(v - prev[i]))) < 0.04) { if (++stable >= 2) return r.c; } else stable = 0;
-      prev = r.c;
+      c = r.c;
+      if (r.d < 0.6 && want.every((v, i) => Math.abs(c[i] - v) < 0.4)) { if (++hits >= 2) return c; } else hits = 0;
     }
-    throw new Error(`caméra non stabilisée sur (${x}, ${z})`);
+    return c; // délai dépassé : l'écart est signalé par l'appelant
   };
   for (const q of ["low", "medium", "high"]) {
-    await step(`TD-004 : qualité ${q} — caméras dans la cage, obstacles estompés (2 tailles, 2 caméras, 4 positions)`, async () => {
+    await step(`TD-004 : qualité ${q} — caméra traversante d'origine, obstacles estompés (2 tailles, 2 caméras, 4 positions)`, async () => {
       await size(1366, 768); await prefs({ lang: "fr", settings: { quality: q, adaptiveQuality: false, camera: "near" } });
       await startArena("fr");
       const out = [];
@@ -319,11 +320,14 @@ if (run("td004")) {
             // on maintient son joueur (avec le ballon) à la position voulue le temps de la mesure
             // bots figés (ni tacle ni but : pas de ralenti qui changerait de caméra pendant la mesure)
             await evaluate(`(() => { clearInterval(window.__hold); const r = ${localRoom}; const me = window.__ll3d.mySlot; r.brain.update = () => {}; window.__hold = setInterval(() => { for (const q of r.sim.players) { q.vx = 0; q.vz = 0; } const p = r.sim.players[me]; Object.assign(p, { x: ${x}, z: ${z} }); r.sim.ball.owner = me; }, 30); })()`);
-            const c = (await settle(x, z)).map(v => +v.toFixed(2));
-            const inside = Math.abs(c[0]) <= 19.6 && Math.abs(c[2]) <= 11.6; // cage : parois à ±20 / ±12 (marge : secousses)
+            // plan d'origine (joueur de l'équipe 0, regard vers +x) : 5,8 m / 10 m derrière le joueur, hauteur 3,6 / 6,16 m ; marge : secousses
+            const want = cam === "near" ? [x - 5.8, 3.6, z] : [x - 10, 6.16, z];
+            const c = (await settle(x, z, want)).map(v => +v.toFixed(2));
+            const inside = want.every((v, i) => Math.abs(c[i] - v) < 0.4);
+            const behind = Math.abs(c[0]) > 20 || Math.abs(c[2]) > 12;
             const bloom = await evaluate(`+(window.__ll3d.pipeline.composer?.passes.find(p => p.strength !== undefined)?.strength ?? 0).toFixed(3)`);
-            out.push(`${w}×${h} ${cam} ${name} : caméra (${c.join(", ")}), bloom ${bloom}${inside ? "" : " HORS CAGE"}`);
-            if (!inside) throw new Error(`caméra hors de la cage : ${cam} ${name} ${c}`);
+            out.push(`${w}×${h} ${cam} ${name} : caméra (${c.join(", ")})${behind ? " derrière la paroi" : ""}, bloom ${bloom}${inside ? "" : " ÉCART AU PLAN D'ORIGINE"}`);
+            if (!inside) throw new Error(`caméra hors du plan d'origine : ${cam} ${name} ${c} (attendu ${want.map(v => v.toFixed(2))})`);
             if (w === 886 || name === "but-propre") await shot(`td004-${q}-${w}x${h}-${cam}-${name}`);
           }
         }

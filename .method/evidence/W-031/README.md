@@ -32,3 +32,5 @@ Captures (JPEG, rendu logiciel sans GPU, 1–2 images/s : fluidité et rendu exa
 - `diag-0-base.jpg` — Diagnostic : voile de bloom en vue plongeante (avant bloom adaptatif)
 - `diag-4-sans-bloom.jpg` — Diagnostic : même vue sans bloom
 - `diag-0-base-adaptatif.jpg` — Même vue avec le bloom adaptatif
+
+Note (28/09) : les captures `td004-*` ci-dessus montrent la caméra maintenue dans la cage, retirée ensuite à la demande du PO ; version retenue : `../D-001/`.

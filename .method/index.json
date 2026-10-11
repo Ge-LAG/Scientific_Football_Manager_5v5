@@ -1177,6 +1177,120 @@
       ]
     },
     {
+      "id": "D-001",
+      "path": "records/D-001.html",
+      "title": "Arène : conserver la caméra traversante d'origine",
+      "summary": "Arbitrage du PO sur TD-004 : la caméra peut passer derrière les buts et traverser les parois ; le confinement dans la cage est retiré, les aides de lisibilité sont conservées.",
+      "tags": [
+        "decision",
+        "camera",
+        "arene",
+        "lisibilite",
+        "buts",
+        "parois",
+        "vitres",
+        "filets",
+        "bloom",
+        "effets",
+        "reduits",
+        "td-004"
+      ],
+      "kind": "decision",
+      "status": "accepted",
+      "sha256": "11fb58dfc4343c2057fc553a54de62f11204687975a55792588cdc80b27176ea",
+      "chars": 2753,
+      "size": 5697,
+      "mtime_ns": 1790629259569792200,
+      "revision": 1,
+      "owner": "Guillaume",
+      "reviewed": "2026-09-28",
+      "review_by": "2026-12-31",
+      "review_trigger": "Nouvelle demande de Guillaume sur la caméra, ou retour de recette signalant foule, vitres ou filets gênants au premier plan",
+      "review_digest": "8eabb60a929f4446d1ae57e47f8b13e03b05d4ae602ed8d60b219379ec2c05d6",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "arena-render"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [
+        "src/three/cameraRig.js",
+        "src/three/visual/stadium.js",
+        "src/three/render/pipeline.js",
+        "src/three/arenaView.js",
+        "src/ui/reducedFx.js",
+        "tests/uat2-fixes.test.js",
+        "scripts/smoke-uat2.mjs"
+      ],
+      "candidate": "lab-league-v3 : cd223fd + retour à la caméra d'origine (D-001), arbre de travail non commité, 28/09/2026",
+      "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
+      "evidence_digest": "5f3f4a9a4c40432b0bf465faa4b1cc38782da34c67e684b3fa37fd585c60b332",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Décision exprimée par le PO."
+        },
+        {
+          "id": "A2",
+          "text": "Caméras de poursuite (proche, éloignée ; ballon, joueur et célébration côté spectateur) revenues au plan d'origine, y compris derrière les buts et au-delà des parois ; secousses toujours désactivables par « Effets réduits »."
+        },
+        {
+          "id": "A3",
+          "text": "Aides de lisibilité conservées et effectives avec la caméra traversante ; aucune régression des tests."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "TD-004.html",
+          "check": "Message de Guillaume dans la session de travail, 28/09/2026",
+          "by": "Guillaume",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A1",
+          "text": "« Concernant TD-004, je préférais avant => merci de revenir à la caméra avant cela […] => caméra traversant meilleur => à consigner dans .method. Cependant, conserver les éléments ajoutés qui améliorent la lisibilité (vitres qui s'estompent etc.) »."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/D-001/resultats-td004.txt",
+          "check": "Fichier src/three/cameraRig.js restauré depuis 25a2547 (seul ajout : setShake) ; node --test tests/uat2-fixes.test.js (TD-004 / D-001) ; node scripts/smoke-uat2.mjs … td004",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A2",
+          "text": "Test : 5,8 m / 10 m derrière le joueur à hauteur d'origine, au-delà de la ligne de but pour un défenseur devant son but, directement derrière lui le long d'une paroi ; aucune secousse en effets réduits. Navigateur (3 qualités, 2 tailles, caméras proche et éloignée, 4 positions) : chaque relevé conforme au plan d'origine, 24 relevés derrière une paroi."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/D-001/README.md",
+          "check": "npm test (134/134) ; captures td004 (vitres/filets estompés, bloom relevé à chaque position)",
+          "by": "Claude (agent)",
+          "date": "2026-09-28",
+          "waiver": "",
+          "for": "A3",
+          "text": "Estompage, halo atténué, bloom adaptatif et effets réduits inchangés dans le code (stadium.js, pipeline.js, arenaView.js). TD-004 low : 2 i/s (SwiftShader, sans GPU), 76 appels de dessin par image ; TD-004 medium : 1 i/s (SwiftShader, sans GPU), 115 appels de dessin par image ; TD-004 high : 1 i/s (SwiftShader, sans GPU), 115 appels de dessin par image Captures : caméra derrière son but , coin , paroi ."
+        }
+      ],
+      "body_digest": "63422beaffbe8dd483aa566c86cc88b131f760edc448701facc29d1923a4d818",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "TD-004.html#TD-004",
+        "../work/W-031.html#W-031",
+        "TD-004.html",
+        "../evidence/D-001/resultats-td004.txt",
+        "../evidence/D-001/README.md",
+        "../evidence/D-001/td004-low-886x620-far-but-propre.jpg",
+        "../evidence/D-001/td004-high-886x620-far-coin.jpg",
+        "../evidence/D-001/td004-medium-886x620-near-paroi.jpg"
+      ],
+      "anchors": [
+        "D-001"
+      ]
+    },
+    {
       "id": "TD-001",
       "path": "records/TD-001.html",
       "title": "Données partagées absentes du dépôt Git",
@@ -1259,11 +1373,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "9121b699b2c99d71a0a5a192ffd5dfec94117cdf3f0def5743e35b7da83e86fd",
-      "chars": 3897,
-      "size": 6101,
-      "mtime_ns": 1790603142065898400,
-      "revision": 3,
+      "sha256": "0963e894f17c4cadbd670d1a92eaec9a10380afbbb3b9b56f192c6f549fa7ec0",
+      "chars": 4079,
+      "size": 6291,
+      "mtime_ns": 1790628938538338500,
+      "revision": 4,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1284,9 +1398,9 @@
         "tests/uat2-fixes.test.js",
         "scripts/smoke-uat2.mjs"
       ],
-      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "69ee0edc9ca5fa040d0e8c26ced089878934c24b980c8d1593e0cbbcb712e299",
+      "evidence_digest": "dca6cf6a24bc51d5b55919d198c266555b7e8c51e5751fe5a7044363a61c4108",
       "criteria": [
         {
           "id": "A1",
@@ -1329,7 +1443,7 @@
           "text": "Chez A, Échap affiche « Menu — le match continue » ; la salle refuse la pause ; le match avance chez A et chez B (menu ouvert chez A : ticks A 459 → 524, B 459 → 524 en 6 s). Salle publique et spectateur : pause refusée (test). Capture du menu ."
         }
       ],
-      "body_digest": "5fa42a70252d201f15c49c2a4105ac535c524a2fe8b6710b3bda3bacda893aa0",
+      "body_digest": "1dcb17aac3b1782d76527a216155c8bd1d69fcc4e7c6c3a6b8e234f5b997e6b3",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1365,11 +1479,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "51fafb76b5f60c250a83749fffe672c8c9655a13393c4e0261c460f56ab4918e",
-      "chars": 1965,
-      "size": 3737,
-      "mtime_ns": 1790603159226342700,
-      "revision": 2,
+      "sha256": "de7afa126ff6260ad0dde40e26c42318a2f435add50a447884250e3133669938",
+      "chars": 2147,
+      "size": 3927,
+      "mtime_ns": 1790628939493140900,
+      "revision": 3,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1388,9 +1502,9 @@
         "tests/uat2-fixes.test.js",
         "scripts/smoke-uat2.mjs"
       ],
-      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "579ca1bb05ad4396338e47f02ae553952568d37c0b56c3574b84dc080eeea2f2",
+      "evidence_digest": "a45bfdf652dc74226113c52de1d57fd0dd0372bffc41323b0c838bb201631fa4",
       "criteria": [
         {
           "id": "A1",
@@ -1419,7 +1533,7 @@
           "text": "TD-003 : toujours en composition après 62 s, départ uniquement sur « Prêt, coup d'envoi ! » Libellés « Sans limite de temps » / « No time limit ». Captures : FR , EN ."
         }
       ],
-      "body_digest": "db1c1775e9056c576c0a2fad7c02e27c9f46c436d370e1a565c557a3fe6ca791",
+      "body_digest": "1427bb007ead55ca8726545a8eca60d4b68c2d1db09b9e476a1541078a1d21ac",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1450,17 +1564,19 @@
       ],
       "kind": "finding",
       "status": "review",
-      "sha256": "726172499fc1ceefbac09ca5cf959f5b366d1f93a0bbaebc6266c1973bf0bccc",
-      "chars": 3604,
-      "size": 5464,
-      "mtime_ns": 1790603207695646800,
-      "revision": 2,
+      "sha256": "43bb60678c2f5e81b5a5d22d0d33666985d382d60e3e5c5f3cbbdf6f3302b940",
+      "chars": 3308,
+      "size": 5357,
+      "mtime_ns": 1790628937701976400,
+      "revision": 3,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
       "review_trigger": "",
       "review_digest": "",
-      "requires": [],
+      "requires": [
+        "D-001"
+      ],
       "supersedes": [],
       "components": [],
       "applies_to": [],
@@ -1471,13 +1587,13 @@
         "src/three/render/pipeline.js",
         "src/three/arenaView.js",
         "src/ui/reducedFx.js",
-        "src/pages/Settings.jsx",
-        "src/pages/arena/ArenaGame.jsx",
         "tests/uat2-fixes.test.js",
-        "scripts/smoke-uat2.mjs"
+        "scripts/smoke-uat2.mjs",
+        "src/pages/Settings.jsx",
+        "src/pages/arena/ArenaGame.jsx"
       ],
-      "candidate": "25a2547e27ee7787646149f277f78602f0e74fb1",
-      "environment": "Windows ; recette locale ; 28 septembre 2026",
+      "candidate": "lab-league-v3 : cd223fd + retour à la caméra d'origine (D-001), arbre de travail non commité, 28/09/2026",
+      "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
       "evidence_digest": "",
       "criteria": [
         {
@@ -1492,38 +1608,39 @@
       "evidence": [
         {
           "result": "pass",
-          "ref": "../evidence/W-031/resultats-uat2.txt",
-          "check": "node --test tests/uat2-fixes.test.js (TD-004) + node scripts/smoke-uat2.mjs … td004 (qualités basse, moyenne, haute ; 886×620 et 1366×768 ; caméras proche et éloignée ; son but, but adverse, paroi, coin)",
+          "ref": "../evidence/D-001/resultats-td004.txt",
+          "check": "node --test tests/uat2-fixes.test.js (TD-004 / D-001) + node scripts/smoke-uat2.mjs … td004 (qualités basse, moyenne, haute ; 886×620 et 1366×768 ; caméras proche et éloignée ; son but, but adverse, paroi, coin)",
           "by": "Claude (agent)",
           "date": "2026-09-28",
           "waiver": "",
           "for": "A1",
-          "text": "Test : caméra toujours dans la cage (deux buts, deux parois, coins, joueur dans son but ou collé à la paroi), inchangée au centre. Navigateur : caméra dans la cage pour les 48 relevés ; captures lisibles (ballon, joueurs et couleurs d'équipe identifiables). TD-004 low : 2 i/s (SwiftShader, sans GPU), 45 appels de dessin par image ; TD-004 medium : 1 i/s (SwiftShader, sans GPU), 65 appels de dessin par image ; TD-004 high : 1 i/s (SwiftShader, sans GPU), 65 appels de dessin par image Limite : rendu logiciel à 1–2 i/s, certains relevés moyenne/haute pris avant stabilisation de la caméra. Captures : son but (basse) , paroi , but adverse (haute) , voile avant / après bloom adaptatif ."
+          "text": "Caméra conforme au plan d'origine à chaque relevé (24 derrière une paroi) ; vitre et filet estompés quand la caméra les traverse ; ballon, joueurs et couleurs d'équipe identifiables sur les captures. TD-004 low : 2 i/s (SwiftShader, sans GPU), 76 appels de dessin par image ; TD-004 medium : 1 i/s (SwiftShader, sans GPU), 115 appels de dessin par image ; TD-004 high : 1 i/s (SwiftShader, sans GPU), 115 appels de dessin par image Limite : rendu logiciel à 1–2 i/s. Captures : derrière son but (basse) , but adverse (haute) , paroi , voile de bloom avant / après bloom adaptatif ."
         },
         {
           "result": "pending",
-          "ref": "../evidence/W-031/README.md",
+          "ref": "D-001.html",
           "check": "Validation visuelle du PO sur GPU réel",
           "by": "Claude (agent)",
           "date": "2026-09-28",
           "waiver": "",
           "for": "A2",
-          "text": "À faire par Guillaume : non vérifiable ici (pas de carte graphique, pilotage d'Edge indisponible)."
+          "text": "Premier retour de Guillaume (28/09) : caméra confinée rejetée au profit de la caméra traversante (D-001), aides de lisibilité à conserver. Reste à valider dans Edge la version finale (caméra d'origine + estompages, bloom adaptatif, effets réduits)."
         }
       ],
-      "body_digest": "141c33c1281616945359fafef76c016fabe516835ed0485c27ecac10747e2d2c",
+      "body_digest": "fae55bfc11be2908631a73df6e4f1d246bf904914ef341d9ee0a1faaaf1b385d",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "UAT-002.html#UAT-002",
         "../work/W-022.html#W-022",
-        "../evidence/W-031/resultats-uat2.txt",
-        "../evidence/W-031/td004-low-886x620-far-but-propre.jpg",
-        "../evidence/W-031/td004-medium-886x620-near-paroi.jpg",
-        "../evidence/W-031/td004-high-886x620-far-but-adverse.jpg",
+        "D-001.html#D-001",
+        "../evidence/D-001/resultats-td004.txt",
+        "../evidence/D-001/td004-low-886x620-far-but-propre.jpg",
+        "../evidence/D-001/td004-high-886x620-far-but-adverse.jpg",
+        "../evidence/D-001/td004-medium-886x620-near-paroi.jpg",
         "../evidence/W-031/diag-0-base.jpg",
         "../evidence/W-031/diag-0-base-adaptatif.jpg",
-        "../evidence/W-031/README.md"
+        "D-001.html"
       ],
       "anchors": [
         "TD-004"
@@ -1594,11 +1711,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "8df80a5f1507775cdee780d825369fde8f3ab3eb3bc5a581e590fad9aad478c0",
-      "chars": 2353,
-      "size": 3978,
-      "mtime_ns": 1790603175091208300,
-      "revision": 2,
+      "sha256": "04b8d9b277a2ab7a90ff6b6c556727d7aa3b10b7801bd50948b764fa643b919e",
+      "chars": 2535,
+      "size": 4168,
+      "mtime_ns": 1790628940391848600,
+      "revision": 3,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1617,9 +1734,9 @@
         "tests/uat2-fixes.test.js",
         "scripts/smoke-uat2.mjs"
       ],
-      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "0b77d2b146988816e18dd41dd65e47d69ac3fb9337232008e1c22a7c02d2e89f",
+      "evidence_digest": "604f997584481969f10a4eded90f9d10b2c52b17b65f418c0264e1b3a8fb9571",
       "criteria": [
         {
           "id": "A1",
@@ -1638,7 +1755,7 @@
           "text": "td006-fr-886x620 : défilement 1387 → 66px ; score à y=70 (en-tête 62px), terrain 281–603 / 620px ; focus sur la zone du match : true ; td006-en-1366x768 : défilement 613 → 66px ; score à y=70 (en-tête 62px), terrain 281–751 / 768px ; focus sur la zone du match : true ; td006-fr-390x844 : défilement 1349 → 58px ; score à y=127 (en-tête 119px), terrain 320–597 / 992px ; focus sur la zone du match : true Captures : 886×620 , 1366×768 EN , mobile ."
         }
       ],
-      "body_digest": "c49fa06d2ca87b102a5f0c40be3d5fb10b8c727e005a65195da098d6095e65c6",
+      "body_digest": "cfab0234cbc2a68c20b870cf72b7e37525160eee4afd8927a35469ae7d5c17d5",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1669,11 +1786,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "25c795b49013fce80e9ac090c447cd656ff62f741ac348e90fe8efbda3524b8a",
-      "chars": 2985,
-      "size": 4677,
-      "mtime_ns": 1790603190087537600,
-      "revision": 2,
+      "sha256": "4e0804b13dd55e166e896478bcfb4978204726bc39f83e23567867e7ad2e0130",
+      "chars": 3167,
+      "size": 4867,
+      "mtime_ns": 1790628941572600600,
+      "revision": 3,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1690,9 +1807,9 @@
         "tests/uat2-fixes.test.js",
         "scripts/smoke-uat2.mjs"
       ],
-      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "2d4ab82b7e6be1b54131a54375a62ee91c1539592a08cbadfa110f716ec5180e",
+      "evidence_digest": "7ab72580ca0edeab2100a8740d27bb632dedadc398d7a363954c61977874711e",
       "criteria": [
         {
           "id": "A1",
@@ -1711,7 +1828,7 @@
           "text": "td007-en-886x620-avant : 0/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky ; td007-en-886x620-avant : témoin — ancienne règle CSS réinjectée, 30 options masquées par l'aperçu (défaut de la recette reproduit) ; td007-en-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-fr-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-fr-390x844 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-en-768x1024 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-fr-1366x768 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky Captures : témoin avant , après (EN 886×620) , mobile ."
         }
       ],
-      "body_digest": "bbe8f30e09052a360443bcadffcff894795e46b08d6b3fa810e1e75267d5b176",
+      "body_digest": "eb9bce17e80497bd740dea93130b431b3a84b18890d3af5d1687505dcd1297a7",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1741,11 +1858,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "fe8aed2df14785770a4e404ba43dbca4a9790e571adb4fdacb3226819f04cb16",
-      "chars": 4100,
-      "size": 6353,
-      "mtime_ns": 1790603398397217900,
-      "revision": 2,
+      "sha256": "798d3080e3139d3bafe7a23eb779a882298af416a3cc6dfedabfb26794a67dd7",
+      "chars": 4282,
+      "size": 6543,
+      "mtime_ns": 1790628942400485000,
+      "revision": 3,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1766,9 +1883,9 @@
         "tests/uat2-fixes.test.js",
         "scripts/smoke-uat2.mjs"
       ],
-      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "06143ec2dc08a13f26333d384584636f6b31fec3e9aff96a08e28f013c2a2184",
+      "evidence_digest": "c170e8628957014539c6373cbea5a843fbb9d9a0b8a0050ed96bdce9fdbccfc4",
       "criteria": [
         {
           "id": "A1",
@@ -1811,7 +1928,7 @@
           "text": "Chaque fragment de domaine des synergies a sa traduction anglaise, présente mot pour mot dans les domaines affichés par le filtre de la liste des scientifiques (ex. « Physics » ↔ « Physics & Mechanics », « Physics & Chemistry ») ; la page Aide anglaise n'affiche plus aucun terme français (« Computer Science / Cybersecurity », « Biology / Medicine / Agri-Food »…). Capture ."
         }
       ],
-      "body_digest": "927340940da596a2683a5ff8e934446e6717e0ad5683dbe5ad477ed1b50e800c",
+      "body_digest": "cdedd618a9970d2a87b4e2860fbd425d021147b353cf3e42e49d4eeddb96819d",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -5065,7 +5182,7 @@
       "id": "W-031",
       "path": "work/W-031.html",
       "title": "Correctifs issus de la recette UAT-002",
-      "summary": "TD-002, TD-003, TD-006, TD-007 et TD-008 corrigés, retestés et clôturés ; TD-004 mis en œuvre, validation visuelle sur GPU à faire ; TD-005 exclu.",
+      "summary": "TD-002, TD-003, TD-006, TD-007 et TD-008 corrigés, retestés et clôturés ; TD-004 : caméra d'origine conservée (D-001) et aides de lisibilité, validation visuelle à faire ; TD-005 exclu.",
       "tags": [
         "correctifs",
         "recette",
@@ -5086,11 +5203,11 @@
       ],
       "kind": "work",
       "status": "review",
-      "sha256": "4bbd9e42e6f977bbb1da0427b3c6686e569fe3e4f090197b6377845f5aecf6e4",
-      "chars": 4063,
-      "size": 7338,
-      "mtime_ns": 1790603208517768100,
-      "revision": 2,
+      "sha256": "18785e0375f5a26006df95028344ad3669350de53d0f527c27566e9e25a30eb2",
+      "chars": 4761,
+      "size": 8166,
+      "mtime_ns": 1790628937718098700,
+      "revision": 3,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -5132,7 +5249,7 @@
         "scripts/smoke-uat2.mjs",
         "scripts/smoke-online.mjs"
       ],
-      "candidate": "lab-league-v3 : 25a2547 + correctifs W-031 (arbre de travail non commité, 28/09/2026)",
+      "candidate": "lab-league-v3 : cd223fd + retour à la caméra d'origine (D-001), arbre de travail non commité, 28/09/2026",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
       "evidence_digest": "",
       "criteria": [
@@ -5150,7 +5267,7 @@
         },
         {
           "id": "A4",
-          "text": "Périmètre respecté : TD-005 et Higgsfield exclus ; UAT-002 et W-030 non clôturés ; aucun commit, push ni déploiement."
+          "text": "Périmètre respecté : TD-005 et Higgsfield exclus ; UAT-002 et W-030 non clôturés ; commit et push seulement sur demande du PO ; aucun déploiement."
         }
       ],
       "evidence": [
@@ -5172,7 +5289,7 @@
           "date": "2026-09-28",
           "waiver": "",
           "for": "A2",
-          "text": "TD-003 : 2 étapes navigateur réussies ; TD-004 : 3 passages (basse, moyenne, haute) réussis, caméra toujours dans la cage ; validation visuelle PO en attente (TD-004 A2)."
+          "text": "TD-003 : 2 étapes navigateur réussies ; TD-004 : 3 passages (basse, moyenne, haute) réussis avec la caméra maintenue dans la cage, puis à nouveau réussis après retour à la caméra d'origine (D-001) ; validation visuelle PO en attente (TD-004 A2)."
         },
         {
           "result": "pass",
@@ -5192,10 +5309,10 @@
           "date": "2026-09-28",
           "waiver": "",
           "for": "A4",
-          "text": "Aucun fichier TD-005/Higgsfield modifié ; UAT-002 (draft) et W-030 (active) inchangés dans leur statut ; aucun commit ni push."
+          "text": "Aucun fichier TD-005/Higgsfield modifié ; UAT-002 (draft) et W-030 (active) inchangés dans leur statut ; commit cd223fd poussé sur demande explicite du PO ; aucun déploiement."
         }
       ],
-      "body_digest": "19f4d4ca410b73d295d02201ff8147d77efbe6c4ec26c2bd4fb131ccf0d05411",
+      "body_digest": "981cb2a8003915bbc20dbc796d43954caac9d8f3c9bee9f85a1ddce6ae21c2af",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -5207,11 +5324,13 @@
         "../records/TD-007.html#TD-007",
         "../records/TD-008.html#TD-008",
         "../records/TD-005.html#TD-005",
+        "../records/D-001.html#D-001",
         "../records/UAT-002.html#UAT-002",
         "../evidence/W-031/resultats-uat2.txt",
         "../evidence/W-031/README.md",
         "../evidence/W-031/npm-test.txt",
-        "../records/UAT-002.html"
+        "../records/UAT-002.html",
+        "../evidence/D-001/resultats-td004.txt"
       ],
       "anchors": [
         "W-031"

@@ -172,38 +172,34 @@ test("TD-008 : domaines des synergies traduits, cohérents avec les filtres de l
   }
 });
 
-test("TD-004 : caméras proche / éloignée toujours dans la cage de verre (buts et parois), inchangées au centre", async () => {
+test("TD-004 / D-001 : caméra traversante d'origine (derrière les buts, à travers les parois) ; secousses désactivables", async () => {
   globalThis.window ??= { addEventListener() {}, removeEventListener() {} };
   const THREE = await import("three");
   const { createCameraRig } = await import("../src/three/cameraRig.js");
   const { FIELD } = await import("../shared/action/sim.js");
   const canvas = { addEventListener() {}, removeEventListener() {} };
-  const at = (mode, x, z, yaw) => {
+  const at = (mode, x, z, yaw, { shake = 0, shakeOn = true } = {}) => {
     const cam = new THREE.PerspectiveCamera(60, 1.6, 0.1, 400);
     const rig = createCameraRig(cam, canvas, { interactive: true, mode });
+    rig.setShake(shakeOn); if (shake) rig.shake(shake);
     const me = new THREE.Group(); me.position.set(x, 0, z);
     rig.update(1 / 60, { yaw, pitch: 0.3, zoom: 0, me, ball: new THREE.Vector3(x, 0.1, z), ballVel: new THREE.Vector3(), owner: -1, avatars: [], phase: "play" });
     rig.dispose(); return cam.position.clone();
   };
-  const inside = p => Math.abs(p.x) <= FIELD.HX - 0.69 && Math.abs(p.z) <= FIELD.HZ - 0.69;
-  for (const mode of ["near", "far"]) {
-    // défenseur devant SON but, face au jeu : sans correction la caméra serait derrière la vitre / dans la tribune
+  for (const [mode, dist, h] of [["near", 5.8, 2.2 + 0.3 * 5], ["far", 10, 4.2 + 0.3 * 7]]) {
+    // défenseur devant son but, face au jeu : choix du PO, la caméra recule derrière le but (au-delà de la paroi)
     for (const side of [-1, 1]) {
       const p = at(mode, side * 17, 0, side < 0 ? 0 : Math.PI);
-      assert.ok(inside(p), `${mode}, but ${side} : ${p.toArray().map(v => v.toFixed(1))}`);
-      assert.ok(p.y > 3, "la caméra monte quand la perche se raccourcit");
+      assert.ok(Math.abs(p.x - side * (17 + dist)) < 1e-6 && Math.abs(p.y - h) < 1e-6, `${mode}, but ${side} : ${p.toArray().map(v => v.toFixed(2))}`);
+      if (mode === "far") assert.ok(Math.abs(p.x) > FIELD.HX, "caméra éloignée derrière la ligne de but");
     }
-    // le long des parois latérales, face au centre
-    for (const side of [-1, 1]) assert.ok(inside(at(mode, 0, side * 10, side < 0 ? Math.PI / 2 : -Math.PI / 2)), `${mode}, paroi ${side}`);
-    // coin et joueur dans son propre but
-    assert.ok(inside(at(mode, -20.5, 0, 0.3)));
-    assert.ok(inside(at(mode, 18, 11, Math.PI * 1.25)));
-    // joueur collé à la paroi latérale, course le long de la paroi : la caméra reste derrière lui (translation, pas d'effondrement)
-    const dist = mode === "far" ? 10 : 5.8, w = at(mode, 0, 11.5, 0);
-    assert.ok(inside(w) && Math.abs(w.x + dist) < 0.01, `${mode} le long de la paroi : ${w.toArray().map(v => v.toFixed(2))}`);
-    assert.ok(w.z < 11.5 - 0.8, "caméra légèrement rentrée vers le terrain le long de la paroi");
+    // le long d'une paroi : directement derrière le joueur (pas de décalage)
+    const w = at(mode, 0, 11.5, 0);
+    assert.ok(Math.abs(w.x + dist) < 1e-6 && Math.abs(w.z - 11.5) < 1e-6);
   }
-  // au centre : plan d'origine (10 m derrière en caméra éloignée, 5,8 m en proche)
-  assert.ok(Math.abs(at("far", 0, 0, 0).x + 10) < 1e-6);
-  assert.ok(Math.abs(at("near", 0, 0, 0).x + 5.8) < 1e-6);
+  // effets réduits : aucune secousse ; sinon la secousse déplace la caméra
+  const calm = at("far", 0, 0, 0, { shake: 0.35, shakeOn: false });
+  assert.ok(Math.abs(calm.x + 10) < 1e-6 && Math.abs(calm.y - (4.2 + 0.3 * 7)) < 1e-6, "pas de secousse en effets réduits");
+  let moved = false; for (let i = 0; i < 10 && !moved; i++) { const s = at("far", 0, 0, 0, { shake: 0.35 }); moved = Math.abs(s.x + 10) > 1e-6 || Math.abs(s.y - (4.2 + 0.3 * 7)) > 1e-6; }
+  assert.ok(moved, "secousse active par défaut");
 });
