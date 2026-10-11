@@ -1,0 +1,13 @@
+✔ copie datée par jour : 9 jours → 7 copies, contenu identique (199.7228ms)
+✔ fichier principal illisible au démarrage : message indique la dernière copie, rien n'est écrasé (138.9061ms)
+✔ latestBackup : plus récente d'abord, null sinon (21.8166ms)
+✔ openDb copie au démarrage et /api/health expose la date (jamais de chemin) (149.5673ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1329.9361
+EXIT=0

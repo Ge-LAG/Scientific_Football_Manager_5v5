@@ -24,6 +24,7 @@ les comptes sont stockés dans un fichier JSON (`data/lableague.json`).
 | `DATA_DIR` | `./data` | Dossier du fichier de données (doit être **persistant** et **sauvegardé**). |
 | `DATA_FILE` | `$DATA_DIR/lableague.json` | Chemin complet du fichier de données (prioritaire sur `DATA_DIR`). |
 | `TRUST_PROXY` | `1` | `1` : l'IP client est lue dans la dernière entrée de `X-Forwarded-For` (ajoutée par le proxy Hostinger/Nginx). Mettez `0` si le serveur est exposé **sans** proxy. |
+| `BACKUP_KEEP` | `7` | Nombre de copies quotidiennes conservées dans `backups/` (voir « Sauvegarde et restauration »). |
 
 Voir `.env.example`. Aucun secret n'est requis : les mots de passe sont hachés avec scrypt et un sel aléatoire.
 
@@ -97,10 +98,32 @@ Le serveur s'arrête proprement sur `SIGTERM`/`SIGINT` (les données en attente 
 
 ## Sauvegarde et restauration
 
-- Sauvegardez régulièrement le fichier `DATA_DIR/lableague.json` (copie à chaud possible : les écritures sont atomiques).
-  Exemple cron quotidien : `0 4 * * * cp /var/lib/lableague/lableague.json /var/backups/lableague-$(date +\%F).json`.
-- Restauration : arrêtez le service, remettez le fichier, redémarrez.
-- Si le fichier est corrompu, le serveur **refuse de démarrer plutôt que de l'écraser** : restaurez la dernière sauvegarde.
+Le serveur copie lui-même `lableague.json` **une fois par jour** dans `backups/` (à côté du fichier de
+données, donc dans `DATA_DIR/backups/`), au démarrage puis toutes les 24 h. Chaque copie porte la date :
+`lableague-AAAA-MM-JJ.json`. Une seule copie par jour ; les `BACKUP_KEEP` dernières (7 par défaut) sont
+conservées, les plus anciennes sont effacées. `GET /api/health` renvoie la date de la dernière copie
+(champ `backup`). Les copies ne contiennent rien de plus que le fichier de données (pseudo + mot de
+passe haché, progression, classement) — pensez à limiter l'accès au dossier.
+
+### Restaurer une copie (pas à pas)
+
+Exemple avec `DATA_DIR=/var/lib/lableague` et PM2 ; adaptez le chemin et la commande d'arrêt.
+
+1. **Arrêtez le service** : `pm2 stop lableague`.
+2. **Vérifiez la copie à remettre** (la plus récente, ou celle d'avant l'incident) :
+   ```bash
+   ls -t /var/lib/lableague/backups/
+   node -e "JSON.parse(require('fs').readFileSync('/var/lib/lableague/backups/lableague-AAAA-MM-JJ.json','utf8'));console.log('copie lisible')"
+   ```
+3. **Conservez le fichier actuel au cas où** : `mv /var/lib/lableague/lableague.json /var/lib/lableague/lableague.cassé.json`
+   (le serveur refuse de toute façon de démarrer sur un fichier illisible, sans jamais l'écraser).
+4. **Remettez la copie** : `cp /var/lib/lableague/backups/lableague-AAAA-MM-JJ.json /var/lib/lableague/lableague.json`.
+5. **Redémarrez** : `pm2 start lableague` (ou `pm2 restart lableague`), puis vérifiez
+   `GET /api/health` → `{"ok":true,…}` et reconnectez un compte connu.
+6. Les données postérieures à la copie (comptes créés, matchs joués depuis) sont perdues : prévenez les joueurs.
+
+> 💡 Pour une protection supplémentaire, recopiez `backups/` hors du serveur (rsync, espace objet…) :
+> les copies locales ne protègent pas d'une perte du disque.
 
 ## Vérifications après mise en ligne (recette)
 

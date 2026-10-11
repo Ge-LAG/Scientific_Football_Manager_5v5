@@ -6036,12 +6036,12 @@
         "exploitation"
       ],
       "kind": "work",
-      "status": "ready",
-      "sha256": "e7904f39f31f1cccac4bad41932c0f2a97f2774c5bc5d20570727fd2b0be93bd",
-      "chars": 1748,
-      "size": 3160,
-      "mtime_ns": 1791738402427807400,
-      "revision": 1,
+      "status": "review",
+      "sha256": "46e099de918c2bf4853623cc5c17ae47cf45b970daf4ac36c8a428d6d1711b55",
+      "chars": 2869,
+      "size": 5047,
+      "mtime_ns": 1791751252187818800,
+      "revision": 2,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -6077,12 +6077,57 @@
           "text": "Aucune donnée personnelle ajoutée ; npm test vert."
         }
       ],
-      "evidence": [],
-      "body_digest": "09358225678a26bc4acaffeda5d4ee40c3cea481a79ed5492c53ffde869ed9ad",
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/backup.test.js",
+          "check": "node --test tests/backup.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A1",
+          "text": "« 9 jours → 7 copies » : runBackup appelé avec des dates simulées produit une copie lableague-AAAA-MM-JJ.json par jour dans backups/ , contenu identique, rotation qui ne conserve que les 7 plus récentes et n'efface aucun fichier étranger au motif. Une seconde copie le même jour ne fait rien ( created: false )."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/backup.test.js",
+          "check": "node --test tests/backup.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A2",
+          "text": "Fichier volontairement corrompu puis openDb : erreur « fichier de données illisible : lableague.json — dernière copie : backups/lableague-2026-01-01.json » ; le fichier corrompu et les copies sont inchangés après la tentative. Sans copie : « aucune copie »."
+        },
+        {
+          "result": "pass",
+          "ref": "../../deploy/HOSTINGER.md",
+          "check": "relecture",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A3",
+          "text": "Section « Sauvegarde et restauration » : fonctionnement des copies quotidiennes, BACKUP_KEEP, champ backup de /api/health, et procédure de restauration en 6 pas (arrêt, vérification de la copie, conservation du fichier cassé, remise, redémarrage, vérification), en français."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/backup.test.js",
+          "check": "npm test (159/159) ; npm run build",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A4",
+          "text": "Aucune donnée nouvelle : la copie est un octet-pour-octet du fichier existant (assert contenu identique) ; la rotation ne lit que les noms de fichiers. npm test 159/159 dont les 4 tests backup ; npm run build OK ; /api/health expose la date seule, jamais de chemin."
+        }
+      ],
+      "body_digest": "036396006bc626a2987b29bba9446237e071d10d80828b5c8acbfc1b5f008e34",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
+        "../../tests/backup.test.js",
+        "../../tests/backup.test.js",
+        "../../deploy/HOSTINGER.md",
+        "../../tests/backup.test.js",
         "../docs/roadmap.html#roadmap"
       ],
       "anchors": [
