@@ -1269,6 +1269,74 @@
       ]
     },
     {
+      "id": "AC-005",
+      "path": "records/AC-005.html",
+      "title": "Manager : si l'hôte part au salon, le survivant ne peut pas lancer la partie",
+      "summary": "Départ de l'hôte en salon d'attente Manager : le joueur restant (siège away) devient hôte mais m.start est sans effet — startDraft exige un occupant home.",
+      "tags": [
+        "manager",
+        "salon",
+        "hote",
+        "depart",
+        "lancement",
+        "defaut",
+        "reseau"
+      ],
+      "kind": "finding",
+      "status": "review",
+      "sha256": "724c7fc50be475103b28425dca6cb5494ed84a123d5abccdcc5f0ba5d1267c05",
+      "chars": 1435,
+      "size": 2920,
+      "mtime_ns": 1791747029207395800,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "managerRoom",
+        "lobby"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Le joueur restant devient hôte et peut lancer la partie ; le siège vide est pris par un manager virtuel."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/rooms.test.js",
+          "check": "node --test tests/rooms.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A1",
+          "text": "Corrigé par W-034 : startDraft attribue un manager virtuel à tout siège sans humain (home ou away), le test « départ de l'hôte au salon » passe (draft démarré, bot sur le siège home) ; le garde « personne ne joue » est conservé quand aucun siège n'a d'humain."
+        }
+      ],
+      "body_digest": "e99d563475ebe824b02a68767dd8b44f9e0bfa9c898923d0f0cf4566453e6794",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../work/W-034.html#W-034",
+        "../../tests/rooms.test.js"
+      ],
+      "anchors": [
+        "AC-005"
+      ]
+    },
+    {
       "id": "D-001",
       "path": "records/D-001.html",
       "title": "Arène : conserver la caméra traversante d'origine",
@@ -5705,12 +5773,12 @@
         "websocket"
       ],
       "kind": "work",
-      "status": "ready",
-      "sha256": "c197e1a7fe32c50ceb527ca9a723f77384a81b37379c09417cbe5ec3b1b7f3b0",
-      "chars": 2244,
-      "size": 3734,
-      "mtime_ns": 1791738402415307200,
-      "revision": 1,
+      "status": "review",
+      "sha256": "63827680f54927bd406f5fc7af36f6e1bfc4ecbe26c469210a378a9d03944eda",
+      "chars": 3623,
+      "size": 6081,
+      "mtime_ns": 1791747406261636400,
+      "revision": 2,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -5750,12 +5818,68 @@
           "text": "Manager : un manager qui quitte en plein match est remplacé par le bot ; son résultat est enregistré comme abandon, sans erreur serveur ; npm test vert."
         }
       ],
-      "evidence": [],
-      "body_digest": "5dd4908aba51fdfd904d825a0884718a9f03c26e12dae5db8b008c3b4da0a9e2",
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/rooms.test.js",
+          "check": "node --test tests/rooms.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A1",
+          "text": "« départ de l'hôte au salon » : après leave de l'hôte, le membre suivant devient hôte (hostId + you.host) et lance — Arène : phase « playing » ; Manager : phase « draft » avec bot sur le siège libéré. Défaut réel trouvé et consigné (AC-005) : startDraft exigeait un occupant « home » — corrigé, tout siège sans humain est pris par un manager virtuel."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/rooms.test.js",
+          "check": "node --test tests/rooms.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A2",
+          "text": "« arrivée en cours de match » : un humain qui rejoint une Arène en jeu est placé dans l'équipe sans humain (b parti), le joueur passe sous contrôle humain (sim.players[seat].human), a.init reçu puis les a.snap suivent l'init."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/server.test.js",
+          "check": "node --test tests/server.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A3",
+          "text": "« reconnexion tardive (≥ 30 s) » sur serveur réel : socket coupé, bot en relève (left + human=false), 31 s réelles d'attente, reconnexion avec le même guestId → room.joined avec la même place, a.init renvoyé, left=false, exactement 2 humains (aucun doublon). Durée 31 077 ms."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/rooms.test.js",
+          "check": "node --test tests/rooms.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A4",
+          "text": "« deux humains dans la même équipe » : a.switch vers la place de l'autre humain refusé dans les deux sens ; a.switch « auto » choisit toujours un coéquipier bot — bestSwitchTarget exclut les joueurs humains et switchTo refuse toute place occupée."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/rooms.test.js",
+          "check": "node --test tests/rooms.test.js ; npm test",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A5",
+          "text": "« abandon en plein match » : leave en phase « playing » → BotManager en relève (bots.away), place marquée left ; fin de match → onResults reçoit l'entrée du partant avec abandoned=true (abandoned=false pour le joueur resté), rapport diffusé sans erreur. npm test : 148/148."
+        }
+      ],
+      "body_digest": "15dec80e13a05d809e16e26aafad24deb48ed1bc4ccb3d79ee00af0fcd1ea789",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
+        "../../tests/rooms.test.js",
+        "../../tests/rooms.test.js",
+        "../../tests/server.test.js",
+        "../../tests/rooms.test.js",
+        "../../tests/rooms.test.js",
         "../docs/roadmap.html#roadmap"
       ],
       "anchors": [

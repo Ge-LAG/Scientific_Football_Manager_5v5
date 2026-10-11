@@ -69,7 +69,7 @@ export class ManagerRoom extends BaseRoom {
     const side = m.seat; const seat = side ? this.seats[side] : null; const isHost = clientId === this.hostId;
     switch (msg.t) {
       case "m.club": if (seat && this.phase === "lobby") { seat.club = sanitizeClub(msg.club, seat.club); this.broadcastState(); } break;
-      case "m.bot": if (isHost && this.phase === "lobby" && !this.seats.away.memberId) { this.opts.bot = DIFFICULTIES[msg.level] ? msg.level : null; this.broadcastState(); } break;
+      case "m.bot": if (isHost && this.phase === "lobby" && (!this.seats.home.memberId || !this.seats.away.memberId)) { this.opts.bot = DIFFICULTIES[msg.level] ? msg.level : null; this.broadcastState(); } break;
       case "m.start": if (isHost && this.phase === "lobby") this.startDraft(); break;
       case "m.pick": if (seat && this.phase === "draft") this.pick(side, msg.id); break;
       case "m.autopick": if (seat && this.phase === "draft" && this.draft.order[this.draft.turn] === side) this.pick(side, this.autoPickFor(side)); break;
@@ -104,8 +104,15 @@ export class ManagerRoom extends BaseRoom {
   // ── Draft ────────────────────────────────────────────────
   startDraft() {
     if (this.phase !== "lobby") return;
-    if (!this.seats.home.memberId && !this.seats.home.bot) return;
-    if (!this.seats.away.memberId) { const lvl = this.opts.bot || "chercheur"; Object.assign(this.seats.away, { bot: lvl, pseudo: null, club: this.opts.botClub ? sanitizeClub(this.opts.botClub, botClub(lvl, this.rng)) : botClub(lvl, this.rng) }); this.opts.bot = lvl; }
+    if (!this.seats.home.memberId && !this.seats.away.memberId) return; // personne ne joue
+    // tout siège sans humain est pris par un manager virtuel (l'hôte a pu partir d'un côté ou de l'autre)
+    for (const side of SIDES) {
+      const s = this.seats[side];
+      if (s.memberId || s.bot) continue;
+      const lvl = this.opts.bot || "chercheur";
+      Object.assign(s, { bot: lvl, pseudo: null, club: this.opts.botClub ? sanitizeClub(this.opts.botClub, botClub(lvl, this.rng)) : botClub(lvl, this.rng) });
+      this.opts.bot = lvl;
+    }
     // deux clubs identiques (clubs par défaut) : l'équipe extérieure est différenciée
     const H = this.seats.home.club, Aw = this.seats.away.club;
     if (Aw.colors[0].toLowerCase() === H.colors[0].toLowerCase()) Aw.colors = [H.colors[0].toLowerCase() === "#ff00e5" ? "#00F0FF" : "#FF00E5", Aw.colors[1]];
