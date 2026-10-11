@@ -1,13 +1,13 @@
 // Smoke test navigateur (Chrome/Edge sans interface, protocole DevTools) : parcourt les écrans principaux,
 // joue un match Manager contre un bot et lance l'Arène 3D ; capture des images dans le dossier indiqué.
-// Usage : node scripts/smoke-browser.mjs [url=SMOKE_URL|http://localhost:8787] [dossier=smoke-out]
+// Usage : node scripts/smoke-browser.mjs [url=SMOKE_URL|http://localhost:8791 (serveur de test ; jamais la recette 8787 par défaut)] [dossier=smoke-out]
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import WebSocket from "ws";
 
-const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8787";
+const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8791";
 const OUT = process.argv[3] || "smoke-out";
 mkdirSync(OUT, { recursive: true });
 const CANDIDATES = [process.env.CHROME, "C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "/usr/bin/google-chrome", "/usr/bin/chromium"].filter(Boolean);

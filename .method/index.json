@@ -634,11 +634,11 @@
       ],
       "kind": "project",
       "status": "active",
-      "sha256": "638b99fc24083f97bd0e979774b3cbc2fbc217335dc437d08631955497d92c1a",
-      "chars": 6068,
-      "size": 8260,
-      "mtime_ns": 1791738402524731000,
-      "revision": 5,
+      "sha256": "f2ebe5c86f030c89154ef29c3e632ad4595d9f5d62fa385d245563b5fd5f33dd",
+      "chars": 6681,
+      "size": 8955,
+      "mtime_ns": 1791755450888102900,
+      "revision": 6,
       "owner": "CTO",
       "reviewed": "",
       "review_by": "",
@@ -655,7 +655,7 @@
       "evidence_digest": "",
       "criteria": [],
       "evidence": [],
-      "body_digest": "baf5f9264966810b59e2781309e11a00d69dbfee272ee3fe40a94d1520f68fb9",
+      "body_digest": "c86c6e0b291e9c34c8824835fed60ce4f7237e54e08bd9b7febce38f7f4036b5",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -703,12 +703,14 @@
         "../work/W-040.html#W-040",
         "../work/W-041.html#W-041",
         "../work/W-042.html#W-042",
+        "../work/W-048.html#W-048",
         "../work/W-043.html#W-043",
         "../work/W-044.html#W-044",
         "../work/W-045.html#W-045",
         "../work/W-046.html#W-046",
         "../work/W-047.html#W-047",
         "../records/TD-005.html#TD-005",
+        "../records/AC-006.html#AC-006",
         "../records/TD-004.html#TD-004",
         "../records/UAT-002.html#UAT-002",
         "../records/UAT-001.html#UAT-001"
@@ -1337,6 +1339,92 @@
       ]
     },
     {
+      "id": "AC-006",
+      "path": "records/AC-006.html",
+      "title": "Audit du sprint 7 (W-032…W-036)",
+      "summary": "Relecture du code, des tests et des preuves du sprint 7 livré par SWE-2 : 3 écarts corrigés (port de recette visé par défaut, équipes perdues en revanche, vote répété rediffusé), 1 preuve surévaluée corrigée, couverture de la revanche en Arène ajoutée.",
+      "tags": [
+        "audit",
+        "relecture",
+        "sprint",
+        "7",
+        "revanche",
+        "smoke",
+        "port",
+        "recette",
+        "preuve",
+        "tests"
+      ],
+      "kind": "finding",
+      "status": "review",
+      "sha256": "8d9aaa8a82e3d26fdc9a1ab52227fd0f2909e380f78cafdd87e79b0e44fff46c",
+      "chars": 2844,
+      "size": 4958,
+      "mtime_ns": 1791755450841930400,
+      "revision": 1,
+      "owner": "Claude (agent, audit)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "repo",
+        "manager-online",
+        "arena-sim"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Écarts corrigés et couverts par des tests automatiques et par le parcours navigateur en ligne."
+        },
+        {
+          "id": "A2",
+          "text": "Aucune régression : npm test, build, parcours mono-joueur, en ligne et menu tactile verts, sans erreur console."
+        }
+      ],
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../evidence/AC-006/smoke-online.txt",
+          "check": "node --test tests/rooms.test.js (revanche) ; node scripts/smoke-online.mjs http://localhost:8791 …",
+          "by": "Claude (agent, audit)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A1",
+          "text": "Revanche Arène : équipes reprises et vote répété sans rediffusion (tests) ; à deux navigateurs, fin de match puis double vote : revanche Arène : PM2TQP → AP4HJR, A équipe 0, B équipe 1."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/AC-006/npm-test.txt",
+          "check": "npm test ; npm run build ; smoke-browser, smoke-online, smoke-uat2 w033 (serveur 8791)",
+          "by": "Claude (agent, audit)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A2",
+          "text": "npm test 159/159 ; build OK ; mono-joueur 8 étapes, en ligne 7 étapes, menu tactile 3 étapes, toutes réussies, aucune erreur console."
+        }
+      ],
+      "body_digest": "7c4956af7ea82166984d2113772318588643d9dc6d6dc0544fd1836814eeafef",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../evidence/AC-006/smoke-online.txt",
+        "../evidence/AC-006/npm-test.txt"
+      ],
+      "anchors": [
+        "AC-006"
+      ]
+    },
+    {
       "id": "D-001",
       "path": "records/D-001.html",
       "title": "Arène : conserver la caméra traversante d'origine",
@@ -1357,16 +1445,16 @@
       ],
       "kind": "decision",
       "status": "accepted",
-      "sha256": "11fb58dfc4343c2057fc553a54de62f11204687975a55792588cdc80b27176ea",
-      "chars": 2753,
-      "size": 5697,
-      "mtime_ns": 1790629259569792200,
-      "revision": 1,
+      "sha256": "f588ea3bc5fd6ef8e5becb8a50d25501a071f8b622b7f3172013fc95ee16bcfd",
+      "chars": 3105,
+      "size": 6097,
+      "mtime_ns": 1791755926698849900,
+      "revision": 2,
       "owner": "Guillaume",
-      "reviewed": "2026-09-28",
+      "reviewed": "2026-10-11",
       "review_by": "2026-12-31",
       "review_trigger": "Nouvelle demande de Guillaume sur la caméra, ou retour de recette signalant foule, vitres ou filets gênants au premier plan",
-      "review_digest": "8eabb60a929f4446d1ae57e47f8b13e03b05d4ae602ed8d60b219379ec2c05d6",
+      "review_digest": "03603ed97c3d56040526d56b4c3d18a7914080bda99c98911c9d54ca3de7956c",
       "requires": [],
       "supersedes": [],
       "components": [
@@ -1385,7 +1473,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd + retour à la caméra d'origine (D-001), arbre de travail non commité, 28/09/2026",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "5f3f4a9a4c40432b0bf465faa4b1cc38782da34c67e684b3fa37fd585c60b332",
+      "evidence_digest": "b9eb7709103f9f84d26b802a259d862c55f4562575d1eefdad4a6e9ece0095fd",
       "criteria": [
         {
           "id": "A1",
@@ -1432,7 +1520,7 @@
           "text": "Estompage, halo atténué, bloom adaptatif et effets réduits inchangés dans le code (stadium.js, pipeline.js, arenaView.js). TD-004 low : 2 i/s (SwiftShader, sans GPU), 76 appels de dessin par image ; TD-004 medium : 1 i/s (SwiftShader, sans GPU), 115 appels de dessin par image ; TD-004 high : 1 i/s (SwiftShader, sans GPU), 115 appels de dessin par image Captures : caméra derrière son but , coin , paroi ."
         }
       ],
-      "body_digest": "63422beaffbe8dd483aa566c86cc88b131f760edc448701facc29d1923a4d818",
+      "body_digest": "4b139471ccd414115a7b20f79636048948e3d2dc92da66fd7c4abd1ebaf367e5",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1444,7 +1532,8 @@
         "../evidence/D-001/README.md",
         "../evidence/D-001/td004-low-886x620-far-but-propre.jpg",
         "../evidence/D-001/td004-high-886x620-far-coin.jpg",
-        "../evidence/D-001/td004-medium-886x620-near-paroi.jpg"
+        "../evidence/D-001/td004-medium-886x620-near-paroi.jpg",
+        "../evidence/W-032/smoke-uat2.txt"
       ],
       "anchors": [
         "D-001"
@@ -1533,11 +1622,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "0963e894f17c4cadbd670d1a92eaec9a10380afbbb3b9b56f192c6f549fa7ec0",
-      "chars": 4079,
-      "size": 6291,
-      "mtime_ns": 1790628938538338500,
-      "revision": 4,
+      "sha256": "349543c95b9cd184a87f731438affb0ff75484f44d1cedcf7cc284fe9f2bcc65",
+      "chars": 4479,
+      "size": 6750,
+      "mtime_ns": 1791755924423761800,
+      "revision": 5,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1560,7 +1649,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "dca6cf6a24bc51d5b55919d198c266555b7e8c51e5751fe5a7044363a61c4108",
+      "evidence_digest": "6d54aea8a7a07f8d76c72ca8c61bd604fb75aadfc7c8394477a26f42b6da77e1",
       "criteria": [
         {
           "id": "A1",
@@ -1603,7 +1692,7 @@
           "text": "Chez A, Échap affiche « Menu — le match continue » ; la salle refuse la pause ; le match avance chez A et chez B (menu ouvert chez A : ticks A 459 → 524, B 459 → 524 en 6 s). Salle publique et spectateur : pause refusée (test). Capture du menu ."
         }
       ],
-      "body_digest": "1dcb17aac3b1782d76527a216155c8bd1d69fcc4e7c6c3a6b8e234f5b997e6b3",
+      "body_digest": "72771247dfe159a84e724a6ecb2bf4cc0335abd9c136153448ff5b0128f03905",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1619,7 +1708,9 @@
         "../evidence/W-031/td002-en-pause.jpg",
         "../evidence/W-031/smoke-online.txt",
         "../evidence/W-031/on-08-arene-menu-A.png",
-        "UAT-002.html#UAT-002"
+        "UAT-002.html#UAT-002",
+        "../evidence/AC-006/retest-td-sprint7.txt",
+        "AC-006.html#AC-006"
       ],
       "anchors": [
         "TD-002"
@@ -1639,11 +1730,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "de7afa126ff6260ad0dde40e26c42318a2f435add50a447884250e3133669938",
-      "chars": 2147,
-      "size": 3927,
-      "mtime_ns": 1790628939493140900,
-      "revision": 3,
+      "sha256": "4394dc216cc0be8c6ae3d10cea748709c3a3156891a6975d69ca3285e5a13e15",
+      "chars": 2547,
+      "size": 4386,
+      "mtime_ns": 1791755924833255900,
+      "revision": 4,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1664,7 +1755,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "a45bfdf652dc74226113c52de1d57fd0dd0372bffc41323b0c838bb201631fa4",
+      "evidence_digest": "3412304bbf2ad35aa945fa6e863e009930741b42d063020c1cc0ab91f2e7f6be",
       "criteria": [
         {
           "id": "A1",
@@ -1693,7 +1784,7 @@
           "text": "TD-003 : toujours en composition après 62 s, départ uniquement sur « Prêt, coup d'envoi ! » Libellés « Sans limite de temps » / « No time limit ». Captures : FR , EN ."
         }
       ],
-      "body_digest": "1427bb007ead55ca8726545a8eca60d4b68c2d1db09b9e476a1541078a1d21ac",
+      "body_digest": "12571b44ca2ed8af21ee9235b421a3027e8463b328be7312d77d06d94deb580b",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1704,7 +1795,9 @@
         "../evidence/W-031/resultats-uat2.txt",
         "../evidence/W-031/td003-fr-sans-limite.jpg",
         "../evidence/W-031/td003-en-no-limit.jpg",
-        "UAT-002.html#UAT-002"
+        "UAT-002.html#UAT-002",
+        "../evidence/AC-006/retest-td-sprint7.txt",
+        "AC-006.html#AC-006"
       ],
       "anchors": [
         "TD-003"
@@ -1871,11 +1964,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "04b8d9b277a2ab7a90ff6b6c556727d7aa3b10b7801bd50948b764fa643b919e",
-      "chars": 2535,
-      "size": 4168,
-      "mtime_ns": 1790628940391848600,
-      "revision": 3,
+      "sha256": "a82f905cd9240745cfd0f27265feed219a25defd182467d45370a5f45f33e4a6",
+      "chars": 2935,
+      "size": 4627,
+      "mtime_ns": 1791755925302634900,
+      "revision": 4,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1896,7 +1989,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "604f997584481969f10a4eded90f9d10b2c52b17b65f418c0264e1b3a8fb9571",
+      "evidence_digest": "3b050eff8e539440e22ba1c40190bde0ac99d0f74f3f63888201d4c339310942",
       "criteria": [
         {
           "id": "A1",
@@ -1915,7 +2008,7 @@
           "text": "td006-fr-886x620 : défilement 1387 → 66px ; score à y=70 (en-tête 62px), terrain 281–603 / 620px ; focus sur la zone du match : true ; td006-en-1366x768 : défilement 613 → 66px ; score à y=70 (en-tête 62px), terrain 281–751 / 768px ; focus sur la zone du match : true ; td006-fr-390x844 : défilement 1349 → 58px ; score à y=127 (en-tête 119px), terrain 320–597 / 992px ; focus sur la zone du match : true Captures : 886×620 , 1366×768 EN , mobile ."
         }
       ],
-      "body_digest": "cfab0234cbc2a68c20b870cf72b7e37525160eee4afd8927a35469ae7d5c17d5",
+      "body_digest": "2e1a098509748ab2f947a499fc40c83c439cbfaa5b988033af5a1dad1e3bee8f",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1927,7 +2020,9 @@
         "../evidence/W-031/td006-fr-886x620.jpg",
         "../evidence/W-031/td006-en-1366x768.jpg",
         "../evidence/W-031/td006-fr-390x844.jpg",
-        "UAT-002.html#UAT-002"
+        "UAT-002.html#UAT-002",
+        "../evidence/AC-006/retest-td-sprint7.txt",
+        "AC-006.html#AC-006"
       ],
       "anchors": [
         "TD-006"
@@ -1946,11 +2041,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "4e0804b13dd55e166e896478bcfb4978204726bc39f83e23567867e7ad2e0130",
-      "chars": 3167,
-      "size": 4867,
-      "mtime_ns": 1790628941572600600,
-      "revision": 3,
+      "sha256": "3d862bfe70f94302b5bfd7c8be3eb03516f4effc6e3c86a4a3de67b7e07ffd9a",
+      "chars": 3567,
+      "size": 5326,
+      "mtime_ns": 1791755925751534800,
+      "revision": 4,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1969,7 +2064,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "7ab72580ca0edeab2100a8740d27bb632dedadc398d7a363954c61977874711e",
+      "evidence_digest": "6e94792d189f52582b3452888bda9c86e6a3c37c243f288cf82cae4fbb489deb",
       "criteria": [
         {
           "id": "A1",
@@ -1988,7 +2083,7 @@
           "text": "td007-en-886x620-avant : 0/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky ; td007-en-886x620-avant : témoin — ancienne règle CSS réinjectée, 30 options masquées par l'aperçu (défaut de la recette reproduit) ; td007-en-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-fr-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-fr-390x844 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-en-768x1024 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static ; td007-fr-1366x768 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky Captures : témoin avant , après (EN 886×620) , mobile ."
         }
       ],
-      "body_digest": "eb9bce17e80497bd740dea93130b431b3a84b18890d3af5d1687505dcd1297a7",
+      "body_digest": "77aeffdcb48e7bc50b006ff03f013fde668558cb1c2648d9d2b3ab26786e135b",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1999,7 +2094,9 @@
         "../evidence/W-031/td007-en-886x620-avant.jpg",
         "../evidence/W-031/td007-en-886x620.jpg",
         "../evidence/W-031/td007-fr-390x844.jpg",
-        "UAT-002.html#UAT-002"
+        "UAT-002.html#UAT-002",
+        "../evidence/AC-006/retest-td-sprint7.txt",
+        "AC-006.html#AC-006"
       ],
       "anchors": [
         "TD-007"
@@ -2018,11 +2115,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "798d3080e3139d3bafe7a23eb779a882298af416a3cc6dfedabfb26794a67dd7",
-      "chars": 4282,
-      "size": 6543,
-      "mtime_ns": 1790628942400485000,
-      "revision": 3,
+      "sha256": "0421ef2b1165516c8a19902863858462ec9cdcfbafd0a0d641fbe4f2e20f93cc",
+      "chars": 4682,
+      "size": 7002,
+      "mtime_ns": 1791755926221353100,
+      "revision": 4,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -2045,7 +2142,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "c170e8628957014539c6373cbea5a843fbb9d9a0b8a0050ed96bdce9fdbccfc4",
+      "evidence_digest": "c19055252c32ed5246f0647092bc48b2c4df54a06ca136b036423d7ee5ae9f26",
       "criteria": [
         {
           "id": "A1",
@@ -2088,7 +2185,7 @@
           "text": "Chaque fragment de domaine des synergies a sa traduction anglaise, présente mot pour mot dans les domaines affichés par le filtre de la liste des scientifiques (ex. « Physics » ↔ « Physics & Mechanics », « Physics & Chemistry ») ; la page Aide anglaise n'affiche plus aucun terme français (« Computer Science / Cybersecurity », « Biology / Medicine / Agri-Food »…). Capture ."
         }
       ],
-      "body_digest": "cdedd618a9970d2a87b4e2860fbd425d021147b353cf3e42e49d4eeddb96819d",
+      "body_digest": "cd681d5160a2ca0d5c811272954d7fd5f35fd54e6cbd3d72461e5bc1290840c7",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -2102,7 +2199,9 @@
         "../evidence/W-031/td008-en-aide-match.jpg",
         "../evidence/W-031/resultats-uat2.txt",
         "../evidence/W-031/td008-en-synergies.jpg",
-        "UAT-002.html#UAT-002"
+        "UAT-002.html#UAT-002",
+        "../evidence/AC-006/retest-td-sprint7.txt",
+        "AC-006.html#AC-006"
       ],
       "anchors": [
         "TD-008"
@@ -5513,11 +5612,11 @@
       ],
       "kind": "work",
       "status": "review",
-      "sha256": "84fea11ca9447e619010412ab6b1640df474ffe259c2641cca63ecfe946f0ff3",
-      "chars": 3998,
-      "size": 6653,
-      "mtime_ns": 1791743180702690000,
-      "revision": 2,
+      "sha256": "81f1b5d96a4c522de9de7799d2b45efcda9b44c91d1aff295b9c80b2d9beb554",
+      "chars": 4424,
+      "size": 7412,
+      "mtime_ns": 1791755450848943900,
+      "revision": 3,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -5578,7 +5677,7 @@
           "text": "npm run smoke:uat2 existe ; sur serveur de test dédié (PORT=8791, DATA_FILE temporaire) : 16/16 étapes vertes en ~20 min (TD-002 à TD-008, TD-004 low/medium/high inclus), code de sortie 0. En appui : npm run smoke 8/8 et npm run smoke:online 5/5, EXIT=0 (journaux smoke.txt et smoke-online.txt)."
         },
         {
-          "result": "pass",
+          "result": "pending",
           "ref": "../../.github/workflows/smoke.yml",
           "check": "python -m yaml (venv) ; node --test tests/smoke-slow.test.js",
           "by": "SWE-2 (agent)",
@@ -5606,9 +5705,19 @@
           "waiver": "",
           "for": "A5",
           "text": "npm test : 140/140 verts (134 + 6 nouveaux tests smoke-slow) ; npm run build : OK ; git status : seuls README.md, package.json, les 3 scripts smoke, smoke.yml et tests/smoke-slow.test.js modifiés — aucun fichier du jeu."
+        },
+        {
+          "result": "pending",
+          "ref": "../../.github/workflows/smoke.yml",
+          "check": "relecture de .github/workflows/smoke.yml et de la documentation GitHub (workflow_dispatch)",
+          "by": "Claude (agent, audit)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A3",
+          "text": "Syntaxe et contenu conformes, mais aucune exécution sur GitHub : le bouton « Run workflow » n'apparaît qu'une fois le fichier présent sur main . À exécuter par Guillaume après fusion."
         }
       ],
-      "body_digest": "c7593a8a3383323a4d21376c4387cebef0ed7826f853b4b766279770198d69ec",
+      "body_digest": "10719d3c25358245d59ab92e266f4cc88ae407c89ec20573a0e6c1ac2570c8b8",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -5618,7 +5727,9 @@
         "../../.github/workflows/smoke.yml",
         "../../README.md",
         "../evidence/W-032/npm-test.txt",
-        "../docs/roadmap.html#roadmap"
+        "../docs/roadmap.html#roadmap",
+        "../records/AC-006.html#AC-006",
+        "../../.github/workflows/smoke.yml"
       ],
       "anchors": [
         "W-032"
@@ -5641,11 +5752,11 @@
       ],
       "kind": "work",
       "status": "review",
-      "sha256": "cbe7c361246dd7e3812bd390d1bc28c962321f833718ba9f3fd2ea831b314f02",
-      "chars": 3021,
-      "size": 5631,
-      "mtime_ns": 1791746627134356200,
-      "revision": 2,
+      "sha256": "691b0e381c521a1f2c350de3eb346e7328705c73f07749b1c555a2864e03773b",
+      "chars": 3194,
+      "size": 5825,
+      "mtime_ns": 1791755450864133200,
+      "revision": 3,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -5738,7 +5849,7 @@
           "text": "AC-004 passé en review avec la preuve du menu tactile ; npm test 143/143 (3 nouveaux tests W-033) ; npm run build OK."
         }
       ],
-      "body_digest": "f321f5e808f39d65a85161326dc8c61ce0ab9b17930b511c00f41b81f243e8f0",
+      "body_digest": "912a1346d0d32a09d77dc51dcfe9447a2c2f60a74bc32d8fbdd306c665e0a73d",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -5774,11 +5885,11 @@
       ],
       "kind": "work",
       "status": "review",
-      "sha256": "63827680f54927bd406f5fc7af36f6e1bfc4ecbe26c469210a378a9d03944eda",
-      "chars": 3623,
-      "size": 6081,
-      "mtime_ns": 1791747406261636400,
-      "revision": 2,
+      "sha256": "c10bd9d1a2d297174dac923e86a98c13136dea40a7316e5d55ca44cac46fb881",
+      "chars": 3782,
+      "size": 6258,
+      "mtime_ns": 1791755450872057900,
+      "revision": 3,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -5870,7 +5981,7 @@
           "text": "« abandon en plein match » : leave en phase « playing » → BotManager en relève (bots.away), place marquée left ; fin de match → onResults reçoit l'entrée du partant avec abandoned=true (abandoned=false pour le joueur resté), rapport diffusé sans erreur. npm test : 148/148."
         }
       ],
-      "body_digest": "15dec80e13a05d809e16e26aafad24deb48ed1bc4ccb3d79ee00af0fcd1ea789",
+      "body_digest": "8c0901d0b5254bd07d73c7112388ee71be956e01ffad08ce0d70362b6bb2722e",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -5906,11 +6017,11 @@
       ],
       "kind": "work",
       "status": "review",
-      "sha256": "d9ce5e75d46040cf9904bdd8821835acc01f5cb1b9d7f06e27ae080cf0741277",
-      "chars": 3844,
-      "size": 6481,
-      "mtime_ns": 1791750843620074200,
-      "revision": 2,
+      "sha256": "88130a2cb539b7ae384861538a2f1d338b109dd897db6f0bdcd002f5c94c1fd5",
+      "chars": 4231,
+      "size": 7171,
+      "mtime_ns": 1791755450856593600,
+      "revision": 3,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -6002,9 +6113,19 @@
           "waiver": "",
           "for": "A5",
           "text": "Smoke en ligne complet vert : 6/6 étapes dont « Revanche en ligne (Manager) : les deux votent, même nouvelle salle, mêmes côtés et clubs, draft relancée ». Libellés FR/EN présents (tests/rematch.test.js) ; bouton cliqué via /Revanche|Rematch/. npm test 155/155, build OK."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/AC-006/smoke-online.txt",
+          "check": "node scripts/smoke-online.mjs http://localhost:8791 … (étape « Revanche en ligne (Arène) »)",
+          "by": "Claude (agent, audit)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A1",
+          "text": "Écran de fin d'Arène chez les deux joueurs avec « Revanche » et compteur ; double vote → revanche Arène : PM2TQP → AP4HJR, A équipe 0, B équipe 1."
         }
       ],
-      "body_digest": "4e6a345fec1e53835f837a25de9118d3eeb9ca02b0d25b1ea70812e2c3e4c7f0",
+      "body_digest": "aa48be5577fa52e088dc7e9ff0e2fc8fd3756e45b15601036f1926349f31bfc6",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -6014,7 +6135,9 @@
         "../../tests/rooms.test.js",
         "../../tests/rooms.test.js",
         "../evidence/W-035/smoke-online.txt",
-        "../docs/roadmap.html#roadmap"
+        "../docs/roadmap.html#roadmap",
+        "../records/AC-006.html#AC-006",
+        "../evidence/AC-006/smoke-online.txt"
       ],
       "anchors": [
         "W-035"
@@ -6037,11 +6160,11 @@
       ],
       "kind": "work",
       "status": "review",
-      "sha256": "46e099de918c2bf4853623cc5c17ae47cf45b970daf4ac36c8a428d6d1711b55",
-      "chars": 2869,
-      "size": 5047,
-      "mtime_ns": 1791751252187818800,
-      "revision": 2,
+      "sha256": "70e55b56913ac0edf16f2c5f8e8df7eb42233ec84d8d0f012d16a7b72fe5ed62",
+      "chars": 3025,
+      "size": 5244,
+      "mtime_ns": 1791755450880571400,
+      "revision": 3,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -6119,7 +6242,7 @@
           "text": "Aucune donnée nouvelle : la copie est un octet-pour-octet du fichier existant (assert contenu identique) ; la rotation ne lit que les noms de fichiers. npm test 159/159 dont les 4 tests backup ; npm run build OK ; /api/health expose la date seule, jamais de chemin."
         }
       ],
-      "body_digest": "036396006bc626a2987b29bba9446237e071d10d80828b5c8acbfc1b5f008e34",
+      "body_digest": "7a7e5efbf5a4e00b1333999c49faf6ca3f63285ee2d449dac52db9ee8fca676c",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -6665,11 +6788,11 @@
       ],
       "kind": "work",
       "status": "ready",
-      "sha256": "9622b6fa1d065b70e51c6e83354baa79cc61a7ed6faacb2b70f136a608e21c70",
-      "chars": 1953,
-      "size": 3342,
-      "mtime_ns": 1791738402487743800,
-      "revision": 1,
+      "sha256": "3046ff92356f96b6a36b9510a7ca094409b7fe54978ce0ad366304bf38f80bac",
+      "chars": 2224,
+      "size": 3683,
+      "mtime_ns": 1791755450902256000,
+      "revision": 2,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -6707,11 +6830,12 @@
         }
       ],
       "evidence": [],
-      "body_digest": "c6a2718ec24e7e369edce2e9dc64ac08adf29419aec6713e48761f1b6b43262b",
+      "body_digest": "e51c934cbfa7c55810a1ce55dbbeb58f483e60e25814a906d3236edb6f63e26b",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
+        "../records/AC-006.html#AC-006",
         "../docs/roadmap.html#roadmap"
       ],
       "anchors": [
@@ -6917,6 +7041,81 @@
       ],
       "anchors": [
         "W-047"
+      ]
+    },
+    {
+      "id": "W-048",
+      "path": "work/W-048.html",
+      "title": "Séries entre amis (au meilleur des 3 ou 5)",
+      "summary": "Prolonge la revanche : score de série affiché d'un match à l'autre, vainqueur de la série annoncé.",
+      "tags": [
+        "serie",
+        "revanche",
+        "amis",
+        "meilleur",
+        "des",
+        "3",
+        "score",
+        "social",
+        "en",
+        "ligne",
+        "arene",
+        "manager"
+      ],
+      "kind": "work",
+      "status": "ready",
+      "sha256": "ee9ee2b4a68de7706ff0e76c89351772264d854ecf8b68964a077addb260f327",
+      "chars": 2435,
+      "size": 3837,
+      "mtime_ns": 1791755450907269400,
+      "revision": 1,
+      "owner": "SWE-2 (agent)",
+      "reviewed": "",
+      "review_by": "",
+      "review_trigger": "",
+      "review_digest": "",
+      "requires": [],
+      "supersedes": [],
+      "components": [
+        "manager-online",
+        "arena-sim",
+        "ui",
+        "i18n"
+      ],
+      "applies_to": [],
+      "paths": [],
+      "watch": [],
+      "candidate": "",
+      "environment": "",
+      "evidence_digest": "",
+      "criteria": [
+        {
+          "id": "A1",
+          "text": "Choix « Match unique / Au meilleur des 3 / Au meilleur des 5 » au salon d'une partie privée en ligne, refusé en salle publique (test)."
+        },
+        {
+          "id": "A2",
+          "text": "Score de série conservé d'une revanche à l'autre et affiché au salon, pendant le match et sur l'écran de fin (tests de salle et parcours en ligne)."
+        },
+        {
+          "id": "A3",
+          "text": "Fin de série à la majorité : vainqueur annoncé, nouvelle série proposée ; un nul en Arène ne donne pas de point (test)."
+        },
+        {
+          "id": "A4",
+          "text": "Textes FR/EN ; npm test et build verts."
+        }
+      ],
+      "evidence": [],
+      "body_digest": "f919b502841eab1d5bcfaadc65338e40001d58972506405ff3de3699e2c26e4e",
+      "has_placeholder": false,
+      "links": [
+        "../assets/method.css",
+        "../index.html",
+        "../docs/roadmap.html#roadmap"
+      ],
+      "anchors": [
+        "W-048"
       ]
     }
   ]

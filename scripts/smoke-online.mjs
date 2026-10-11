@@ -1,6 +1,6 @@
 // E2E en ligne : deux onglets Chrome sans interface, deux comptes de test, salle privée par code.
 // Manager : draft → composition → match → rapport (XP/ELO) ; Arène : deux humains dans la même partie.
-// Usage : node scripts/smoke-online.mjs [url=SMOKE_URL|http://localhost:8787] [dossier=smoke-out]
+// Usage : node scripts/smoke-online.mjs [url=SMOKE_URL|http://localhost:8791 (serveur de test ; jamais la recette 8787 par défaut)] [dossier=smoke-out]
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -8,7 +8,7 @@ import path from "node:path";
 import { randomBytes } from "node:crypto";
 import WebSocket from "ws";
 
-const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8787";
+const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8791";
 const OUT = process.argv[3] || "smoke-out";
 mkdirSync(OUT, { recursive: true });
 const exe = [process.env.CHROME, "C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "/usr/bin/google-chrome", "/usr/bin/chromium"].filter(Boolean).find(p => existsSync(p));
@@ -167,6 +167,25 @@ await step("Arène en ligne : avec un autre humain, le menu prévient que le mat
   if (!(k1 >= k0 + 5 && a1 >= a0 + 5)) throw new Error(`le match ne continue pas pendant le menu de A (A ${a0} → ${a1}, B ${k0} → ${k1})`);
   console.log(`ℹ menu ouvert chez A : ticks A ${a0} → ${a1}, B ${k0} → ${k1} en ${Math.round((Date.now() - t0) / 1000)} s`);
   await A.click("Reprendre");
+});
+await step("Revanche en ligne (Arène) : fin du match, les deux votent, même nouvelle salle, mêmes équipes", async () => {
+  // fin naturelle du match (2 × 1 min, chrono du serveur) : écran de fin avec le bouton « Revanche » chez les deux
+  const team = P => P.evaluate(`(() => { const r = window.__llGame.room; const s = r.slots[r.you.slot]; return s ? s.team : null; })()`);
+  const teamA = await team(A), teamB = await team(B), old = await A.evaluate(`window.__llGame.room.code`);
+  const voteBtn = `[...document.querySelectorAll("button")].some(b => /Revanche/.test(b.textContent) && !b.disabled)`;
+  await A.waitFor(voteBtn, 300000); await B.waitFor(voteBtn, 60000);
+  await A.shot("on-11-arene-fin-A");
+  await A.click("Revanche");
+  await B.waitFor(`/1\\/2/.test([...document.querySelectorAll("button")].find(b => /Revanche/.test(b.textContent))?.textContent || "")`, 30000);
+  await B.click("Revanche");
+  const moved = `window.__llGame.room && window.__llGame.room.code !== ${JSON.stringify(old)} && window.__llGame.room.mode === "arena" && window.__llGame.room.phase === "lobby"`;
+  await A.waitFor(moved, 30000); await B.waitFor(moved, 30000);
+  const codeA = await A.evaluate(`window.__llGame.room.code`), codeB = await B.evaluate(`window.__llGame.room.code`);
+  if (codeA !== codeB) throw new Error(`salles de revanche différentes : ${codeA} / ${codeB}`);
+  const nA = await team(A), nB = await team(B);
+  if (nA !== teamA || nB !== teamB) throw new Error(`équipes changées : A ${teamA} → ${nA}, B ${teamB} → ${nB}`);
+  await A.shot("on-12-arene-revanche-A");
+  console.log(`ℹ revanche Arène : ${old} → ${codeA}, A équipe ${nA}, B équipe ${nB}`);
 });
 
 console.log("\n" + results.map(r => r.join(" ")).join("\n"));

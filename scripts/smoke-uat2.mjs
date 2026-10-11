@@ -1,13 +1,13 @@
 // Retest navigateur des correctifs issus de la recette UAT-002 (TD-002, TD-003, TD-004, TD-006, TD-007, TD-008).
 // Chrome/Edge sans interface (protocole DevTools), clics et touches réels ; captures JPEG dans le dossier indiqué.
-// Usage : node scripts/smoke-uat2.mjs [url=SMOKE_URL|http://localhost:8787] [dossier=smoke-uat2] [étapes=all|td002,td003…]
+// Usage : node scripts/smoke-uat2.mjs [url=SMOKE_URL|http://localhost:8791 (serveur de test ; jamais la recette 8787 par défaut)] [dossier=smoke-uat2] [étapes=all|td002,td003…]
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import WebSocket from "ws";
 
-const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8787";
+const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8791";
 const OUT = process.argv[3] || "smoke-uat2";
 const ONLY = (process.argv[4] || "all").split(",");
 const run = k => ONLY.includes("all") || ONLY.includes(k);

@@ -106,8 +106,8 @@ SMOKE_URL=http://localhost:8791 npm run smoke:online  # deux joueurs en ligne
 SMOKE_URL=http://localhost:8791 npm run smoke:uat2    # retest des correctifs UAT-002
 ```
 
-`npm run smoke`, `npm run smoke:online` et `npm run smoke:uat2` visent `http://localhost:8787`
-(port de `npm start`) ou l'adresse de **`SMOKE_URL`** ; pour un autre dossier de captures ou une
+`npm run smoke`, `npm run smoke:online` et `npm run smoke:uat2` visent par défaut le serveur de test
+`http://localhost:8791` (jamais le port 8787 de `npm start`, souvent celui de la recette) ou l'adresse de **`SMOKE_URL`** ; pour un autre dossier de captures ou une
 sous-suite d'étapes, lancer le script `.mjs` directement avec ses arguments `[url] [dossier] [étapes]`.
 
 Machine lente (rendu logiciel, peu d'images par seconde) : la variable **`SMOKE_SLOW`** multiplie
@@ -121,6 +121,8 @@ SMOKE_SLOW=2 node scripts/smoke-uat2.mjs http://localhost:8791 smoke-uat2
 Le workflow GitHub **Smoke** (onglet *Actions*, déclenchement manuel `workflow_dispatch`) exécute
 le build, un serveur de test sur port dédié, le parcours mono-joueur et le retest UAT-002
 (hors TD-004, dont la validation reste visuelle dans Edge), puis publie les captures en artefact.
+GitHub ne propose le bouton *Run workflow* que pour les workflows présents sur la branche par défaut (`main`) :
+il apparaît après la fusion de la branche qui l'introduit ; on choisit alors la branche à tester.
 
 ## Architecture
 

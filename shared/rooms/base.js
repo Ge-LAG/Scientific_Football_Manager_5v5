@@ -52,7 +52,9 @@ export class BaseRoom {
   voteRematch(clientId) {
     const m = this.members.get(clientId);
     if (!m || this.phase !== "ended" || !this.lobby || this.rematch.code) return;
-    this.rematch.votes.add(BaseRoom.identity(m.client));
+    const id = BaseRoom.identity(m.client);
+    if (this.rematch.votes.has(id)) return; // vote répété : rien ne change, pas de nouvelle diffusion
+    this.rematch.votes.add(id);
     if (!this.rematch.voting) { this.rematch.voting = true; this.after(this.rematchDelayMs, () => this.createRematch()); } // le délai court depuis le premier vote
     if (!this.rematch.code) this.maybeRematch();
     this.broadcastState();
@@ -71,6 +73,7 @@ export class BaseRoom {
     const voters = [...this.members.values()].filter(x => this.rematch.votes.has(BaseRoom.identity(x.client)));
     if (!voters.length) return;
     const room = this.lobby.createRoom(this.mode, this.rematchOpts());
+    this.rematchPrepare(room);
     room.rematchSeats = new Map(voters.map(x => [BaseRoom.identity(x.client), this.rematchSeat(x.client.id)]));
     this.rematch.code = room.code;
     this.broadcastState(); // les autres voient le code pour rejoindre la revanche
@@ -82,6 +85,7 @@ export class BaseRoom {
     return { votes: this.rematch.votes.size, humans: this.members.size, you: !!(m && this.rematch.votes.has(BaseRoom.identity(m.client))), code: this.rematch.code };
   }
   rematchOpts() { return { ...this.opts, public: false, quick: false }; } // salle privée, mêmes options
+  rematchPrepare() {} // réglages de salle hors options (Arène : noms et couleurs des équipes)
   rematchSeat(clientId) { return this.members.get(clientId)?.seat ?? null; }
 
   close() { this.closed = true; this.clearTimers(); }

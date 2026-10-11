@@ -5,22 +5,34 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import fr from "../src/i18n/fr.js";
 import en from "../src/i18n/en.js";
+import { ArenaRoom } from "../shared/rooms/arenaRoom.js";
+import { ManagerRoom } from "../shared/rooms/managerRoom.js";
 
-const arena = readFileSync(new URL("../shared/rooms/arenaRoom.js", import.meta.url), "utf8");
-const manager = readFileSync(new URL("../shared/rooms/managerRoom.js", import.meta.url), "utf8");
-const base = readFileSync(new URL("../shared/rooms/base.js", import.meta.url), "utf8");
 const arenaGame = readFileSync(new URL("../src/pages/arena/ArenaGame.jsx", import.meta.url), "utf8");
 const report = readFileSync(new URL("../src/pages/manager/ReportView.jsx", import.meta.url), "utf8");
 const rematch = readFileSync(new URL("../src/ui/Rematch.jsx", import.meta.url), "utf8");
 
-test("serveur : a.rematch / m.rematch câblés sur le vote commun, état rematch diffusé", () => {
-  assert.match(arena, /case "a\.rematch": this\.voteRematch\(clientId\)/);
-  assert.match(manager, /case "m\.rematch": this\.voteRematch\(clientId\)/);
-  assert.match(base, /this\.rematch\.votes\.add\(BaseRoom\.identity\(m\.client\)\)/, "une voix par identité");
-  assert.match(base, /this\.phase !== "ended"/, "vote ignoré hors phase de fin");
-  assert.match(base, /if \(this\.rematch\.code \|\| !this\.lobby\) return/, "une seule salle de revanche");
-  assert.match(arena, /rematch: this\.rematchState\(clientId\)/, "état rematch dans stateFor (Arène)");
-  assert.match(manager, /rematch: this\.rematchState\(clientId\)/, "état rematch dans stateFor (Manager)");
+// comportement (et non texte du code) : l'audit du sprint 7 a montré qu'un test par motif de source casse au moindre remaniement
+const client = (id, extra = {}) => { const msgs = []; return { id, pseudo: id, guestId: "g" + id.padEnd(8, "0"), send: m => msgs.push(m), msgs, ...extra }; };
+const last = (c, t) => [...c.msgs].reverse().find(m => m.t === t);
+const fakeLobby = () => ({ created: [], clients: new Map(), createRoom(mode, opts) { const r = { code: "NEW" + this.created.length, mode, opts }; this.created.push(r); return r; }, enter() {}, scheduleClose() {}, closeRoom() {} });
+
+test("serveur : a.rematch / m.rematch → une voix par identité, en fin de match seulement, une seule salle, état diffusé", () => {
+  for (const [Room, t] of [[ArenaRoom, "a.rematch"], [ManagerRoom, "m.rematch"]]) {
+    const lobby = fakeLobby(); const room = new Room({ code: "R1", opts: {}, lobby });
+    const a = client("a1"), b = client("b1");
+    room.join(a); room.join(b);
+    room.handle("a1", { t }); assert.equal(room.rematch.votes.size, 0, `${t} : vote ignoré hors phase de fin`);
+    room.phase = "ended";
+    room.handle("a1", { t }); room.handle("a1", { t });
+    assert.equal(room.rematch.votes.size, 1, `${t} : une voix par identité`);
+    assert.equal(lobby.created.length, 0, `${t} : pas de salle tant que tous n'ont pas voté`);
+    assert.equal(last(b, "room.state").rematch.votes, 1, `${t} : compteur diffusé aux autres`);
+    room.handle("b1", { t }); room.handle("b1", { t });
+    assert.equal(lobby.created.length, 1, `${t} : une seule salle de revanche`);
+    assert.equal(last(a, "room.state").rematch.code, "NEW0", `${t} : code diffusé`);
+    room.close();
+  }
 });
 
 test("client : bouton visible uniquement en ligne, vote et jonction par code", () => {

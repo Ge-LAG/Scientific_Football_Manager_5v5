@@ -1,0 +1,11 @@
+ℹ revanche LS4V6A → GJSJMB : mêmes côtés (A home, B away), mêmes clubs, match relancé
+ℹ menu ouvert chez A : ticks A 596 → 601, B 596 → 601 en 10 s
+ℹ revanche Arène : PM2TQP → AP4HJR, A équipe 0, B équipe 1
+
+✔ Connexion des deux comptes (jeton de session)
+✔ Manager en ligne : salle privée, invitation par code, draft, composition
+✔ Manager en ligne : match synchronisé puis rapport avec XP et ELO
+✔ Revanche en ligne (Manager) : les deux votent, même nouvelle salle, mêmes côtés et clubs, draft relancée
+✔ Arène en ligne : deux humains dans la même partie, apparence visible de l'adversaire
+✔ Arène en ligne : avec un autre humain, le menu prévient que le match continue (pas de pause)
+✔ Revanche en ligne (Arène) : fin du match, les deux votent, même nouvelle salle, mêmes équipes

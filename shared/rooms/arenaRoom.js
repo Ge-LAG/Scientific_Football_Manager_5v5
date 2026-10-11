@@ -32,6 +32,9 @@ export class ArenaRoom extends BaseRoom {
     this.paused = false;
   }
 
+  // revanche : mêmes noms et couleurs d'équipes que le match terminé (réglés par l'hôte au salon)
+  rematchPrepare(room) { room.teams = this.teams.map(t => ({ ...t })); }
+
   isPublicJoinable() { return this.opts.public && this.phase !== "ended" && this.humanCount() < 10; }
   humanCount() { return this.slots.filter(s => s.memberId).length; }
   // pause réelle seulement en solo contre les bots (un seul humain connecté, salle non publique) :

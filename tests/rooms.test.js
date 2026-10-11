@@ -172,6 +172,9 @@ test("revanche Arène : vote ignoré en match ; tous votants → nouvelle salle 
   enter(a, room); enter(b, room);
   room.handle("a1", { t: "a.rematch" }); // hors phase « ended » : ignoré
   assert.equal(room.rematch.votes.size, 0, "vote hors fin de match ignoré");
+  // équipes personnalisées par l'hôte au salon : reprises dans la revanche (audit du sprint 7)
+  const teams = [{ name: "Les Quarks", color: "#123456" }, { name: "Les Leptons", color: "#654321" }];
+  room.handle("a1", { t: "a.opts", teams });
   room.handle("a1", { t: "a.start" });
   const aSeat = seatOf(room, "a1"), bSeat = seatOf(room, "b1");
   await endArena(room);
@@ -181,6 +184,8 @@ test("revanche Arène : vote ignoré en match ; tous votants → nouvelle salle 
   assert.equal(st.rematch.votes, 1); assert.equal(st.rematch.humans, 2); assert.equal(st.rematch.you, false);
   assert.equal(last(client0(room, "a1"), "room.state").rematch.you, true, "le votant se voit compté");
   assert.equal(roomOf(lobby, "a1"), room, "pas de salle tant que tout le monde n'a pas voté");
+  const nb = b.msgs.length; room.handle("a1", { t: "a.rematch" });
+  assert.equal(b.msgs.length, nb, "vote répété : aucune nouvelle diffusion");
 
   room.handle("b1", { t: "a.rematch" });
   const newRoom = roomOf(lobby, "a1");
@@ -188,6 +193,8 @@ test("revanche Arène : vote ignoré en match ; tous votants → nouvelle salle 
   assert.equal(room.rematch.code, newRoom.code, "le code de la revanche est diffusé");
   assert.equal(newRoom.opts.halfSeconds, 120); assert.equal(newRoom.opts.botLevel, "easy");
   assert.equal(newRoom.opts.public, false); assert.equal(newRoom.opts.quick, false);
+  assert.deepEqual(newRoom.teams, teams, "mêmes noms et couleurs d'équipes");
+  assert.notEqual(newRoom.teams, room.teams, "copie, pas de partage d'objet entre salles");
   assert.equal(seatOf(newRoom, "a1"), aSeat, "même place (même équipe)");
   assert.equal(seatOf(newRoom, "b1"), bSeat, "même place (même équipe)");
   assert.equal(last(a, "room.joined").code, newRoom.code, "room.joined envoyé au votant");
