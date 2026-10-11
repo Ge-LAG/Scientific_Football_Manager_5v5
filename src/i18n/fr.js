@@ -285,6 +285,7 @@ export default {
   "arena.reserved": "Place réservée à un coéquipier déconnecté",
   "controls.press": "Pressing (maintenir) : harceler le porteur",
   "touch.press": "Pressing",
+  "touch.menu": "Ouvrir le menu",
   "skill.cut": "Crochet",
   "skill.feint": "Feinte de corps",
   "skill.roulette": "Roulette",

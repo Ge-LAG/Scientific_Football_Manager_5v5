@@ -24,7 +24,7 @@ jobs:
       - name: Smoke mono-joueur
         run: node scripts/smoke-browser.mjs http://localhost:8791 smoke-out
       - name: "Retest UAT-002 (hors TD-004, validation visuelle de Guillaume dans Edge)"
-        run: node scripts/smoke-uat2.mjs http://localhost:8791 smoke-uat2 td002,td003,td006,td007,td008
+        run: node scripts/smoke-uat2.mjs http://localhost:8791 smoke-uat2 td002,td003,td006,td007,td008,w033
       - name: Captures en artefact
         if: always()
         uses: actions/upload-artifact@v4

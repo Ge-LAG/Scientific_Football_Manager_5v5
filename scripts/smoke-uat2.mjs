@@ -295,6 +295,83 @@ if (run("td008")) {
   });
 }
 
+// ── Menu tactile (W-033 / AC-004) : bouton ☰ — même menu qu'Échap ; pause réelle en solo ──
+// appui tactile réel (protocole DevTools) : vrai touchstart/touchend sur l'élément au premier plan
+const tapEl = async sel => {
+  const c = await centerOf(sel);
+  if (!c) throw new Error("élément introuvable : " + sel);
+  await cmd("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: Math.round(c.x), y: Math.round(c.y) }] });
+  await sleep(80);
+  await cmd("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+};
+const tapText = (text, scope = "button") => tapEl(`[...document.querySelectorAll(${JSON.stringify(scope)})].find(b => b.textContent.toLowerCase().includes(${JSON.stringify(text.toLowerCase())}) && !b.disabled)`);
+// géométrie du bouton ☰ : taille, aria-label, chevauchements avec le score et les boutons d'action
+const menuGeom = () => evaluate(`(() => { const b = document.querySelector(".touch-menu"); if (!b) return null; const r = b.getBoundingClientRect(); const ov = (a, c) => a.left < c.right && a.right > c.left && a.top < c.bottom && a.bottom > c.top; const top = document.querySelector(".hud-top")?.getBoundingClientRect(); const btns = [...document.querySelectorAll(".touch-btns button")].map(e => e.getBoundingClientRect()); return { w: +r.width.toFixed(1), h: +r.height.toFixed(1), aria: b.getAttribute("aria-label"), ovTop: top ? ov(r, top) : null, nOv: btns.filter(c => ov(r, c)).length }; })()`);
+const checkMenuBtn = async (want, tag) => {
+  const g = await menuGeom();
+  if (!g) throw new Error(tag + " : bouton ☰ absent (pointer: coarse non détecté ?)");
+  if (g.w < 44 || g.h < 44) throw new Error(tag + " : zone tactile < 44px : " + JSON.stringify(g));
+  if (g.aria !== want) throw new Error(tag + " : aria-label = " + JSON.stringify(g.aria));
+  if (g.ovTop || g.nOv > 0) throw new Error(tag + " : chevauchement : " + JSON.stringify(g));
+  return g;
+};
+
+if (run("w033")) {
+  await step("W-033 FR tactile 390×844 : ☰ visible ≥44px sans chevauchement, pause réelle, reprise sans saut", async () => {
+    await cmd("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
+    await size(390, 844, true); await prefs({ lang: "fr" });
+    await startArena("fr");
+    const g = await checkMenuBtn("Ouvrir le menu", "390×844");
+    info(`w033 390×844 : ☰ ${g.w}×${g.h}px aria « ${g.aria} », score et boutons dégagés`);
+    await shot("w033-fr-390-hud");
+    await tapEl(`document.querySelector(".touch-menu")`);
+    await waitFor(`!!document.querySelector(".hud-menu")`, 20000);
+    await waitFor(`window.__llGame.room.paused === true`, 20000);
+    const a = await simState(); await sleep(3000); const b = await simState();
+    if (a.tick !== b.tick || a.hudClock !== b.hudClock) throw new Error("le match avance pendant la pause tactile");
+    await shot("w033-fr-390-menu");
+    await tapText(LBL.fr.resume);
+    await waitFor(`!document.querySelector(".hud-menu") && window.__llGame.room.paused === false`, 10000);
+    await sleep(1500);
+    if ((await simState()).tick <= b.tick) throw new Error("pas de reprise après « Reprendre » tactile");
+    info("w033 solo : pause au toucher (chrono figé), reprise par « Reprendre », match reparti");
+    await key("Escape"); await waitFor(`!!document.querySelector(".hud-menu")`, 10000); await realClickText(LBL.fr.quit); await waitFor(has(LBL.fr.lvl), 20000);
+  });
+  await step("W-033 EN tablette 1024×768 : géométrie, aria « Open menu », pause solo", async () => {
+    await size(1024, 768, true); await prefs({ lang: "en" });
+    await startArena("en");
+    const g = await checkMenuBtn("Open menu", "1024×768");
+    info(`w033 1024×768 : ☰ ${g.w}×${g.h}px aria « ${g.aria} », score et boutons dégagés`);
+    await tapEl(`document.querySelector(".touch-menu")`);
+    await waitFor(`!!document.querySelector(".hud-menu") && window.__llGame.room.paused === true`, 20000);
+    await shot("w033-en-1024-menu");
+    await tapText(LBL.en.resume); await waitFor(`!document.querySelector(".hud-menu")`, 10000);
+    await key("Escape"); await waitFor(`!!document.querySelector(".hud-menu")`, 10000); await realClickText(LBL.en.quit); await waitFor(has(LBL.en.lvl), 20000);
+  });
+  await step("W-033 : en salle publique en ligne, ☰ ouvre « Menu — le match continue » (pas de pause)", async () => {
+    await size(1024, 768, true); await prefs({ lang: "en" });
+    await go("#/arena"); await waitFor(has(LBL.en.lvl));
+    await realClickText("Quick online match");
+    await waitFor(`[...document.querySelectorAll("button")].some(b => b.textContent.includes(${JSON.stringify(LBL.en.kickoff)}))`, 30000);
+    await realClickText(LBL.en.kickoff);
+    await waitFor(`!!document.querySelector(".arena-root canvas") && !!window.__ll3d?.latest`, 30000);
+    await waitFor(`window.__llGame?.room && window.__llGame.room.canPause === false`, 20000);
+    await tapEl(`document.querySelector(".touch-menu")`);
+    await waitFor(has("Menu — the match goes on"), 20000);
+    if (await evaluate(`window.__llGame.room.paused`)) throw new Error("salle publique suspendue à tort");
+    // le match continue pendant le menu (instantanés reçus, sans pause serveur)
+    const k0 = await evaluate(`window.__ll3d.latest.k`); await sleep(4000); const k1 = await evaluate(`window.__ll3d.latest.k`);
+    if (!(k1 > k0)) throw new Error("plus d'instantanés pendant le menu en ligne");
+    await shot("w033-en-1024-menu-live");
+    info(`w033 en ligne : menu ouvert par ☰, « Menu — the match goes on », ticks ${k0} → ${k1} pendant le menu`);
+    await tapText(LBL.en.resume); await waitFor(`!document.querySelector(".hud-menu")`, 10000);
+    await tapEl(`document.querySelector(".touch-menu")`); await waitFor(`!!document.querySelector(".hud-menu")`, 10000);
+    await realClickText(LBL.en.quit); await waitFor(has(LBL.en.lvl), 20000);
+    await cmd("Emulation.clearDeviceMetricsOverride");
+    await cmd("Emulation.setTouchEmulationEnabled", { enabled: false });
+  });
+}
+
 // ── Arène (TD-004, décision D-001) : caméra traversante d'origine près des deux buts et des parois ; vitres et filets estompés ──
 if (run("td004")) {
   const SCENES = [

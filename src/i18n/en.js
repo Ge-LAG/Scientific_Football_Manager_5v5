@@ -285,6 +285,7 @@ export default {
   "arena.reserved": "Spot reserved for a disconnected teammate",
   "controls.press": "Press (hold): harass the ball carrier",
   "touch.press": "Press",
+  "touch.menu": "Open menu",
   "skill.cut": "Cut",
   "skill.feint": "Body feint",
   "skill.roulette": "Roulette",

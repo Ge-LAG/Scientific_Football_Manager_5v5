@@ -164,7 +164,7 @@ export function ArenaGame({ room, init, end, onLeave }) {
         {hud?.phase === "kickoff" && hud.clock >= room.opts.halfSeconds - 1 && <div className="hud-center"><div className="h1" style={{ animation: "pop .5s" }}>{t("arena.kickoff")}</div></div>}
         {emote && <div className="emote-float">{emote.e} <span className="small">{emote.from}</span></div>}
         {hud?.board && <Scoreboard slots={slots} hud={hud} teams={T} keyBoard={hud.usingPad ? keys.padOf("board") : keys.keyOf("board")} />}
-        {isTouch && viewRef.current && !ended && !spectator && <TouchControls touch={viewRef.current.touch} t={t} canSwitch={canSwitch} />}
+        {isTouch && viewRef.current && !ended && !spectator && <TouchControls touch={viewRef.current.touch} t={t} canSwitch={canSwitch} onMenu={() => viewRef.current?.setMenu(true)} />}
         {(menu || ended) && (
           <div className="hud-menu">
             {ended && end ? <EndScreen end={end} slots={slots} mySlot={mySlot} onLeave={onLeave} again={() => { const kind = game.joined?.kind; const o = room.opts; onLeave(); if (kind === "local") setTimeout(() => game.create("local", "arena", { botLevel: o.botLevel, halfSeconds: o.halfSeconds, training: o.training }), 50); }} />
@@ -262,7 +262,7 @@ function EndScreen({ end, slots, mySlot, onLeave, again }) {
   );
 }
 
-function TouchControls({ touch, t, canSwitch }) {
+function TouchControls({ touch, t, canSwitch, onMenu }) {
   const stick = useRef(null); const knob = useRef(null);
   const move = e => {
     const r = stick.current.getBoundingClientRect(); const tt = e.targetTouches[0]; if (!tt) return;
@@ -275,6 +275,7 @@ function TouchControls({ touch, t, canSwitch }) {
   const tap = name => ({ onTouchStart: e => { e.preventDefault(); touch.btn.add(name); } });
   return (
     <>
+      <button type="button" className="touch-menu" aria-label={t("touch.menu")} onTouchStart={e => { e.preventDefault(); onMenu(); }} onClick={onMenu}>☰</button>
       <div className="touch-stick" ref={stick} onTouchStart={move} onTouchMove={move} onTouchEnd={endStick}><div className="knob" ref={knob} /></div>
       <div className="touch-btns">
         <button {...hold("shoot")} style={{ color: "var(--coral)" }}>{t("touch.shoot")}</button>

@@ -1215,12 +1215,12 @@
         "defaut"
       ],
       "kind": "finding",
-      "status": "active",
-      "sha256": "8cbaca785c272bd5591b1dd27e1a4c30c037a25526fcbdcdc36075301e57a449",
-      "chars": 991,
-      "size": 2136,
-      "mtime_ns": 1791738402518159500,
-      "revision": 1,
+      "status": "review",
+      "sha256": "df636589fb31e49eae6f3732939a4ccbd550b231cfd8fd0d94f88627c93de11b",
+      "chars": 1370,
+      "size": 2757,
+      "mtime_ns": 1791746637220030600,
+      "revision": 2,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1244,13 +1244,25 @@
           "text": "Sur appareil tactile, le joueur ouvre le menu, suspend le match solo, reprend ou quitte sans clavier ni manette."
         }
       ],
-      "evidence": [],
-      "body_digest": "06a26ec9c08544a824751d31b542765c352a8f85e230cf4776f62beb89102827",
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../evidence/W-033/etape-w033.txt",
+          "check": "node scripts/smoke-uat2.mjs http://localhost:8791 smoke-w033 w033",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A1",
+          "text": "Corrigé par W-033 : bouton ☰ (48×48 px, aria-label FR/EN) visible pendant le match sur écran tactile ; appui réel (dispatchTouchEvent) → même menu qu'Échap, pause réelle en solo (room.paused, chrono figé), « Reprendre » au toucher, « Quitter » accessible ; en salle publique en ligne, « Menu — le match continue » sans pause. Vérifié à 390×844 et 1024×768, sans chevauchement."
+        }
+      ],
+      "body_digest": "0e46735ffb7497a71697277d3aecfd0cb211745b44231c8668ea93ed415c2997",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
-        "../work/W-033.html#W-033"
+        "../work/W-033.html#W-033",
+        "../evidence/W-033/etape-w033.txt"
       ],
       "anchors": [
         "AC-004"
@@ -5560,12 +5572,12 @@
         "accessibilite"
       ],
       "kind": "work",
-      "status": "ready",
-      "sha256": "8c6a5decedb975cf6cb9f6655cc39c6c41eca9369189d8685392506e66198c9b",
-      "chars": 1934,
-      "size": 3393,
-      "mtime_ns": 1791738402410272300,
-      "revision": 1,
+      "status": "review",
+      "sha256": "cbe7c361246dd7e3812bd390d1bc28c962321f833718ba9f3fd2ea831b314f02",
+      "chars": 3021,
+      "size": 5631,
+      "mtime_ns": 1791746627134356200,
+      "revision": 2,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -5606,13 +5618,69 @@
           "text": "AC-004 passé en review avec la preuve ; npm test et build verts."
         }
       ],
-      "evidence": [],
-      "body_digest": "9f88e01c42bccd88abaa4a00efc89260d9e5e21a97a808900671ecd47d61527d",
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../evidence/W-033/etape-w033.txt",
+          "check": "node scripts/smoke-uat2.mjs http://localhost:8791 smoke-w033 w033",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A1",
+          "text": "Émulation tactile réelle (Input.dispatchTouchEvent) : bouton ☰ 48×48 px visible pendant le match à 390×844 ; appui → .hud-menu ouvert ET window.__llGame.room.paused === true en solo ; tick et horloge figés 3 s (capture w033-fr-390-menu.jpg)."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-033/etape-w033.txt",
+          "check": "node scripts/smoke-uat2.mjs http://localhost:8791 smoke-w033 w033",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A2",
+          "text": "Appui tactile sur « Reprendre » → menu refermé, room.paused === false, tick reparti sans saut (vérifié par l'étape w033 FR, même mécanisme de reprise que la pause Échap, TD-002)."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-033/w033-en-1024-menu-live.jpg",
+          "check": "node scripts/smoke-uat2.mjs http://localhost:8791 smoke-w033 w033",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A3",
+          "text": "Salle publique en ligne (canPause === false) : appui sur ☰ → « ☰ Menu — the match goes on » affiché (clé arena.menuLive, « Menu — le match continue » en FR), room.paused === false, instantanés reçus pendant le menu (ticks 110 → 164). Même point d'entrée setMenu(true) qu'Échap — le cas deux humains reste couvert par smoke-online (« le match continue »)."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-033/w033-fr-390-hud.jpg",
+          "check": "node scripts/smoke-uat2.mjs http://localhost:8791 smoke-w033 w033",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A4",
+          "text": "Rectangles mesurés au DOM : 48×48 px (≥ 44), aria-label « Ouvrir le menu » / « Open menu », intersection nulle avec .hud-top (score) et les 8 boutons d'action, à 390×844 et 1024×768."
+        },
+        {
+          "result": "pass",
+          "ref": "../records/AC-004.html",
+          "check": "npm test ; npm run build ; node --test tests/touch-menu.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A5",
+          "text": "AC-004 passé en review avec la preuve du menu tactile ; npm test 143/143 (3 nouveaux tests W-033) ; npm run build OK."
+        }
+      ],
+      "body_digest": "f321f5e808f39d65a85161326dc8c61ce0ab9b17930b511c00f41b81f243e8f0",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
         "../records/AC-004.html#AC-004",
+        "../evidence/W-033/etape-w033.txt",
+        "../evidence/W-033/etape-w033.txt",
+        "../evidence/W-033/w033-en-1024-menu-live.jpg",
+        "../evidence/W-033/w033-fr-390-hud.jpg",
+        "../records/AC-004.html",
         "../docs/roadmap.html#roadmap"
       ],
       "anchors": [
