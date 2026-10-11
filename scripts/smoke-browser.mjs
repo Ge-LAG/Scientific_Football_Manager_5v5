@@ -1,13 +1,13 @@
 // Smoke test navigateur (Chrome/Edge sans interface, protocole DevTools) : parcourt les écrans principaux,
 // joue un match Manager contre un bot et lance l'Arène 3D ; capture des images dans le dossier indiqué.
-// Usage : node scripts/smoke-browser.mjs [url=http://localhost:8787] [dossier=smoke-out]
+// Usage : node scripts/smoke-browser.mjs [url=SMOKE_URL|http://localhost:8787] [dossier=smoke-out]
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import WebSocket from "ws";
 
-const BASE = process.argv[2] || "http://localhost:8787";
+const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8787";
 const OUT = process.argv[3] || "smoke-out";
 mkdirSync(OUT, { recursive: true });
 const CANDIDATES = [process.env.CHROME, "C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "/usr/bin/google-chrome", "/usr/bin/chromium"].filter(Boolean);
@@ -17,7 +17,14 @@ if (!exe) { console.error("Aucun navigateur Chrome/Edge trouvé (variable CHROME
 const port = 9300 + Math.floor(Math.random() * 500);
 const profile = path.join(tmpdir(), "ll-smoke-" + Date.now());
 const chrome = spawn(exe, ["--headless=new", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "--window-size=1366,900", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--autoplay-policy=no-user-gesture-required", "--no-first-run", "about:blank"], { stdio: "ignore" });
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+// SMOKE_SLOW (défaut 1) : un seul facteur qui multiplie toutes les attentes (waitFor et sleep),
+// pour les machines lentes sous rendu logiciel. Chargement de page : jusqu'à 60 s × facteur.
+const SLOW = Math.max(0.1, Number(process.env.SMOKE_SLOW) || 1);
+const waitMs = ms => ms * SLOW;
+const sleep = ms => new Promise(r => setTimeout(r, waitMs(ms)));
+const tick = ms => new Promise(r => setTimeout(r, ms)); // cadence de sondage : non multipliée volontairement
+const PAGELOAD = 60000;
+if (SLOW !== 1) console.log(`SMOKE_SLOW ×${SLOW} : toutes les attentes sont multipliées.`);
 
 async function target() {
   for (let i = 0; i < 50; i++) { try { const l = await (await fetch(`http://127.0.0.1:${port}/json`)).json(); const p = l.find(x => x.type === "page"); if (p) return p; } catch { /* démarrage */ } await sleep(200); }
@@ -38,7 +45,7 @@ const evaluate = async expr => { const r = await cmd("Runtime.evaluate", { expre
 const shot = async name => { const r = await cmd("Page.captureScreenshot", { format: "png" }); writeFileSync(path.join(OUT, name + ".png"), Buffer.from(r.result.data, "base64")); console.log("📸", name); };
 const click = text => evaluate(`(() => { const n = ${JSON.stringify(text)}.toLowerCase(); const b = [...document.querySelectorAll("button")].find(b => b.textContent.toLowerCase().includes(n) && !b.disabled); if (!b) return false; b.click(); return true; })()`);
 const has = (...needles) => `(${JSON.stringify(needles.map(n => n.toLowerCase()))}).some(n => (document.body?.innerText || "").toLowerCase().includes(n))`;
-const waitFor = async (expr, ms = 15000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await evaluate(expr)) return true; await sleep(250); } throw new Error("Attente dépassée : " + expr); };
+const waitFor = async (expr, ms = 15000) => { const t0 = Date.now(); while (Date.now() - t0 < waitMs(ms)) { if (await evaluate(expr)) return true; await tick(250); } throw new Error("Attente dépassée : " + expr); };
 const text = () => evaluate("document.body.innerText");
 
 const results = [];
@@ -48,7 +55,7 @@ await cmd("Runtime.enable"); await cmd("Page.enable");
 await cmd("Emulation.setDeviceMetricsOverride", { width: 1366, height: 900, deviceScaleFactor: 1, mobile: false });
 
 await step("Accueil en français par défaut", async () => {
-  await cmd("Page.navigate", { url: BASE + "/#/" }); await waitFor(has("Le Labo Tactique"));
+  await cmd("Page.navigate", { url: BASE + "/#/" }); await waitFor(has("Le Labo Tactique"), PAGELOAD);
   await shot("01-accueil");
 });
 await step("Pages de contenu (scientifiques, fiche, power-ups, aide, club, classement)", async () => {
@@ -102,8 +109,15 @@ await step("Arène contre les bots : lobby, match 3D, déplacement", async () =>
   await waitFor(`!!document.querySelector(".arena-root canvas")`, 20000); await sleep(4000); await shot("15-arene-jeu");
   // schéma par défaut : flèches (main droite) + Espace (sprint, pouce)
   const x0 = await evaluate(`window.__ll3d.latest.p[window.__ll3d.mySlot][0]`);
-  await evaluate(`(() => { const k = (t, c) => window.dispatchEvent(new KeyboardEvent(t, { code: c, bubbles: true })); k("keydown", "ArrowUp"); k("keydown", "Space"); setTimeout(() => { k("keyup", "ArrowUp"); k("keyup", "Space"); }, 2500); })()`);
-  await sleep(3000); await shot("16-arene-course");
+  await evaluate(`(() => { const k = (t, c) => window.dispatchEvent(new KeyboardEvent(t, { code: c, bubbles: true })); k("keydown", "ArrowUp"); k("keydown", "Space"); })()`);
+  // touches maintenues jusqu'au déplacement mesuré : sous rendu logiciel la simulation avance
+  // au ralenti, une durée fixe produirait un faux échec — la borne waitFor suit le facteur SMOKE_SLOW
+  try {
+    await waitFor(`Math.abs(window.__ll3d.latest.p[window.__ll3d.mySlot][0] - (${x0})) > 1`, 30000);
+  } finally {
+    await evaluate(`(() => { const k = (t, c) => window.dispatchEvent(new KeyboardEvent(t, { code: c, bubbles: true })); k("keyup", "ArrowUp"); k("keyup", "Space"); })()`);
+  }
+  await shot("16-arene-course");
   const x1 = await evaluate(`window.__ll3d.latest.p[window.__ll3d.mySlot][0]`);
   results.push(["ℹ", `Flèche haut : x ${x0.toFixed(1)} → ${x1.toFixed(1)}`]);
   if (!(Math.abs(x1 - x0) > 1)) throw new Error("le joueur n'avance pas aux flèches");

@@ -1,6 +1,6 @@
 // E2E en ligne : deux onglets Chrome sans interface, deux comptes de test, salle privée par code.
 // Manager : draft → composition → match → rapport (XP/ELO) ; Arène : deux humains dans la même partie.
-// Usage : node scripts/smoke-online.mjs [url=http://localhost:8787] [dossier=smoke-out]
+// Usage : node scripts/smoke-online.mjs [url=SMOKE_URL|http://localhost:8787] [dossier=smoke-out]
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -8,14 +8,21 @@ import path from "node:path";
 import { randomBytes } from "node:crypto";
 import WebSocket from "ws";
 
-const BASE = process.argv[2] || "http://localhost:8787";
+const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8787";
 const OUT = process.argv[3] || "smoke-out";
 mkdirSync(OUT, { recursive: true });
 const exe = [process.env.CHROME, "C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "/usr/bin/google-chrome", "/usr/bin/chromium"].filter(Boolean).find(p => existsSync(p));
 if (!exe) { console.error("Aucun navigateur Chrome/Edge trouvé."); process.exit(2); }
 const port = 9800 + Math.floor(Math.random() * 150);
 const chrome = spawn(exe, ["--headless=new", `--remote-debugging-port=${port}`, `--user-data-dir=${path.join(tmpdir(), "ll-online-" + Date.now())}`, "--window-size=1280,860", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--no-first-run", "about:blank"], { stdio: "ignore" });
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+// SMOKE_SLOW (défaut 1) : un seul facteur qui multiplie toutes les attentes (waitFor et sleep),
+// pour les machines lentes sous rendu logiciel. Chargement de page : jusqu'à 60 s × facteur.
+const SLOW = Math.max(0.1, Number(process.env.SMOKE_SLOW) || 1);
+const waitMs = ms => ms * SLOW;
+const sleep = ms => new Promise(r => setTimeout(r, waitMs(ms)));
+const tick = ms => new Promise(r => setTimeout(r, ms)); // cadence de sondage : non multipliée volontairement
+const PAGELOAD = 60000;
+if (SLOW !== 1) console.log(`SMOKE_SLOW ×${SLOW} : toutes les attentes sont multipliées.`);
 for (let i = 0; i < 50; i++) { try { await fetch(`http://127.0.0.1:${port}/json/version`); break; } catch { await sleep(200); } }
 
 // comptes de test éphémères (pseudo aléatoire, mot de passe aléatoire)
@@ -44,7 +51,7 @@ async function page(name) {
     name, logs, cmd, evaluate, has,
     go: url => cmd("Page.navigate", { url }),
     click: text => evaluate(`(() => { const n = ${JSON.stringify(text)}.toLowerCase(); const b = [...document.querySelectorAll("button")].find(b => b.textContent.toLowerCase().includes(n) && !b.disabled); if (!b) return false; b.click(); return true; })()`).then(ok => { if (!ok) throw new Error(`${name} : bouton introuvable « ${text} »`); return ok; }),
-    waitFor: async (expr, ms = 60000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await evaluate(expr)) return true; await sleep(300); } const g = await evaluate(`JSON.stringify({ mode: window.__llGame?.room?.mode, phase: window.__llGame?.room?.phase, joined: window.__llGame?.joined, cache: window.__llGame?.cacheKeys, hash: location.hash })`).catch(() => ""); const txt = g + " " + await evaluate(`(document.querySelector("main")?.innerText || "").split(String.fromCharCode(10)).join(" ").slice(0, 400)`).catch(() => ""); throw new Error(`${name} : attente dépassée : ${expr.slice(0, 80)} | page : ${txt}`); },
+    waitFor: async (expr, ms = PAGELOAD) => { const t0 = Date.now(); while (Date.now() - t0 < waitMs(ms)) { if (await evaluate(expr)) return true; await tick(300); } const g = await evaluate(`JSON.stringify({ mode: window.__llGame?.room?.mode, phase: window.__llGame?.room?.phase, joined: window.__llGame?.joined, cache: window.__llGame?.cacheKeys, hash: location.hash })`).catch(() => ""); const txt = g + " " + await evaluate(`(document.querySelector("main")?.innerText || "").split(String.fromCharCode(10)).join(" ").slice(0, 400)`).catch(() => ""); throw new Error(`${name} : attente dépassée : ${expr.slice(0, 80)} | page : ${txt}`); },
     shot: async file => { const r = await cmd("Page.captureScreenshot", { format: "png" }); writeFileSync(path.join(OUT, file + ".png"), Buffer.from(r.result.data, "base64")); console.log("📸", file); },
   };
   return P;
@@ -71,7 +78,7 @@ if (!ONLY || ONLY === "manager") await step("Manager en ligne : salle privée, i
   await A.waitFor(A.has("Code à partager"), 60000);
   code = await A.evaluate(`[...document.querySelectorAll(".num")].map(e => e.textContent.trim()).find(t => /^[A-Z0-9]{5,6}$/.test(t))`);
   if (!code) throw new Error("code de salle introuvable");
-  await B.go(BASE + "/#/join/" + code); await B.waitFor(B.has("Salle d'attente"), 60000);
+  await B.go(BASE + "/#/join/" + code); await B.waitFor(B.has("Salle d'attente"), PAGELOAD);
   await A.waitFor(A.has(accB.pseudo), 60000); await A.shot("on-01-lobby-A");
   await A.click("Lancer la draft");
   await A.waitFor(A.has("Draft automatique"), 60000); await B.waitFor(B.has("Draft automatique"), 60000);
@@ -96,11 +103,11 @@ await step("Arène en ligne : deux humains dans la même partie, apparence visib
   const ids = ["roland", "loic", "david", "thibault", "henry", "romain", "theo", "franck", "aurelien", "lucien", "joffrey", "yacine", "djilani", "mederic", "guillaume", "patrice"];
   const looks = Object.fromEntries(ids.map(id => [id, { outfit: "medieval", hairStyle: "mullet_shaved", headwear: "none" }]));
   await B.evaluate(`localStorage.setItem("ll.looks", ${JSON.stringify(JSON.stringify(looks))}); location.reload(); true`);
-  await B.waitFor(B.has(accB.pseudo), 60000);
+  await B.waitFor(B.has(accB.pseudo), PAGELOAD);
   await A.evaluate(`location.hash = "#/arena"`); await A.waitFor(A.has("Salle privée"));
   await A.click("1 min"); await A.click("Salle privée"); await A.waitFor(A.has("Code à partager"), 60000);
   code = await A.evaluate(`[...document.querySelectorAll(".num")].map(e => e.textContent.trim()).find(t => /^[A-Z0-9]{5,6}$/.test(t))`);
-  await B.go(BASE + "/#/join/" + code); await B.waitFor(B.has("Votre scientifique"), 60000);
+  await B.go(BASE + "/#/join/" + code); await B.waitFor(B.has("Votre scientifique"), PAGELOAD);
   await A.waitFor(`[...document.querySelectorAll("button")].filter(b => b.textContent.includes("👤")).length >= 2`, 60000);
   await A.waitFor(`(window.__llGame?.room?.slots || []).some(s => s.human && s.pseudo === ${JSON.stringify(accB.pseudo)} && s.look?.outfit === "medieval" && s.look?.hairStyle === "mullet_shaved")`, 30000);
   await A.shot("on-05-arene-lobby-A");

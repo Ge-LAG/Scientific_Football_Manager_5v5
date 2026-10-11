@@ -15,8 +15,9 @@
     "start": "node server/index.js",
     "test": "node --test \"tests/*.test.js\"",
     "check": "npm run test && npm run build",
-    "smoke": "node scripts/smoke-browser.mjs http://localhost:8787 smoke-out",
-    "smoke:online": "node scripts/smoke-online.mjs http://localhost:8787 smoke-out"
+    "smoke": "node scripts/smoke-browser.mjs",
+    "smoke:online": "node scripts/smoke-online.mjs",
+    "smoke:uat2": "node scripts/smoke-uat2.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",

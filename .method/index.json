@@ -5432,12 +5432,12 @@
         "fiabilite"
       ],
       "kind": "work",
-      "status": "ready",
-      "sha256": "122e45b87857a449c5dc0fbf793bfde287a8de9335a445b0cbe0749169d6ea70",
-      "chars": 2412,
-      "size": 3980,
-      "mtime_ns": 1791738402402334400,
-      "revision": 1,
+      "status": "review",
+      "sha256": "84fea11ca9447e619010412ab6b1640df474ffe259c2641cca63ecfe946f0ff3",
+      "chars": 3998,
+      "size": 6653,
+      "mtime_ns": 1791743180702690000,
+      "revision": 2,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -5476,12 +5476,68 @@
           "text": "npm test et npm run build verts ; aucun fichier du jeu modifié."
         }
       ],
-      "evidence": [],
-      "body_digest": "c53312adf4ae82cdc4923b76034bfc8f675887f956390ec946c2d0f7f41b5e81",
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../evidence/W-032/smoke-uat2-slow2-td003.txt",
+          "check": "node --test tests/smoke-slow.test.js ; SMOKE_SLOW=2 node scripts/smoke-uat2.mjs http://localhost:8791 smoke-uat2-slow td003",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A1",
+          "text": "Test statique 6/6 : un seul facteur SLOW lu depuis SMOKE_SLOW, appliqué par waitMs(ms) dans la fonction waitFor unique et dans sleep de chaque script ; tick de sondage non multiplié ; chargement de page 60 s × facteur (PAGELOAD). En dynamique : bandeau « SMOKE_SLOW ×2 », même verdict vert ; étape TD-003 (sommeil explicite de 62 s) 81 s → 147 s."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-032/smoke-uat2.txt",
+          "check": "SMOKE_URL=http://localhost:8791 npm run smoke:uat2",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A2",
+          "text": "npm run smoke:uat2 existe ; sur serveur de test dédié (PORT=8791, DATA_FILE temporaire) : 16/16 étapes vertes en ~20 min (TD-002 à TD-008, TD-004 low/medium/high inclus), code de sortie 0. En appui : npm run smoke 8/8 et npm run smoke:online 5/5, EXIT=0 (journaux smoke.txt et smoke-online.txt)."
+        },
+        {
+          "result": "pass",
+          "ref": "../../.github/workflows/smoke.yml",
+          "check": "python -m yaml (venv) ; node --test tests/smoke-slow.test.js",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A3",
+          "text": "smoke.yml : syntaxe YAML validée (PyYAML, une coquille « : » dans un name corrigée grâce à cette vérification) ; workflow_dispatch seul (pas de push), npm ci + build, serveur PORT=8791/DATA_FILE temporaire avec attente /api/health, smoke-browser puis smoke-uat2 td002,td003,td006,td007,td008 (hors TD-004), upload-artifact des captures. Exécution GitHub réelle non faite (pas de push sans demande du PO) ; les commandes du workflow sont celles éprouvées localement sur le serveur 8791."
+        },
+        {
+          "result": "pass",
+          "ref": "../../README.md",
+          "check": "relecture README.md",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A4",
+          "text": "Section « Vérifier » ajoutée en français : npm test/build, serveur de test dédié (PORT=8791 + DATA_FILE temporaire, jamais la recette), npm run smoke/smoke:online/smoke:uat2, variables SMOKE_URL et SMOKE_SLOW, workflow manuel."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-032/npm-test.txt",
+          "check": "npm test ; npm run build ; git status --short",
+          "by": "SWE-2 (agent)",
+          "date": "2026-10-11",
+          "waiver": "",
+          "for": "A5",
+          "text": "npm test : 140/140 verts (134 + 6 nouveaux tests smoke-slow) ; npm run build : OK ; git status : seuls README.md, package.json, les 3 scripts smoke, smoke.yml et tests/smoke-slow.test.js modifiés — aucun fichier du jeu."
+        }
+      ],
+      "body_digest": "c7593a8a3383323a4d21376c4387cebef0ed7826f853b4b766279770198d69ec",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
+        "../evidence/W-032/smoke-uat2-slow2-td003.txt",
+        "../evidence/W-032/smoke-uat2.txt",
+        "../../.github/workflows/smoke.yml",
+        "../../README.md",
+        "../evidence/W-032/npm-test.txt",
         "../docs/roadmap.html#roadmap"
       ],
       "anchors": [

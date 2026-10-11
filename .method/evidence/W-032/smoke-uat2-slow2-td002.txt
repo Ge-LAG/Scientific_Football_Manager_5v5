@@ -1,0 +1,23 @@
+SMOKE_SLOW ×2 : toutes les attentes sont multipliées.
+📸 td002-fr-pause-debut
+ℹ pause FR : horloge 2:55, score 0-0, tick 220, recharges 49.167/-7.333
+📸 td002-fr-pause-31s
+ℹ reprise : +1.80 s de simulation pour 7.10 s réelles (pas de rattrapage des 31 s de pause)
+✔ TD-002 FR : Échap met le match solo en pause ≥ 30 s (temps, score, états, recharges figés), reprise sans saut (100 s)
+ℹ mi-temps après la reprise uniquement (horloge figée à 1.5666666666666913 s pendant 8 s)
+📸 td002-fr-pause-but
+ℹ but imminent : score 0-0 figé pendant 6 s de pause → 1-0 juste après la reprise (phase goal)
+✔ TD-002 FR : pause à l'approche de la mi-temps puis d'un but (71 s)
+📸 td008-en-aide-match
+📸 td002-en-pause
+ℹ EN : horloge 3:00 figée 6 s, reprise OK ; aide en match : « Call for the ball » = B
+✔ TD-002 EN + TD-008 (aide en match) : pause, libellés anglais, appel de balle réaffecté sur B (39 s)
+
+ℹ pause FR : horloge 2:55, score 0-0, tick 220, recharges 49.167/-7.333
+ℹ reprise : +1.80 s de simulation pour 7.10 s réelles (pas de rattrapage des 31 s de pause)
+✔ TD-002 FR : Échap met le match solo en pause ≥ 30 s (temps, score, états, recharges figés), reprise sans saut (100 s)
+ℹ mi-temps après la reprise uniquement (horloge figée à 1.5666666666666913 s pendant 8 s)
+ℹ but imminent : score 0-0 figé pendant 6 s de pause → 1-0 juste après la reprise (phase goal)
+✔ TD-002 FR : pause à l'approche de la mi-temps puis d'un but (71 s)
+ℹ EN : horloge 3:00 figée 6 s, reprise OK ; aide en match : « Call for the ball » = B
+✔ TD-002 EN + TD-008 (aide en match) : pause, libellés anglais, appel de balle réaffecté sur B (39 s)

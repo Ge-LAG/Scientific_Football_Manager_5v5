@@ -1,0 +1,19 @@
+
+> lab-league@3.0.0 smoke:online
+> node scripts/smoke-online.mjs
+
+📸 on-01-lobby-A
+📸 on-02-composition-B
+📸 on-03-match-B
+📸 on-04-rapport-A
+📸 on-05-arene-lobby-A
+📸 on-06-arene-A
+📸 on-07-arene-B
+📸 on-08-arene-menu-A
+ℹ menu ouvert chez A : ticks A 595 → 643, B 596 → 647 en 6 s
+
+✔ Connexion des deux comptes (jeton de session)
+✔ Manager en ligne : salle privée, invitation par code, draft, composition
+✔ Manager en ligne : match synchronisé puis rapport avec XP et ELO
+✔ Arène en ligne : deux humains dans la même partie, apparence visible de l'adversaire
+✔ Arène en ligne : avec un autre humain, le menu prévient que le match continue (pas de pause)

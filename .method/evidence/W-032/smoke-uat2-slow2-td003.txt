@@ -1,0 +1,21 @@
+SMOKE_SLOW ×2 : toutes les attentes sont multipliées.
+📸 td003-fr-sans-limite
+ℹ TD-003 : toujours en composition après 62 s, départ uniquement sur « Prêt, coup d'envoi ! »
+📸 td006-fr-886x620
+ℹ td006-fr-886x620 : défilement 1410 → 66px ; score à y=70 (en-tête 62px), terrain 281–603 / 620px ; focus sur la zone du match : true
+✔ TD-003 FR + TD-006 FR (886×620) : préparation sans limite (≥ 62 s), puis coup d'envoi depuis le bas de page (147 s)
+📸 td003-en-no-limit
+📸 td006-en-1366x768
+ℹ td006-en-1366x768 : défilement 613 → 66px ; score à y=70 (en-tête 62px), terrain 281–751 / 768px ; focus sur la zone du match : true
+✔ TD-003 EN + TD-006 EN (1366×768) : libellé anglais, coup d'envoi recadré (24 s)
+📸 td006-fr-390x844
+ℹ td006-fr-390x844 : défilement 1349 → 58px ; score à y=127 (en-tête 119px), terrain 320–582 / 940px ; focus sur la zone du match : true
+✔ TD-006 FR mobile (390×844) : coup d'envoi recadré (22 s)
+
+ℹ TD-003 : toujours en composition après 62 s, départ uniquement sur « Prêt, coup d'envoi ! »
+ℹ td006-fr-886x620 : défilement 1410 → 66px ; score à y=70 (en-tête 62px), terrain 281–603 / 620px ; focus sur la zone du match : true
+✔ TD-003 FR + TD-006 FR (886×620) : préparation sans limite (≥ 62 s), puis coup d'envoi depuis le bas de page (147 s)
+ℹ td006-en-1366x768 : défilement 613 → 66px ; score à y=70 (en-tête 62px), terrain 281–751 / 768px ; focus sur la zone du match : true
+✔ TD-003 EN + TD-006 EN (1366×768) : libellé anglais, coup d'envoi recadré (24 s)
+ℹ td006-fr-390x844 : défilement 1349 → 58px ; score à y=127 (en-tête 119px), terrain 320–582 / 940px ; focus sur la zone du match : true
+✔ TD-006 FR mobile (390×844) : coup d'envoi recadré (22 s)

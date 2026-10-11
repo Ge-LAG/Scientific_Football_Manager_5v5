@@ -83,18 +83,44 @@ npm run build
 npm start          # http://localhost:8787 (site + API + WebSocket)
 ```
 
-Tests (données, i18n, moteurs, IA, comptes, progression, API, serveur temps réel) :
+## Vérifier
+
+Tests automatisés (données, i18n, moteurs, IA, comptes, progression, API, serveur temps réel) :
 
 ```bash
 npm test
+npm run build
 ```
 
-Tests de bout en bout dans un vrai navigateur (Chrome ou Edge sans interface, serveur lancé avec `npm start`) :
+Tests de bout en bout dans un vrai navigateur (Chrome ou Edge sans interface, protocole DevTools).
+Ils visent un **serveur de test dédié** — jamais le serveur de recette ni le `data/` réel —
+lancé après `npm run build` avec son propre port et son propre fichier de données :
 
 ```bash
-node scripts/smoke-browser.mjs http://localhost:8787 smoke-out
-node scripts/smoke-online.mjs http://localhost:8787 smoke-out
+# terminal 1 : serveur de test (exemple sous Git Bash ; adapter DATA_FILE sous PowerShell)
+PORT=8791 DATA_FILE=$TMP/ll-smoke-data.json node server/index.js
+
+# terminal 2 : les trois parcours (captures dans smoke-out/ et smoke-uat2/)
+SMOKE_URL=http://localhost:8791 npm run smoke         # parcours mono-joueur
+SMOKE_URL=http://localhost:8791 npm run smoke:online  # deux joueurs en ligne
+SMOKE_URL=http://localhost:8791 npm run smoke:uat2    # retest des correctifs UAT-002
 ```
+
+`npm run smoke`, `npm run smoke:online` et `npm run smoke:uat2` visent `http://localhost:8787`
+(port de `npm start`) ou l'adresse de **`SMOKE_URL`** ; pour un autre dossier de captures ou une
+sous-suite d'étapes, lancer le script `.mjs` directement avec ses arguments `[url] [dossier] [étapes]`.
+
+Machine lente (rendu logiciel, peu d'images par seconde) : la variable **`SMOKE_SLOW`** multiplie
+**toutes** les attentes des trois scripts (chargement de page : jusqu'à 60 s × facteur) —
+même verdict, plus de patience.
+
+```bash
+SMOKE_SLOW=2 node scripts/smoke-uat2.mjs http://localhost:8791 smoke-uat2
+```
+
+Le workflow GitHub **Smoke** (onglet *Actions*, déclenchement manuel `workflow_dispatch`) exécute
+le build, un serveur de test sur port dédié, le parcours mono-joueur et le retest UAT-002
+(hors TD-004, dont la validation reste visuelle dans Edge), puis publie les captures en artefact.
 
 ## Architecture
 
