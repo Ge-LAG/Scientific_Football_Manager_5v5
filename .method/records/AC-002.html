@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Relecture de la vague 5 (sécurité et correction) · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>finding · AC-002</span></header><main>
+<article data-method data-revision="2" data-owner="Claude (agent)" id="AC-002" data-title="Relecture de la vague 5 (sécurité et correction)" data-summary="Relecture indépendante des contrôles, du changement de joueur, des power-ups et du profil : 3 moyennes, 4 faibles, corrigées et testées." data-tags="audit securite relecture review switch changement power-up profil controles" data-kind="finding" data-status="review" data-components="arena-online arena-sim arena-input data">
+<p class="eyebrow">finding / AC-002</p><h1>Relecture de la vague 5 (sécurité et correction)</h1>
+<dl>
+<dt>Origine</dt><dd>Relecture indépendante (agent en lecture seule), 2026-09-27, sur l'arbre de travail de la vague 5 (messages <code>profile</code>, <code>a.switch</code>, <code>a.loadout</code>, <code>m.loadout</code>, PATCH /api/me, simulation, salles, client). Aucune anomalie critique ou haute ; les entrées client (apparences, sélections de power-ups, commandes) sont correctement nettoyées.</dd>
+<dt>Constats (gravité) et corrections</dt><dd><ol>
+<li><b>Moyenne</b> — un changement de joueur pouvait prendre la place réservée d'un coéquipier déconnecté (perte de sa place au retour, pénalité d'abandon contournée). Corrigé : places réservées exclues du changement manuel et automatique (serveur et client).</li>
+<li><b>Moyenne</b> — attribution des buts et de l'« homme du match » détournable en prenant le contrôle d'un bot (tir déjà parti, bot très performant). Corrigé : chaque action (tir, tacle, arrêt, dernière touche avant un but, passe décisive) est créditée au pilote humain du moment ; homme du match humain calculé sur les actions personnelles.</li>
+<li><b>Moyenne</b> — touches contextuelles (passe → tacle, tir → tacle glissé) déclenchées aussi sur ballon libre ou passe entrante. Corrigé : uniquement quand un adversaire a le ballon ; la passe reste transmise (le serveur tranche).</li>
+<li><b>Faible</b> — onde de choc et gel utilisables pendant le coup d'envoi et sans respecter les protections (gardien qui tient le ballon, joueur protégé après faute). Corrigé.</li>
+<li><b>Faible</b> — prédiction locale sans l'élan (dash) ni la vitesse d'équipe. Corrigé.</li>
+<li><b>Faible</b> — synchronisation du profil : effets de bord dans les mises à jour d'état, rafales de messages avec le curseur de teint. Corrigé : envoi différé (dernier état gagnant), une entrée d'annulation par geste.</li>
+<li><b>Faible</b> — pas de visuel permanent pour les 7 nouveaux effets d'Arène. Corrigé (<code>src/three/puVisuals.js</code>).</li>
+</ol></dd>
+<dt>Travaux liés</dt><dd><a href="../work/W-019.html#W-019">W-019</a>, <a href="../work/W-018.html#W-018">W-018</a>, <a href="../work/W-020.html#W-020">W-020</a>, <a href="../work/W-021.html#W-021">W-021</a>.</dd>
+</dl>
+<h2>Critères</h2>
+<p data-criterion="A1">Les scénarios décrits n'ont plus d'effet (tests automatisés).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="npm test (tests/loadout-switch.test.js : « actions créditées au pilote du moment », « onde de choc et gel : interdits au coup d'envoi » ; tests/server.test.js)" data-ref="../../tests/loadout-switch.test.js" data-by="Claude (agent)" data-date="2026-09-27">96 tests réussis : place réservée refusée, but d'un tir de bot non attribué, passe décisive créditée au bon pilote, pas d'homme du match « volé », onde de choc refusée au coup d'envoi et gardien protégé.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

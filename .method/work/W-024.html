@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bios adaptatives, archétype et poste idéal · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-024</span></header><main>
+<article data-method data-revision="2" data-owner="Claude (agent)" id="W-024" data-title="Bios adaptatives, archétype et poste idéal" data-summary="Biographies qui s&#x27;adaptent à la répartition et au domaine ; archétype et affinité par poste remplacent la note overall." data-tags="bio archetype poste overall profil texte" data-kind="work" data-watch="shared/data/profileText.js|src/ui/profile.jsx|src/pages/PlayerDetail.jsx|src/pages/Roster.jsx|src/pages/manager/DraftView.jsx" data-status="review" data-components="data">
+<p class="eyebrow">work / W-024</p><h1>Bios adaptatives, archétype et poste idéal</h1>
+<dl><dt>Résultat attendu</dt><dd>Les biographies d&#x27;origine sont conservées pour les profils d&#x27;origine ; toute autre répartition produit une biographie cohérente avec les forces, les faiblesses et le domaine du scientifique ; la note overall est remplacée par un archétype et le poste idéal (pourcentage d&#x27;affinité).</dd>
+<dt>Périmètre / mandat</dt><dd>shared/data, src. Mandat : demandes d&#x27;amélioration du PO (3e message du 2026-09-27) et arbitrages validés (profil d&#x27;origine ramené à un budget commun, archétype + poste idéal à la place de l&#x27;overall, suppression des cartons aussi en Manager, audit complet des touches).</dd>
+<dt>Dépendances</dt><dd>W-023.</dd>
+<dt>Vérification prévue</dt><dd>npm test (profileText) + smoke navigateur.</dd>
+<dt>Point d'étape</dt><dd>Livré : <code>shared/data/profileText.js</code> (forces / faiblesses, affinité par poste, 17 archétypes, bios générées FR/EN avec le vocabulaire des 14 domaines, bio d'origine conservée pour le profil d'origine) ; archétype + poste idéal à la place de l'overall (cartes, liste, draft, composition, fiche).</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Bios d&#x27;origine pour les profils par défaut ; bios générées FR/EN pour des répartitions aléatoires, sans trou de texte (tests).</p>
+<p data-criterion="A2">Archétype et affinité par poste affichés partout où l&#x27;overall l&#x27;était.</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/profileText.test.js" data-ref="../../tests/profileText.test.js" data-by="Claude (agent)" data-date="2026-09-27">Bios d&#x27;origine pour les 16 profils par défaut (FR/EN) ; 200 répartitions aléatoires par scientifique sans trou de texte, élisions correctes, ≥ 150 bios distinctes sur 200 ; poste idéal par défaut conforme au poste d&#x27;origine (ailier = rôle hybride).</p>
+<p data-evidence-for="A2" data-result="pass" data-check="Smoke navigateur (fiche Loïc personnalisée) + relecture des pages" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Badge « Renard des surfaces », affinités par poste et bio adaptée affichés ; plus aucune note overall.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

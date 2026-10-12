@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Relecture de la vague 6 (gameplay, stats libres) · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>finding · AC-003</span></header><main>
+<article data-method data-revision="2" data-owner="Claude (agent)" id="AC-003" data-title="Relecture de la vague 6 (gameplay, stats libres)" data-summary="Relecture indépendante de la vague 6 : 1 critique (écrasement de la progression), 1 haute, 4 moyennes, faibles ; corrigées et testées avant commit." data-tags="audit securite relecture review stats progression elo penalty coup franc tacle" data-kind="finding" data-status="review" data-components="auth data arena-sim arena-input manager-engine">
+<p class="eyebrow">finding / AC-003</p><h1>Relecture de la vague 6 (gameplay, stats libres)</h1>
+<dl>
+<dt>Origine</dt><dd>Relecture indépendante (agent en lecture seule), 2026-09-27, sur l'arbre de travail de la vague 6, avant tout commit.</dd>
+<dt>Constats (gravité) et corrections</dt><dd><ol>
+<li><b>Critique</b> — le champ « stats » des répartitions de points portait le même nom que la progression du compte (<code>user.stats</code> : ELO, victoires) : un PATCH l'aurait écrasée (disparition du classement, ELO remis à zéro). Corrigé : champ <code>statAlloc</code> de bout en bout (API, compte, session, salles) ; test garantissant que la progression n'est jamais modifiable par le client.</li>
+<li><b>Haute</b> — tir involontaire après un tacle réussi avec la touche de tir (touches contextuelles). Corrigé : la touche de tir doit être relâchée après une récupération.</li>
+<li><b>Moyenne</b> — un pare-feu pouvait déposséder le tireur d'un penalty. Corrigé : pas de pare-feu pendant un coup de pied arrêté, exclusion à distance du point, fin propre si le tireur perd le ballon.</li>
+<li><b>Moyenne</b> — prédiction locale sans la répartition du joueur (saccades). Corrigé.</li>
+<li><b>Moyenne</b> — prédiction d'un seul geste (crochet) alors que le serveur en choisit sept. Corrigé : le client suit la trajectoire du serveur pendant le geste.</li>
+<li><b>Moyenne</b> — penaltys trop souvent arrêtés (35 %) et gardien humain incapable d'anticiper. Corrigé : face-à-face rééquilibré, plongeon autorisé dès que le tireur est prêt.</li>
+<li><b>Faibles</b> — passes à soi-même comptées comme passes réussies, éditeur de caractéristiques (répartition revalidée, resynchronisation, indicateur « non enregistré »), code des cartons mort supprimé, mur de coup franc tenu par les bots, pressing tactile qui pouvait rester actif. Corrigés.</li>
+</ol></dd>
+<dt>Travaux liés</dt><dd><a href="../work/W-023.html#W-023">W-023</a>, <a href="../work/W-026.html#W-026">W-026</a>, <a href="../work/W-025.html#W-025">W-025</a>, <a href="../work/W-029.html#W-029">W-029</a>.</dd>
+</dl>
+<h2>Critères</h2>
+<p data-criterion="A1">Les scénarios décrits n'ont plus d'effet (tests automatisés).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="npm test (127 tests, dont tests/api.test.js « statAlloc sans jamais toucher la progression », tests/gameplay6.test.js)" data-ref="../../tests/api.test.js" data-by="Claude (agent)" data-date="2026-09-27">127 tests réussis ; la progression reste intacte après un PATCH contenant statAlloc et stats ; les mécaniques de coup de pied arrêté, tacle et pressing sont couvertes.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

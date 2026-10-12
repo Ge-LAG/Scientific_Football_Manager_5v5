@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Données partagées, enrichissement et i18n FR/EN · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-003</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-003" data-title="Données partagées, enrichissement et i18n FR/EN" data-summary="Personnages, power-ups et narration partagés client/serveur ; interface bilingue FR par défaut." data-tags="data roster i18n langue français english enrichment reflexes" data-kind="work" data-watch="shared/data/roster.js|shared/data/enrichment.js|shared/data/content.js|src/i18n/fr.js|src/i18n/en.js" data-status="review" data-components="data i18n">
+<p class="eyebrow">work / W-003</p><h1>Données partagées, enrichissement et i18n FR/EN</h1>
+<dl><dt>Résultat attendu</dt><dd>Les 16 personnages, stats, descriptions et power-ups d&#x27;app.jsx sont repris à l&#x27;identique dans shared/data, enrichis (Réflexes, apparence, numéro, effet Arène) et l&#x27;interface est traduite FR/EN avec FR par défaut et choix persistant.</dd>
+<dt>Périmètre / mandat</dt><dd>shared/data, src/i18n. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-002.</dd>
+<dt>Vérification prévue</dt><dd>npm test (tests/data.test.js, tests/i18n.test.js) ; vérification manuelle navigateur.</dd>
+<dt>Point d'étape</dt><dd>Livré : données d'origine extraites à l'identique, enrichissements séparés (Réflexes, numéro, taille, apparence, effets Arène, synergies), traductions EN (bios, narration), catalogues UI FR/EN, sélecteur de langue persistant.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Test automatisé : ROSTER et POWER_UPS sont identiques aux valeurs d&#x27;app.jsx (noms, stats, bios).</p>
+<p data-criterion="A2">Chaque clé du catalogue FR existe en EN et inversement (test).</p>
+<p data-criterion="A3">Premier lancement en français même sur navigateur anglais ; le choix EN survit au rechargement.</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/data.test.js" data-ref="../../tests/data.test.js" data-by="Claude (agent)" data-date="2026-09-27">ROSTER et POWER_UPS strictement égaux aux tableaux du prototype app.jsx (deepEqual).</p>
+<p data-evidence-for="A2" data-result="pass" data-check="node --test tests/i18n.test.js" data-ref="../../tests/i18n.test.js" data-by="Claude (agent)" data-date="2026-09-27">Mêmes clés et mêmes paramètres FR/EN ; toutes les clés utilisées présentes ; FR par défaut sans détection navigateur.</p>
+<p data-evidence-for="A3" data-result="pass" data-check="node scripts/smoke-browser.mjs (Chrome sans interface)" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Accueil en français au premier lancement ; bascule EN effective. Persistance au rechargement : vérifiée par lecture du code (localStorage ll.lang), à confirmer en recette.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

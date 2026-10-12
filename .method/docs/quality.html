@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Verification proportional to risk · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>guide · quality</span></header><main>
+<article data-method data-revision="1" data-owner="CTO" id="quality" data-title="Verification proportional to risk" data-summary="Behavioral checks, risk triggers and strict evidence without ritual test loops." data-tags="quality test tests verification risk production regression build ci lint" data-kind="guide" data-status="active">
+<p class="eyebrow">guide / quality</p><h1>Verification proportional to risk</h1>
+<table><thead><tr><th>Change</th><th>Evidence before technical acceptance</th></tr></thead><tbody>
+<tr><td>Low impact: wording, docs, formatting</td><td>Review the surface, links/rendering or existing formatter. No new test merely restating the edit.</td></tr>
+<tr><td>Normal: behavior, bug fix, refactor</td><td>Relevant automated tests and stack checks; affected contracts/critical paths. Add meaningful behavioral regression protection.</td></tr>
+<tr><td>High: auth, sensitive data, schema, payment, public contract, concurrency or wide refactor</td><td>Negative cases and integration/contract checks; trust-boundary and failure-recovery review. Record recovery and obtain a distinct technical review when required by risk/mandate.</td></tr>
+<tr><td>Release candidate</td><td>Configured release checks on the candidate revision/artifact, deployment acceptance and <a href="release.html#release">operational evidence</a>.</td></tr>
+</tbody></table>
+<p>Prefer a reproducing failing test followed by a passing test for bugs when practical. If hardware/services prevent reproduction, record the limitation and closest meaningful validation. Unavailable required checks do not become passes. Reuse useful tests; avoid tests coupled to implementation details.</p>
+<p>Build order follows stack dependencies: compilation may precede tests. Diagnostic builds are allowed. Failures block acceptance/promotion of the affected candidate, not investigation. Full regression belongs at meaningful integration/release boundaries and wherever changed risk requires it.</p>
+<p>Project CI commands are the executable check definition. Specify working directory and exact commands in the profile; fail on required command errors. Do not silently skip missing commands. A known unrelated/flaky failure needs an issue, impact assessment, owner and time-bounded exception approved by the responsible owner before acceptance. Rerunning until green is not a fix.</p>
+<p>Evidence: criterion, exact command or manual steps, date, code/artifact revision or identified dirty diff, environment, result, log/artifact location and limitation. Keep large logs outside hot context; return a concise outcome or failing excerpt with a pointer. Invalidate checks affected by changed code, dependencies or environment.</p>
+<p>Apply <a href="language.html#language">localization checks</a> for user-facing changes. A second agent is optional only when authorized and likely to find distinct defects; give it bounded scope and evidence. Model agreement alone is not validation.</p>
+<p>Use the structured <a href="evidence.html#evidence">closure contract</a> for passing results and expiring exceptions. Required checks remain proportional to risk.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

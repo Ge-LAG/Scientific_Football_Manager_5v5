@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>V5 → V6 decisions · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>guide · migration</span></header><main>
+<article data-method data-revision="1" data-owner="CTO" id="migration" data-title="V5 → V6 decisions" data-summary="What was retained, replaced or removed, and how to preserve project history." data-tags="migration v5 v6 audit removed json markdown mistral changement" data-kind="guide" data-status="active">
+<p class="eyebrow">guide / migration</p><h1>V5 → V6 decisions</h1>
+<p>The supplied V5 is a generic template, not an initialized software project. Real PROJET state, product acceptance and application checks cannot be migrated from absent files. V5 and earlier archives remain historical sources; V6 is standalone.</p>
+<table><thead><tr><th>V5</th><th>V6 decision</th></tr></thead><tbody>
+<tr><td>METHOD.md + METHOD.json + repeated bootstrap</td><td>Canonical HTML articles + short core. Remove METHOD.json because it duplicates instructions.</td></tr>
+<tr><td>PROJET.json ↔ PROJET.md manual mirror</td><td>Compact project.json + generated HTML view. Details in HTML records; no synchronization loop.</td></tr>
+<tr><td>Full method/state at every start</td><td>Selected core, profile, state, current work; metadata/hashes for follow-up.</td></tr>
+<tr><td>R-01/02/06: repeated session approval</td><td>Scoped durable mandate and actual user request; decisions at the affected action boundary.</td></tr>
+<tr><td>R-04, BP-13–16, Part C: all tests before every build</td><td>Risk-based checks and stack dependency order. Compile as needed; failures block acceptance/promotion.</td></tr>
+<tr><td>R-05, BP-08/17: mirrored rereads</td><td>One state + deterministic generated view checked mechanically.</td></tr>
+<tr><td>R-07/08: evidence and truthful facts</td><td>Retain criteria, code/artifact reference, actual results and explicit unavailable checks.</td></tr>
+<tr><td>BP-09/19: global stop for PO tests/dirty docs</td><td>Block only dependent work; preserve existing changes and checkpoint.</td></tr>
+<tr><td>BP-10/12/18: feedback types/severity</td><td>Retain TD/AC provenance, impact triage and traceable closure in small records.</td></tr>
+<tr><td>Vault-specific architecture/security rules</td><td>Project-specific profile; conditional security/recovery module.</td></tr>
+<tr><td>Mistral safeguard and absent references</td><td>Omit from the Astra method; retain meaningful quality gates without provider-specific ceremony.</td></tr>
+<tr><td>Four generic shell scripts, splitting/eval, default tag</td><td>Remove; use actual stack/CI commands and explicit release policy. The portable tool validates records only.</td></tr>
+<tr><td>PO-only coordination</td><td>Preferred CTO computer-use handoff and direct mode, sharing work state.</td></tr>
+</tbody></table>
+<h2>Existing-project migration</h2>
+<ol><li>Inventory active constraints, decisions, work, audit findings, manual acceptance and authority. Preserve IDs, origin and evidence. Do not copy generic prose for file parity.</li><li>Map active facts to profile, roadmap or one HTML record; keep current pointers in project.json. Preserve source links until reconciled.</li><li>Resolve JSON/Markdown disagreement against code, evidence and owner intent. Mark unresolved facts explicitly.</li><li>Validate references/state; rehearse a fresh task and CTO handoff. Compare missed constraints, acceptance quality and context volume.</li><li>Archive superseded entry points and retire auto-loaded old instructions after accounting for active facts. Do not rewrite historical evidence solely to change format.</li></ol>
+<p>Redundant instruction overhead is removed; judgment and verification remain. Model capability cannot establish that a project's security, correctness or deployment requirements are already satisfied.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

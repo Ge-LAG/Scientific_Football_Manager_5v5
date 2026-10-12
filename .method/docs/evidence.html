@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bind acceptance to current evidence · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head><body><header><a class="brand" href="../index.html">METHOD / V6</a><span>evidence</span></header><main><article data-method id="evidence" data-title="Bind acceptance to current evidence" data-summary="Machine-checkable closure fields and invalidation when criteria, code or dependencies change." data-tags="evidence proof acceptance gates validation fingerprint candidate audit" data-kind="guide" data-status="active" data-owner="CTO" data-revision="1"><p class="eyebrow">guide / evidence</p><h1>Bind acceptance to current evidence</h1>
+<p>A closed work, acceptance, finding, release, incident, decision or authorization record must have an owner, candidate, environment, meaningful criteria and evidence for every criterion. Closed records cannot contain TO_CONFIGURE. This does not require new automated tests for low-impact work: a relevant observed manual review can be evidence.</p>
+<pre><code>&lt;article … data-candidate="commit-or-artifact-id"
+ data-environment="test environment" data-watch="src/auth.py|tests/test_auth.py"
+ data-evidence-digest="computed SHA-256"&gt;
+&lt;p data-criterion="A1"&gt;Concrete observable result.&lt;/p&gt;
+&lt;p data-evidence-for="A1" data-result="pass"
+ data-check="exact command or manual steps" data-by="actual tester"
+ data-date="2026-09-13" data-ref="https://ci.example/run/123"&gt;
+Observed result and relevant limitation.
+&lt;/p&gt;</code></pre>
+<p>Use repository-relative forward-slash patterns in data-watch, separated by |. Watch affected code, tests, lockfiles and artifacts as needed; a missing pattern is an error. In a .method folder, paths resolve from its parent repository. In a standalone kit, paths resolve from the kit root. Never put secrets in metadata or evidence.</p>
+<p>After actually observing the check, prepare the candidate HTML in a temporary file and run <code>fingerprint ID --from-file candidate.html</code>. Copy the returned evidence_digest into data-evidence-digest; this command records no result or approval. Then use the guarded replace command. Candidate, environment, criteria, evidence, watched contents and required references participate in the fingerprint.</p>
+<p>Changed covered facts make old evidence stale. Re-run only affected checks, preserve useful earlier results and record the new binding after review. Do not recompute the fingerprint merely to suppress an error. A git/artifact label alone is asserted metadata: watched file hashes detect actual local content changes, and reviewers/CI verify the claimed candidate and scope.</p>
+<p>Failed or missing results block closure. A scoped exception uses data-result=waived and data-waiver="D-ID" referencing an accepted decision with a future review-by date, explicit justification/owner and its own acceptance evidence. Include that decision in data-requires. Expired exceptions block dependent acceptance. Required deployment criterion DEPLOYED must pass to mark any record released; a waiver cannot stand in for actual deployment.</p>
+<p>Put PO acceptance in its own criterion when required and name the actual acceptor. English coordination with Robertson does not replace Guillaume's French product acceptance. For bilingual software, include the affected French/English acceptance criteria.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML</footer></body></html>

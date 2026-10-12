@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Work in verifiable increments · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>guide · workflow</span></header><main>
+<article data-method data-revision="1" data-owner="CTO" id="workflow" data-title="Work in verifiable increments" data-summary="Minimal task loop, evidenced completion and resumption after interruptions." data-tags="workflow task lot work package checkpoint resume compaction scope" data-kind="guide" data-status="active">
+<p class="eyebrow">guide / workflow</p><h1>Work in verifiable increments</h1>
+<ol><li><strong>Locate.</strong> Read context; verify repository, branch and existing changes. Retrieve relevant contracts, code and decisions.</li>
+<li><strong>Frame.</strong> A small correction can keep intent and acceptance in the task. A significant lot gets one <a href="../templates/work.html#tpl-work">work record</a>: outcome, acceptance, scope, dependencies, risk and owner.</li>
+<li><strong>Implement.</strong> Follow existing architecture and stack conventions. Resolve routine choices autonomously; record lasting tradeoffs. Split when a lot no longer has an independently verifiable result.</li>
+<li><strong>Verify.</strong> Use <a href="quality.html#quality">risk-based checks</a> and inspect the final diff. Rerun invalidated checks after changes; do not repeat unchanged expensive checks without reason.</li>
+<li><strong>Close or hand off.</strong> Record outcome, evidence, unresolved items and next action. Update project.json only when current facts/pointers change; increment revision/date. Publish shared documentary edits through guarded replace. Validate before integration/release.</li></ol>
+<p>States: draft → ready → active → review → accepted → released, when release applies. Use blocked for a specific dependency and name the resumption state; archived is closed history. Accepted requires applicable evidence, including product acceptance when designated. Unavailable checks leave review/blocked, never an invented waiver. Documentation fixes need no release stage.</p>
+<p>Commit code and corresponding work evidence coherently when committing is within scope. A dirty worktree may be handed off for review: record its actual state and preserve user changes. Never fabricate a hash or force a documentation commit for a session ritual.</p>
+<p>After interruption/compaction, read state and work, then verify changed code facts. Historical evidence applies to its recorded revision. Checkpoint after a meaningful result, focus change, blocker or handoff; not every tool call. Do not repeatedly summarize full sessions.</p>
+<p>Closure fields and evidence bindings follow <a href="evidence.html#evidence">evidence</a>; normal markup alone cannot prove acceptance.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

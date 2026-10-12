@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Données partagées absentes du dépôt Git · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>finding · TD-001</span></header><main>
+<article data-method data-revision="2" data-owner="Claude (agent)" id="TD-001" data-title="Données partagées absentes du dépôt Git" data-summary="La règle data/ du .gitignore excluait shared/data/ : le commit a9930d0 ne contenait pas les données du jeu. Règle corrigée en /data/." data-tags="git gitignore donnees data defect bug depot commit" data-kind="finding" data-status="review" data-components="repo data">
+<p class="eyebrow">finding / TD-001</p><h1>Données partagées absentes du dépôt Git</h1>
+<dl><dt>Origine</dt><dd>Constat d'un agent de développement (vague 5), 2026-09-27, en ajoutant <code>shared/data/powerups.extra.js</code>.</dd>
+<dt>Impact / gravité</dt><dd><b>Haute</b> : la règle <code>data/</code> du <code>.gitignore</code> (destinée au dossier de persistance du serveur) masquait aussi <code>shared/data/</code> (personnages, contenus, enrichissements, narration). Le commit <code>a9930d0</code> de la branche <code>lab-league-v3</code> ne contient donc pas les données du jeu : un clone neuf ne démarre pas et l'intégration continue échouerait.</dd>
+<dt>Reproduction</dt><dd><code>git check-ignore -v shared/data/roster.js</code> → <code>.gitignore:3:data/</code> ; <code>git ls-files shared</code> ne listait aucun fichier de <code>shared/data/</code>.</dd>
+<dt>Résultat attendu</dt><dd>Seul le dossier de persistance racine <code>/data/</code> est ignoré ; <code>shared/data/</code> est versionné.</dd>
+<dt>Correction / travail</dt><dd>Règle remplacée par <code>/data/</code> (le <code>.dockerignore</code>, ancré à la racine, était déjà correct). Les fichiers de <code>shared/data/</code> sont ajoutés au commit de la vague 5. Lié à <a href="../work/W-021.html#W-021">W-021</a>.</dd>
+<dt>Preuve de clôture</dt><dd>Voir le critère ci-dessous.</dd></dl>
+<h2>Critères</h2>
+<p data-criterion="A1"><code>git check-ignore shared/data/roster.js</code> ne renvoie rien et <code>git ls-files shared/data</code> liste les 8 fichiers de données dans le commit de la vague 5.</p>
+<p data-evidence-for="A1" data-result="pass" data-check="git check-ignore shared/data/roster.js (code retour 1) ; git ls-files --cached shared/data ; git ls-tree -r a9930d0" data-ref="../../.gitignore" data-by="Claude (agent)" data-date="2026-09-27">Plus ignoré ; 8 fichiers indexés (appearance, content, enrichment, narration FR/EN, powerups.extra, roster FR/EN). Constat confirmé : aucun fichier shared/data dans a9930d0 ni dans main.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

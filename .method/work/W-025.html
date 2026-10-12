@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Gestes techniques · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-025</span></header><main>
+<article data-method data-revision="2" data-owner="Claude (agent)" id="W-025" data-title="Gestes techniques" data-summary="Roulette, feinte de corps, crochet, passement de jambes, petit pont, une-deux avec la paroi, appui mural ; efficacité selon le Dribble." data-tags="geste technique dribble roulette feinte petit pont paroi mur" data-kind="work" data-watch="shared/action/sim.js|shared/action/bot.js|src/three/arenaView.js" data-status="review" data-components="arena-sim arena-input">
+<p class="eyebrow">work / W-025</p><h1>Gestes techniques</h1>
+<dl><dt>Résultat attendu</dt><dd>Touche Geste technique + direction : chaque geste a un effet distinct et une réussite qui dépend du Dribble ; les parois servent au une-deux et à l&#x27;appui ; les bots utilisent aussi ces gestes.</dd>
+<dt>Périmètre / mandat</dt><dd>shared/action, src. Mandat : demandes d&#x27;amélioration du PO (3e message du 2026-09-27) et arbitrages validés (profil d&#x27;origine ramené à un budget commun, archétype + poste idéal à la place de l&#x27;overall, suppression des cartons aussi en Manager, audit complet des touches).</dd>
+<dt>Dépendances</dt><dd>W-008, W-022.</dd>
+<dt>Vérification prévue</dt><dd>npm test (gameplay6).</dd>
+<dt>Point d'étape</dt><dd>Livré : touche Geste technique + direction → crochet, feinte de corps, roulette, passement de jambes, petit pont, une-deux avec la paroi, appui mural (avec ou sans ballon) ; efficacité selon le Dribble ; animations dédiées ; les bots s'en servent ; tableau dans l'Aide.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Roulette, petit pont, une-deux, appui mural et feinte de corps vérifiés ; réussite croissante avec le Dribble (tests).</p>
+<p data-criterion="A2">Animations dédiées et aide (tableau des gestes).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/gameplay6.test.js (« gestes techniques ») tests/arena-sim.test.js" data-ref="../../tests/gameplay6.test.js" data-by="Claude (agent)" data-date="2026-09-27">Roulette (rotation + esquive), petit pont plus souvent réussi avec un bon Dribble, une-deux vers la paroi, appui mural, feinte de corps (défenseurs mis dans le vent).</p>
+<p data-evidence-for="A2" data-result="pass" data-check="Revue des animations (agent avatars) + page Aide" data-ref="../../src/pages/Help.jsx" data-by="Claude (agent)" data-date="2026-09-27">Animations roulette, feinte, passement, petit pont, une-deux, appui mural, crochet et pressing ; tableau « Gestes techniques » (comment / effet).</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

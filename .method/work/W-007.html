@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Manager 1v1 en ligne · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-007</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-007" data-title="Manager 1v1 en ligne" data-summary="Salons, draft tour par tour, match en direct piloté par deux managers, bot en remplacement." data-tags="online multiplayer manager draft salon websocket" data-kind="work" data-watch="shared/rooms/managerRoom.js|shared/lobby.js|server/index.js" data-status="review" data-components="manager-online">
+<p class="eyebrow">work / W-007</p><h1>Manager 1v1 en ligne</h1>
+<dl><dt>Résultat attendu</dt><dd>Deux managers sur deux machines s&#x27;affrontent via un code de salon ou la partie rapide ; draft tour par tour ; le serveur fait autorité ; un bot remplace l&#x27;adversaire absent ou déconnecté.</dd>
+<dt>Périmètre / mandat</dt><dd>shared/rooms, server. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-004, W-005, W-013.</dd>
+<dt>Vérification prévue</dt><dd>npm test (tests/rooms.test.js, tests/server.test.js).</dd>
+<dt>Point d'étape</dt><dd>Livré : salles par code, salles publiques, partie rapide (bot après 25 s), draft serpentin 20 s/choix, composition 60 s, serveur autoritaire, reprise par un bot en cas de déconnexion et reprise en main au retour (y compris après F5).</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Deux clients WebSocket jouent un match complet via le serveur (test d&#x27;intégration).</p>
+<p data-criterion="A2">Partie rapide sans adversaire humain ⇒ match contre bot après délai.</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/server.test.js (Manager 1v1 en ligne)" data-ref="../../tests/server.test.js" data-by="Claude (agent)" data-date="2026-09-27">Deux clients WebSocket authentifiés : draft, composition, match, rapport ; ELO des deux managers mis à jour, somme nulle.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="node --test tests/server.test.js (partie rapide)" data-ref="../../tests/server.test.js" data-by="Claude (agent)" data-date="2026-09-27">Seul en partie rapide : un manager virtuel occupe la place adverse.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Audit de sécurité serveur et temps réel · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>finding · AC-001</span></header><main>
+<article data-method data-revision="1" data-owner="Claude (agent)" id="AC-001" data-title="Audit de sécurité serveur et temps réel" data-summary="Relecture de sécurité avant mise en ligne : 1 critique, 2 hautes, 4 moyennes, corrigées et testées." data-tags="audit securite security ac finding websocket api" data-kind="finding" data-status="review" data-components="auth manager-online arena-online deploy">
+<p class="eyebrow">finding / AC-001</p><h1>Audit de sécurité serveur et temps réel</h1>
+<dl>
+<dt>Origine</dt><dd>Relecture de sécurité indépendante (agent en lecture seule), 2026-09-27, sur server/, shared/lobby.js, shared/rooms/, client src/.</dd>
+<dt>Constats (gravité) et corrections</dt><dd><ol>
+<li><b>Critique</b> — mode de salle « constructor » : faux objet salle, plantage du processus à la déconnexion. Corrigé : types de salle dans une <code>Map</code>, salle attribuée après un <code>join</code> réussi, garde-fous <code>try/catch</code> et <code>uncaughtException</code>.</li>
+<li><b>Haute</b> — place d'Arène « __proto__ » : pollution de <code>Array.prototype</code>. Corrigé : place = entier 0…9.</li>
+<li><b>Haute</b> — limiteurs contournables via <code>X-Forwarded-For</code>. Corrigé : entrée la plus à droite (proxy), option <code>TRUST_PROXY</code>, limiteur d'échecs par pseudo.</li>
+<li><b>Moyenne</b> — clés hostiles (« constructor ») gelant un match (causerie, formation, personnage…). Corrigé : tables de contenu sans prototype, joueurs du moteur sans prototype, file de commandes bornée.</li>
+<li><b>Moyenne</b> — épuisement de ressources WebSocket. Corrigé : 8 connexions par IP, plafond global.</li>
+<li><b>Moyenne</b> — codes de salle devinables. Corrigé : 6 caractères, aléa cryptographique, 20 échecs de code max par connexion.</li>
+<li><b>Moyenne</b> — sessions conservées après changement de mot de passe. Corrigé : révocation de toutes les sessions et nouveau jeton.</li>
+<li><b>Faible</b> — contrôle de chemin statique, CSP <code>connect-src</code>, HSTS. Corrigé.</li>
+</ol></dd>
+<dt>Travaux liés</dt><dd><a href="../work/W-013.html#W-013">W-013</a>, <a href="../work/W-007.html#W-007">W-007</a>, <a href="../work/W-012.html#W-012">W-012</a>, <a href="../work/W-015.html#W-015">W-015</a>.</dd>
+</dl>
+<h2>Critères</h2>
+<p data-criterion="A1">Les scénarios d'attaque décrits n'ont plus d'effet (tests/security.test.js, tests/api.test.js).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/api.test.js tests/security.test.js" data-ref="../../tests/security.test.js" data-by="Claude (agent)" data-date="2026-09-27">12 tests réussis : modes et places hostiles sans effet, tables sans prototype, file bornée, révocation des sessions, limiteurs.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

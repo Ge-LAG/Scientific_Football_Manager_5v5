@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Selective context, not full reloads · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>guide · retrieval</span></header><main>
+<article data-method data-revision="1" data-owner="CTO" id="retrieval" data-title="Selective context, not full reloads" data-summary="Search metadata, extract selected HTML and detect stale references." data-tags="retrieval tokens index search read context html efficiency efficience recherche" data-kind="guide" data-status="active">
+<p class="eyebrow">guide / retrieval</p><h1>Selective context, not full reloads</h1>
+<p>HTML enables navigation, not token compression. Raw HTML may cost more than Markdown. Savings come from short records, targeted retrieval, one canonical fact and bounded output. The local parser returns selected article text with link destinations, excluding layout.</p>
+<pre><code>python .method/tools/method.py context
+python .method/tools/method.py context --task W-042
+python .method/tools/method.py search "authorization tenant"
+python .method/tools/method.py read security W-042
+python .method/tools/method.py search "legacy export" --full-text --archive
+python .method/tools/method.py new work W-042 --title "Short title" --summary "Outcome"
+python .method/tools/method.py context --task W-042 --paths src/auth.py --manifest
+python .method/tools/method.py health
+python .method/tools/method.py state
+python .method/tools/method.py reindex
+python .method/tools/method.py validate</code></pre>
+<p>Omit .method/ inside the standalone kit. Python 3.10+ standard library only; no API key, model call, embeddings, package installation or remote index.</p>
+<p>Context returns state, core, profile, selected work and its transitive mandatory constraints; ordinary hyperlinks are not expanded. Search ranks IDs/titles/tags/summaries and returns at most five metadata hits by default. It is lexical: try synonyms or --full-text before assuming absence. Body scanning stays local; only metadata is returned.</p>
+<p>New creates a draft from a supplied template with unique ID and corrected links; it refuses existing IDs/files. Fill its content, set status and reindex. ID/title/summary are metadata, never executable commands.</p>
+<p>Read extracts complete selected records, capped at 12,000 output characters by default. Over-budget requests fail without truncation. Read fewer records, split a growing record or deliberately raise --max-chars. Search defaults to 5,000 characters. These are character limits, not tokenizer counts.</p>
+<p>Each reference includes path, ID and hash. Read checks the selected file hash; search/context use the inventory and file stamps. Reindex uses a disposable parse cache; full validate/health bypass it. Reindex after edits. Validate checks generated views, state references, HTML structure and local links; it does not check remote URL availability or test-claim truth.</p>
+<p>Keep unchanged references already in context. Refresh state after meaningful changes/handoff; retrieve changed evidence. Hash checking stays on the host, without sending bodies to the model. After context loss, run context again. Previous summaries/cache do not prove current code.</p>
+<p>One article should cover one decision/use case. Split when it repeatedly exceeds retrieval budgets. Full documentation audits remain legitimate scoped exceptions. Never let a default budget exclude an invariant needed for correctness.</p>
+<p>See <a href="durability.html#durability">durability</a> for archive partitioning and retrieval integrity boundaries.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

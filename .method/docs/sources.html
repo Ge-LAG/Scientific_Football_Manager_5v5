@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Design basis and measurement · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>guide · sources</span></header><main>
+<article data-method data-revision="1" data-owner="CTO" id="sources" data-title="Design basis and measurement" data-summary="Official guidance and a reproducible, qualified efficiency comparison." data-tags="sources references gpt6 astra model measurement benchmark tokens metrics" data-kind="guide" data-status="active">
+<p class="eyebrow">guide / sources</p><h1>Design basis and measurement</h1>
+<p>Reviewed 2026-09-13 for GPT-6 Astra. These sources inform the design; they do not promise production quality.</p>
+<ul><li><a href="https://developers.openai.com/api/docs/guides/latest-model">OpenAI model guidance — GPT-6 Astra</a>: audit instruction files, preserve initiative within user intent and calibrate tests. V6 applies a small contract and conditional modules with evidence.</li><li><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">Codex instruction discovery</a>: defined AGENTS discovery and configurable fallback filenames support a small HTML entry point or existing adapter.</li></ul>
+<p>English instructions, audience-specific French/English communication, bilingual French-default software and CTO-preferred coordination are Guillaume's requested conventions, not OpenAI defaults.</p>
+<pre><code>python tools/method.py metrics --baseline "../Méthode Template V5"
+python tools/method.py validate
+python -m unittest discover -s tests -v
+python tests/benchmark_scale.py --records 5000 --output scale.json</code></pre>
+<p>Metrics count Unicode characters in extracted context and the V5 method MD/JSON pair. They do not measure GPT-6 tokenization, reasoning, cached input, tool overhead or billing. Bootstrap excludes a real work package because none exists yet. The V5 baseline excludes absent PROJET state/plans. Metrics also report initial context including the raw START.html entry point, as loaded through native discovery. Inspect both scopes before comparing.</p>
+<p>Evaluate comparable bugs, features, risky migrations and CTO handoffs on the same code baseline, acceptance criteria and model settings. Record actual input/output/reasoning usage where exposed, latency, accepted results, missed requirements and rework. Seek fewer unnecessary reads without lower quality. Character reduction is not promised invoice reduction.</p>
+<p>Neither HTML nor English guarantees lower tokens for every passage. The structural gain is loading only relevant records. No embeddings service, extra model reviewer or model switching is imposed.</p>
+<p>The scale probe creates disposable synthetic records with 50 active items and the rest archived. It checks exact bootstrap equality before/after growth, bounded history pages, searches, validation and health, recording timings. It tests corpus growth, not years of application evolution or real token billing. Durability regressions exercise changed criteria/code, expired rules, replacement chains, omitted constraints, revision conflicts and interrupted publication.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

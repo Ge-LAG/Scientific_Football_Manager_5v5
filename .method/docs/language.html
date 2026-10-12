@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Language and localization · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>guide · language</span></header><main>
+<article data-method data-revision="1" data-owner="CTO" id="language" data-title="Language and localization" data-summary="French and English software, French default; audience-specific reporting." data-tags="language languages localization i18n l10n français french anglais english traduction" data-kind="guide" data-status="active">
+<p class="eyebrow">guide / language</p><h1>Language and localization</h1>
+<table><thead><tr><th>Surface</th><th>Default</th></tr></thead><tbody>
+<tr><td>Method, agent instructions, coordination with Robertson</td><td>English.</td></tr>
+<tr><td>Private working language</td><td>English requested; no reasoning transcript. This is not an observable acceptance gate.</td></tr>
+<tr><td>Guillaume: conversation, intermediate/final reports, explanations</td><td>French.</td></tr>
+<tr><td>End-user reports, guides and explanatory deliverables</td><td>French. Add English when part of the bilingual product or requested.</td></tr>
+<tr><td>Software UI, errors, help, notifications and user-facing output</td><td>French and English; French on first use unless the user explicitly chooses English.</td></tr>
+<tr><td>Identifiers, API keys, protocol fields</td><td>Repository conventions, normally English; preserve machine contracts.</td></tr>
+<tr><td>Human explanatory prose embedded in code</td><td>French for new comments/explanations by default; preserve conventions required for interoperability.</td></tr>
+</tbody></table>
+<p>Centralize product strings in the stack's localization mechanism. Use stable keys, complete sentences and named parameters; avoid sentence fragments assembled in code. Cover plurals, empty states, errors, accessibility labels and exports. No hard-coded UI strings in either language.</p>
+<p>Provide an accessible language selector and persist the explicit choice in the appropriate setting. Without a saved choice, use French even on an English browser/system. Missing or unsupported locales fall back to French. Define dates, numbers, currencies and timezones in the profile; language must not silently change stored values.</p>
+<p>For affected surfaces, verify catalog keys and parameters in both languages, absence of raw keys, first-use French default, switching across reload/restart, layout, accents, plurals and accessible names. Exercise the touched French and English flows with realistic text lengths.</p>
+<p>Set each authored HTML record’s lang attribute to its actual prose language (fr or en), including PO test sheets created from English templates.</p>
+<p>The method remains English. Record local language overrides only when the product request calls for a different policy.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

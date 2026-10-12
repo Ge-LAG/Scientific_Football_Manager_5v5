@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Déploiement Hostinger · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-015</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-015" data-title="Déploiement Hostinger" data-summary="Serveur Node unique (statique + API + WebSocket), configuration, guide de mise en ligne." data-tags="deploy hostinger release production node" data-kind="work" data-watch="deploy/HOSTINGER.md|server/index.js|.env.example" data-status="review" data-components="deploy">
+<p class="eyebrow">work / W-015</p><h1>Déploiement Hostinger</h1>
+<dl><dt>Résultat attendu</dt><dd>L&#x27;application complète se déploie comme une seule application Node.js (Hostinger Cloud/VPS) avec un guide pas à pas, des variables d&#x27;environnement documentées et une persistance fichier sauvegardable.</dd>
+<dt>Périmètre / mandat</dt><dd>server, deploy. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-007, W-012, W-013.</dd>
+<dt>Vérification prévue</dt><dd>Smoke test local en mode production.</dd>
+<dt>Point d'étape</dt><dd>Livré : serveur unique (statique + API + WebSocket, en-têtes de sécurité, arrêt propre), guide Hostinger Cloud et VPS (PM2, Nginx, SSL, sauvegardes, recette). Non fait : mise en ligne réelle (action et autorité du PO).</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">npm run build &amp;&amp; npm start en production locale : pages, API et WebSocket fonctionnent sur un seul port.</p>
+<p data-criterion="A2">Guide deploy/HOSTINGER.md complet (Cloud Node.js et VPS).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="npm run build &amp;&amp; npm start ; navigation http://localhost:8787 + smoke test" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Pages, API et WebSocket servis sur un seul port en mode production local.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="Relecture de deploy/HOSTINGER.md" data-ref="../../deploy/HOSTINGER.md" data-by="Claude (agent)" data-date="2026-09-27">Guide complet Cloud Node.js et VPS ; réserve documentée sur le support WebSocket de l&#x27;offre mutualisée.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

@@ -1,0 +1,7 @@
+ℹ menu ouvert chez A : ticks A 459 → 524, B 459 → 524 en 6 s
+
+✔ Connexion des deux comptes (jeton de session)
+✔ Manager en ligne : salle privée, invitation par code, draft, composition
+✔ Manager en ligne : match synchronisé puis rapport avec XP et ELO
+✔ Arène en ligne : deux humains dans la même partie, apparence visible de l'adversaire
+✔ Arène en ligne : avec un autre humain, le menu prévient que le match continue (pas de pause)

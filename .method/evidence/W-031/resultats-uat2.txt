@@ -1,0 +1,49 @@
+ℹ pause FR : horloge 2:58, score 0-0, tick 130, recharges 49.967/-4.333
+ℹ reprise : +1.70 s de simulation pour 5.84 s réelles (pas de rattrapage des 31 s de pause)
+✔ TD-002 FR : Échap met le match solo en pause ≥ 30 s (temps, score, états, recharges figés), reprise sans saut (96 s)
+ℹ EN : horloge 2:57 figée 6 s, reprise OK ; aide en match : « Call for the ball » = B
+✔ TD-002 EN + TD-008 (aide en match) : pause, libellés anglais, appel de balle réaffecté sur B (49 s)
+ℹ TD-003 : toujours en composition après 62 s, départ uniquement sur « Prêt, coup d'envoi ! »
+ℹ td006-fr-886x620 : défilement 1387 → 66px ; score à y=70 (en-tête 62px), terrain 281–603 / 620px ; focus sur la zone du match : true
+✔ TD-003 FR + TD-006 FR (886×620) : préparation sans limite (≥ 62 s), puis coup d'envoi depuis le bas de page (84 s)
+ℹ td006-en-1366x768 : défilement 613 → 66px ; score à y=70 (en-tête 62px), terrain 281–751 / 768px ; focus sur la zone du match : true
+✔ TD-003 EN + TD-006 EN (1366×768) : libellé anglais, coup d'envoi recadré (21 s)
+ℹ td006-fr-390x844 : défilement 1349 → 58px ; score à y=127 (en-tête 119px), terrain 320–597 / 992px ; focus sur la zone du match : true
+✔ TD-006 FR mobile (390×844) : coup d'envoi recadré (22 s)
+ℹ td007-en-886x620-avant : 0/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky
+ℹ td007-en-886x620-avant : témoin — ancienne règle CSS réinjectée, 30 options masquées par l'aperçu (défaut de la recette reproduit)
+✔ TD-007 : témoin avec l'ancienne règle CSS (EN 886×620) — le recouvrement est bien détecté (55 s)
+ℹ td007-en-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static
+✔ TD-007 : Vestiaire EN 886×620 (cas de la recette) (111 s)
+ℹ td007-fr-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static
+✔ TD-007 : Vestiaire FR 886×620 (99 s)
+ℹ td007-fr-390x844 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static
+✔ TD-007 : Vestiaire FR 390×844 (mobile) (110 s)
+ℹ td007-en-768x1024 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static
+✔ TD-007 : Vestiaire EN 768×1024 (tablette) (53 s)
+ℹ td007-fr-1366x768 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky
+✔ TD-007 : Vestiaire FR 1366×768 (deux colonnes, aperçu collant) (52 s)
+ℹ td008-fr-azerty : tableau = Z, FAQ = Z (« Appuyez sur Z (ou R3 / ↑ à la manette) pour faire un appel d… »)
+ℹ td008-fr-qwerty : tableau = W, FAQ = W (« Appuyez sur W (ou R3 / ↑ à la manette) pour faire un appel d… »)
+ℹ td008-en-qwerty : tableau = W, FAQ = W (« Press W (or R3 / ↑ on a gamepad) to call for the ball: a vir… »)
+ℹ td008-en-remap-b : tableau = B, FAQ = B (« Press B (or R3 / ↑ on a gamepad) to call for the ball: a vir… »)
+ℹ td008-fr-remap-b : tableau = B, FAQ = B (« Appuyez sur B (ou R3 / ↑ à la manette) pour faire un appel d… »)
+✔ TD-008 : FAQ et tableau identiques (FR AZERTY, FR QWERTY, EN QWERTY, EN AZERTY + B, FR + B) ; synergies traduites (17 s)
+ℹ TD-004 low : 886×620 near but-propre : caméra (-19.3, 5.4, 1.5), bloom 0 ; 886×620 near but-adverse : caméra (12.4, 3.6, -1.2), bloom 0 ; 886×620 near paroi : caméra (-7.8, 3.6, 10.22), bloom 0 ; 886×620 near coin : caméra (-19.3, 5.98, -10.02), bloom 0 ; 886×620 far but-propre : caméra (-19.3, 9.85, 1.5), bloom 0 ; 886×620 far but-adverse : caméra (8.2, 6.16, -1.2), bloom 0 ; 886×620 far paroi : caméra (-12, 6.16, 10.22), bloom 0 ; 886×620 far coin : caméra (-19.3, 10.43, -10.02), bloom 0 ; 1366×768 near but-propre : caméra (-19.3, 5.41, 1.47), bloom 0 ; 1366×768 near but-adverse : caméra (12.38, 3.6, -1.2), bloom 0 ; 1366×768 near paroi : caméra (-7.8, 3.6, 10.22), bloom 0 ; 1366×768 near coin : caméra (-19.29, 5.98, -10), bloom 0 ; 1366×768 far but-propre : caméra (-19.3, 9.85, 1.5), bloom 0 ; 1366×768 far but-adverse : caméra (8.2, 6.16, -1.2), bloom 0 ; 1366×768 far paroi : caméra (-12.43, 6.16, 10.19), bloom 0 ; 1366×768 far coin : caméra (-19.3, 10.43, -10.01), bloom 0
+ℹ TD-004 low : 2 i/s (SwiftShader, sans GPU), 45 appels de dessin par image
+✔ TD-004 : qualité low — caméras dans la cage, obstacles estompés (2 tailles, 2 caméras, 4 positions) (262 s)
+ℹ TD-004 medium : 886×620 near but-propre : caméra (-6.07, 3.6, 0), bloom 0.45 ; 886×620 near but-adverse : caméra (12.36, 3.6, -1.2), bloom 0.45 ; 886×620 near paroi : caméra (-7.77, 3.6, 10.2), bloom 0.45 ; 886×620 near coin : caméra (-19.29, 5.98, -10), bloom 0.36 ; 886×620 far but-propre : caméra (-19.3, 9.85, 1.47), bloom 0.248 ; 886×620 far but-adverse : caméra (8.18, 6.16, -1.2), bloom 0.45 ; 886×620 far paroi : caméra (-11.99, 6.16, 10.22), bloom 0.45 ; 886×620 far coin : caméra (-19.29, 10.43, -10), bloom 0.248 ; 1366×768 near but-propre : caméra (-19.3, 5.42, 1.46), bloom 0.45 ; 1366×768 near but-adverse : caméra (12.32, 3.6, -1.19), bloom 0.45 ; 1366×768 near paroi : caméra (-7.63, 3.6, 10.13), bloom 0.45 ; 1366×768 near coin : caméra (-15.79, 5.27, -3.95), bloom 0.45 ; 1366×768 far but-propre : caméra (-19.27, 9.82, 1.38), bloom 0.248 ; 1366×768 far but-adverse : caméra (8.16, 6.17, -1.2), bloom 0.45 ; 1366×768 far paroi : caméra (-11.97, 6.16, 10.2), bloom 0.45 ; 1366×768 far coin : caméra (-15.28, 8.09, 1.08), bloom 0.45
+ℹ TD-004 medium : 1 i/s (SwiftShader, sans GPU), 65 appels de dessin par image
+✔ TD-004 : qualité medium — caméras dans la cage, obstacles estompés (2 tailles, 2 caméras, 4 positions) (288 s)
+ℹ TD-004 high : 886×620 near but-propre : caméra (-15.36, 4.86, 1.05), bloom 0.5 ; 886×620 near but-adverse : caméra (12.36, 3.6, -1.2), bloom 0.5 ; 886×620 near paroi : caméra (-1.72, 3.6, 6.78), bloom 0.5 ; 886×620 near coin : caméra (-19.3, 5.98, -10.02), bloom 0.375 ; 886×620 far but-propre : caméra (-19.3, 9.85, 1.47), bloom 0.275 ; 886×620 far but-adverse : caméra (7.97, 6.19, -1.18), bloom 0.5 ; 886×620 far paroi : caméra (-12.04, 6.16, 10.21), bloom 0.5 ; 886×620 far coin : caméra (-19.29, 10.43, -9.99), bloom 0.275 ; 1366×768 near but-propre : caméra (-19, 7.24, -2.65), bloom 0.375 ; 1366×768 near but-adverse : caméra (-4.99, 4.62, 0.22), bloom 0.5 ; 1366×768 near paroi : caméra (-6.96, 3.91, 7.21), bloom 0.5 ; 1366×768 near coin : caméra (-12.53, 4.84, -0.57), bloom 0.5 ; 1366×768 far but-propre : caméra (-17.26, 8.49, -1.97), bloom 0.325 ; 1366×768 far but-adverse : caméra (5.71, 6.49, -0.96), bloom 0.5 ; 1366×768 far paroi : caméra (-1.67, 6.26, 4.02), bloom 0.5 ; 1366×768 far coin : caméra (-9.62, 8.14, -2.31), bloom 0.5
+ℹ TD-004 high : 1 i/s (SwiftShader, sans GPU), 65 appels de dessin par image
+✔ TD-004 : qualité high — caméras dans la cage, obstacles estompés (2 tailles, 2 caméras, 4 positions) (279 s)
+ℹ Passage complet : « TD-002 FR : pause à l'approche de la mi-temps puis d'un but » expiré (attente de la mi-temps limitée à 15 s alors que la simulation locale tournait à ~30 % du temps réel sous rendu logiciel) ; délai porté à 120 s, étapes TD-002 rejouées seules :
+ℹ pause FR : horloge 2:59, score 0-0, tick 172, recharges -5.733/-5.733
+ℹ reprise : +2.20 s de simulation pour 3.66 s réelles (pas de rattrapage des 31 s de pause)
+✔ TD-002 FR : Échap met le match solo en pause ≥ 30 s (temps, score, états, recharges figés), reprise sans saut (82 s)
+ℹ mi-temps après la reprise uniquement (horloge figée à 1.8000000000000114 s pendant 8 s)
+ℹ but imminent : score 0-0 figé pendant 6 s de pause → 1-0 juste après la reprise (phase goal)
+✔ TD-002 FR : pause à l'approche de la mi-temps puis d'un but (52 s)
+ℹ EN : horloge 2:54 figée 6 s, reprise OK ; aide en match : « Call for the ball » = B
+✔ TD-002 EN + TD-008 (aide en match) : pause, libellés anglais, appel de balle réaffecté sur B (43 s)

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Impact de chaque caractéristique · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-027</span></header><main>
+<article data-method data-revision="2" data-owner="Claude (agent)" id="W-027" data-title="Impact de chaque caractéristique" data-summary="Chaque caractéristique agit sur le jeu (Arène et Manager), documenté dans l&#x27;Aide." data-tags="stats impact caracteristique vitesse tir vision reflexes endurance" data-kind="work" data-watch="shared/action/sim.js|shared/manager/engine.js|src/pages/Help.jsx" data-status="review" data-components="arena-sim manager-engine">
+<p class="eyebrow">work / W-027</p><h1>Impact de chaque caractéristique</h1>
+<dl><dt>Résultat attendu</dt><dd>Les 9 caractéristiques ont un effet mesurable : vitesse de course, endurance, précision et puissance des tirs, tacles, dribble et gestes, passes (Vision), sang-froid (tirs sous pression, penaltys, discipline), réflexes (arrêts, premier contrôle).</dd>
+<dt>Périmètre / mandat</dt><dd>shared/action, shared/manager, src/pages. Mandat : demandes d&#x27;amélioration du PO (3e message du 2026-09-27) et arbitrages validés (profil d&#x27;origine ramené à un budget commun, archétype + poste idéal à la place de l&#x27;overall, suppression des cartons aussi en Manager, audit complet des touches).</dd>
+<dt>Dépendances</dt><dd>W-023.</dd>
+<dt>Vérification prévue</dt><dd>npm test (gameplay6).</dd>
+<dt>Point d'étape</dt><dd>Livré : chaque caractéristique agit (Vitesse, Endurance, Finition, Force, Sang-froid, Vision, Tacle, Dribble, Réflexes — premier contrôle et arrêts) ; la Vision élargit le choix du partenaire et l'anticipation ; le Sang-froid pèse sur les penaltys, les coups francs et la discipline ; tableau « Impact des caractéristiques » (Arène / Manager) dans l'Aide.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Test automatique : faire varier une seule caractéristique change le résultat attendu, pour les 9.</p>
+<p data-criterion="A2">Tableau « Impact des caractéristiques » dans l&#x27;Aide (Arène et Manager).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/gameplay6.test.js (« chaque caractéristique a un impact mesurable »)" data-ref="../../tests/gameplay6.test.js" data-by="Claude (agent)" data-date="2026-09-27">En ne faisant varier qu&#x27;une caractéristique (30 → 92) : vitesse, endurance restante, puissance, précision, précision sous pression, passes, tacles, résistance aux tacles et premier contrôle changent dans le sens attendu.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="Relecture de la page Aide" data-ref="../../src/pages/Help.jsx" data-by="Claude (agent)" data-date="2026-09-27">Tableau des 9 caractéristiques avec leurs effets en Arène et en Manager (FR/EN).</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

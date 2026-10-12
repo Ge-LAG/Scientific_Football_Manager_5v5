@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Manager virtuel (bot) à 3 niveaux · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-005</span></header><main>
+<article data-method data-revision="6" data-owner="Claude (Codex)" id="W-005" data-title="Manager virtuel (bot) à 3 niveaux" data-summary="IA de manager : composition, stratégie adaptative, power-ups, remplacements." data-tags="bot ai manager difficulte" data-kind="work" data-watch="shared/manager/ai.js" data-status="review" data-components="manager-ai">
+<p class="eyebrow">work / W-005</p><h1>Manager virtuel (bot) à 3 niveaux</h1>
+<dl><dt>Résultat attendu</dt><dd>Un manager virtuel compose une équipe, adapte sa stratégie au score, déclenche ses power-ups et fait ses changements, avec trois niveaux (Stagiaire, Chercheur, Prix Nobel).</dd>
+<dt>Périmètre / mandat</dt><dd>shared/manager/ai.js. Mandat : implémentation autonome confiée par le PO le 2026-09-27 (« réalise l'implémentation à 100 % de ce plan sans ma validation »).</dd>
+<dt>Dépendances</dt><dd>W-004.</dd>
+<dt>Vérification prévue</dt><dd>npm test.</dd>
+<dt>Point d'étape</dt><dd>Livré : manager virtuel à 3 niveaux (draft, composition, stratégie adaptative et meilleure réponse tactique, power-ups au bon moment, remplacements). Le bot choisit aussi sa causerie de mi-temps. Vague 4 : Championnat du Labo (saison solo 5 journées, tests/season.test.js).</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Prix Nobel bat Stagiaire dans une majorité nette de matchs simulés (test).</p>
+<p data-criterion="A2">Le bot n&#x27;émet que des commandes valides (test).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/manager-engine.test.js (Prix Nobel &gt; Stagiaire)" data-ref="../../tests/manager-engine.test.js" data-by="Claude (agent)" data-date="2026-09-27">Sur 14 matchs, Prix Nobel gagne plus souvent que Stagiaire.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="idem" data-ref="../../tests/manager-engine.test.js" data-by="Claude (agent)" data-date="2026-09-27">Chaque commande émise par les bots est acceptée par le moteur.</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

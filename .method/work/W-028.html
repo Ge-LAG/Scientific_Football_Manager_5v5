@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Visages masculins et coiffures réalistes · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-028</span></header><main>
+<article data-method data-revision="2" data-owner="Claude (agent)" id="W-028" data-title="Visages masculins et coiffures réalistes" data-summary="Formes de visage, types d&#x27;yeux, sourcils, nez ; têtes adultes masculines ; coiffures réalistes, mulets dans la liste." data-tags="visage yeux coiffure mulet avatar apparence" data-kind="work" data-watch="shared/data/appearance.js|src/three/visual/avatar.js|src/three/visual/avatar/*|src/pages/LookEditor.jsx" data-status="review" data-components="arena-render data">
+<p class="eyebrow">work / W-028</p><h1>Visages masculins et coiffures réalistes</h1>
+<dl><dt>Résultat attendu</dt><dd>Les têtes paraissent adultes et masculines ; le joueur choisit forme du visage, type d&#x27;yeux, sourcils et nez ; les coiffures sont plus naturelles et les mulets sont des coiffures comme les autres.</dd>
+<dt>Périmètre / mandat</dt><dd>shared/data, src/three/visual, src/pages. Mandat : demandes d&#x27;amélioration du PO (3e message du 2026-09-27) et arbitrages validés (profil d&#x27;origine ramené à un budget commun, archétype + poste idéal à la place de l&#x27;overall, suppression des cartons aussi en Manager, audit complet des touches).</dd>
+<dt>Dépendances</dt><dd>W-020.</dd>
+<dt>Vérification prévue</dt><dd>npm test (appearance) + revue visuelle.</dd>
+<dt>Point d'étape</dt><dd>Livré : têtes adultes masculines (mâchoire, pommettes, yeux plus petits, cou, pomme d'Adam), 4 nouveaux champs (8 formes de visage, 11 formes d'yeux, 8 sourcils, 7 nez) dans un onglet « Visage », 22 coiffures réalistes (ligne d'implantation, dégradés, mèches, boucles serrées) avec les 4 mulets intercalés dans la liste (plus de catégorie à part).</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Nouvelles options avec libellés FR/EN, apparences anciennes toujours valides (tests).</p>
+<p data-criterion="A2">Revue visuelle de toutes les options (captures).</p>
+<p data-evidence-for="A1" data-result="pass" data-check="node --test tests/appearance.test.js" data-ref="../../tests/appearance.test.js" data-by="Claude (agent)" data-date="2026-09-27">Libellés FR/EN complets, défauts valides pour les 16, entrées hostiles sans effet, anciennes apparences complétées par les défauts.</p>
+<p data-evidence-for="A2" data-result="pass" data-check="Revue visuelle (agent avatars, captures du harness) + smoke Vestiaire (captures 19 et 19b)" data-ref="../../scripts/smoke-browser.mjs" data-by="Claude (agent)" data-date="2026-09-27">Visages et coiffures distincts de face et de 3/4 ; mulets lisibles ; aucune catégorie de coiffure séparée dans l&#x27;éditeur (vérifié par le smoke).</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

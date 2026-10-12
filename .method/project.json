@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "method_version": "6.1.0",
+  "template": false,
+  "name": "Lab League — Scientific Football Manager 5v5",
+  "revision": 12,
+  "updated_at": "2026-10-11",
+  "mode": "cto",
+  "po": "Guillaume",
+  "cto": "Robertson Andersen",
+  "focus_id": "W-032",
+  "next_action": "SWE-2 : sprint 7 (M6) sur une branche dédiée issue de lab-league-v3, un lot à la fois dans l'ordre W-032 → W-033 → W-034 → W-035 → W-036, chacun passé en review avec preuves (définition de fini de la feuille de route). Guillaume : valider TD-004 dans Edge, reprendre UAT-002, arbitrer les brouillons W-046 et W-047 ; UAT-001 reste son acceptation produit.",
+  "profile_id": "profile",
+  "roadmap_id": "roadmap",
+  "blocked_on": [],
+  "pending_acceptance": [
+    "UAT-001"
+  ],
+  "external_authorizations": []
+}

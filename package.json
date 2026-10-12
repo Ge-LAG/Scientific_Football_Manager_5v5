@@ -1,0 +1,31 @@
+{
+  "name": "lab-league",
+  "version": "3.0.0",
+  "description": "Lab League — Scientific Football Manager 5v5 : jeu de football scientifique en ligne (Manager 1v1 + Arène 5v5 à la 3e personne)",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:client": "vite",
+    "dev:server": "node --watch-path=./server --watch-path=./shared server/index.js",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "test": "node --test \"tests/*.test.js\"",
+    "check": "npm run test && npm run build",
+    "smoke": "node scripts/smoke-browser.mjs http://localhost:8787 smoke-out",
+    "smoke:online": "node scripts/smoke-online.mjs http://localhost:8787 smoke-out"
+  },
+  "dependencies": {
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "three": "^0.186.1",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.3.1"
+  }
+}
