@@ -1,0 +1,5 @@
+# Fins de ligne LF dans la copie de travail sur toutes les plateformes (core.autocrlf compris) :
+# les empreintes de preuves de .method portent sur les octets des fichiers surveillés.
+* text=auto eol=lf
+# archives conservées telles quelles
+archive/** -text
