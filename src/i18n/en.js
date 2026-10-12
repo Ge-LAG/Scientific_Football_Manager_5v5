@@ -150,6 +150,11 @@ export default {
   "ah.start": "Kick-off!", "ah.dropIn": "Free spots are held by bots; other players can join during the match.", "ah.chooseChar": "Your scientist",
 
   "training.title": "Training", "training.control": "Win the ball ({key})", "training.sprint": "Sprint ({key})", "training.pass": "Make a pass ({key})", "training.shoot": "Charge and shoot ({key}, hold)", "training.tackle": "Win a tackle ({key})", "training.power": "Trigger a power-up ({key})", "training.score": "Score a goal", "training.done": "Diploma earned! You're ready for online matches.",
+  "training.mod.bases": "Basics", "training.mod.skills": "Skills", "training.mod.setpieces": "Set pieces", "training.mod.defense": "Defense", "ah.trainingModule": "Training module",
+  "training.replay": "Replay",
+  "training.skills.cut": "Land the cut ({key})", "training.skills.feint": "Land the body feint ({key})", "training.skills.roulette": "Land the roulette ({key})", "training.skills.stepover": "Land the stepover ({key})", "training.skills.nutmeg": "Land the nutmeg ({key})", "training.skills.wallpass": "Land the wall one-two ({key})", "training.skills.wallkick": "Land the wall bounce ({key})",
+  "training.setpieces.fk_frame": "Put a free kick on target ({key})", "training.setpieces.pen_score": "Score a penalty ({key})", "training.setpieces.pen_save": "Save a penalty in goal",
+  "training.defense.tackle": "Win the ball with a tackle ({key})", "training.defense.press": "Win the ball by pressing ({key})", "training.defense.nofoul": "Win the ball without fouling",
   "ah.training": "Guided training", "arena.replay": "REPLAY", "arena.replaySkip": "({pass} or {menu} to skip)", "arena.stamina": "Stamina", "arena.power": "Shot power", "arena.clickToPlay": "Click to play (mouse lock)", "arena.kickoff": "Kick-off!", "arena.ownGoal": "Own goal!", "arena.firewall": "Access denied! {name}'s firewall blocks the ball carrier.",
   "arena.menu": "Pause", "arena.resume": "Resume", "arena.camHint": "Press {key} in game to switch camera.", "arena.boardHint": "Release {key} to close.", "arena.player": "Player", "arena.rating": "Rating", "arena.backToMenu": "Back to menu",
 

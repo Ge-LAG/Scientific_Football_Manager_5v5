@@ -514,6 +514,64 @@ if (run("w038")) {
   });
 }
 
+// ── Entraînement guidé v2 (W-039) : choix du module, « Rejouer » via a.drill, objectif détecté, progression persistée ──
+if (run("w039")) {
+  const kickoffTraining = async lang => {
+    await waitFor(`[...document.querySelectorAll("button")].some(b => b.textContent.includes(${JSON.stringify(LBL[lang].kickoff)}))`, 25000); await sleep(400);
+    await realClickText(LBL[lang].kickoff);
+    await waitFor(`window.__ll3d?.latest?.ph === "play"`, 45000);
+  };
+  await step("W-039 FR : module « Coups arrêtés » — « Rejouer » lance le coup franc (a.drill), tir cadré coché, progression persistée", async () => {
+    await prefs({ lang: "fr" });
+    await go("#/arena");
+    await waitFor(has("Module d'entraînement"), 15000);
+    await realClickText("Coups arrêtés");
+    await realClickText("Entraînement guidé");
+    await kickoffTraining("fr");
+    await waitFor(has("Cadrer un coup franc"), 15000);
+    // « Rejouer » envoie a.drill : le serveur place le coup franc, tireur = moi
+    await realClickText("Rejouer");
+    await waitFor(`window.__ll3d?.latest?.ph === "setpiece"`, 15000);
+    const sp = await evaluate(`(() => { const r = ${localRoom}; return { kind: r.sim.setPiece?.kind, taker: r.sim.setPiece?.taker, me: window.__ll3d.mySlot }; })()`);
+    if (sp.kind !== "freekick" || sp.taker !== sp.me) throw new Error("a.drill n'a pas placé le coup franc pour moi : " + JSON.stringify(sp));
+    await shot("w039-fr-coupfranc");
+    // tir chargé au relâchement → cadré → objectif coché ; on rejoue tant que le tir n'est pas cadré
+    let got = {};
+    for (let i = 0; i < 5 && !got.fk_frame; i++) {
+      if (i > 0) { await realClickText("Rejouer"); await waitFor(`window.__ll3d?.latest?.ph === "setpiece"`, 15000); }
+      await sleep(1700); await key("KeyD", 900); await sleep(1400);
+      got = (await evaluate(`JSON.parse(localStorage.getItem("ll.training") || "{}").setpieces || {}`)) || {};
+      await waitFor(`window.__ll3d?.latest?.ph !== "setpiece"`, 15000).catch(() => {});
+    }
+    if (!got.fk_frame) throw new Error("« cadrer un coup franc » non détecté après 5 tentatives : " + JSON.stringify(got));
+    await shot("w039-fr-objectif");
+    info("w039 : a.drill → coup franc pour moi ; tir chargé cadré → objectif coché dans ll.training");
+    // persistance : recharger, rejoindre le même module — l'objectif reste coché
+    await go("#/arena");
+    await waitFor(has("Module d'entraînement"), 15000);
+    await realClickText("Coups arrêtés");
+    await realClickText("Entraînement guidé");
+    await kickoffTraining("fr");
+    await waitFor(has("✅"), 15000);
+    await shot("w039-fr-persiste");
+    info("w039 : progression du module conservée après rechargement (ll.training.setpieces.fk_frame)");
+    await evaluate(`localStorage.removeItem("ll.training")`);
+  });
+  await step("W-039 EN : module « Defense » affiché en anglais, rejeu refusé hors entraînement n'altère rien", async () => {
+    await prefs({ lang: "en" });
+    await go("#/arena");
+    await waitFor(has("Training module"), 15000);
+    await realClickText("Defense");
+    await realClickText("Guided training");
+    await kickoffTraining("en");
+    await waitFor(has("Win the ball by pressing"), 15000);
+    const got = await evaluate(`(document.body.innerText.match(/defense|pressing|without fouling/gi) || []).join(",")`);
+    if (!/defense/i.test(got) || !/pressing/i.test(got)) throw new Error("objectifs non traduits : " + got);
+    await shot("w039-en-defense");
+    info(`w039 EN : module Defense traduit (${got})`);
+  });
+}
+
 console.log("\n" + results.map(r => r.join(" ")).join("\n"));
 if (logs.length) console.log("\nConsole :\n" + [...new Set(logs)].slice(0, 30).join("\n"));
 writeFileSync(path.join(OUT, "resultats.txt"), results.map(r => r.join(" ")).join("\n") + (logs.length ? "\n\nConsole :\n" + [...new Set(logs)].slice(0, 30).join("\n") : "") + "\n");

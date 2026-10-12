@@ -20,7 +20,8 @@ export class ArenaRoom extends BaseRoom {
     super({ ...o, mode: "arena" });
     const hs = HALVES.includes(this.opts.halfSeconds) ? this.opts.halfSeconds : 180;
     const training = !!this.opts.training && !this.opts.public;
-    this.opts = { halfSeconds: training ? 300 : hs, botLevel: training ? "training" : BOT_LEVELS[this.opts.botLevel] ? this.opts.botLevel : "normal", public: !!this.opts.public, quick: !!this.opts.quick, training };
+    const module = ["bases", "skills", "setpieces", "defense"].includes(this.opts.module) ? this.opts.module : "bases";
+    this.opts = { halfSeconds: training ? 300 : hs, botLevel: training ? "training" : BOT_LEVELS[this.opts.botLevel] ? this.opts.botLevel : "normal", public: !!this.opts.public, quick: !!this.opts.quick, training, module };
     this.rng = makeRng(randomSeed());
     this.slots = Array.from({ length: 10 }, (_, i) => ({ slot: i, team: i < 5 ? 0 : 1, memberId: null, identity: null, pseudo: null, userId: null, charId: null, left: false, loadout: null, look: null, stats: null, pick: null }));
     // statistiques par humain (identité), créditées au pilote du joueur AU MOMENT de l'action (tir, tacle, arrêt,
@@ -159,6 +160,7 @@ export class ArenaRoom extends BaseRoom {
       case "a.loadout": if (s && this.phase === "lobby" && s.charId) { s.loadout = sanitizeLoadout(s.charId, msg.ids); this.broadcastState(); } break;
       case "a.switch": if (s && this.phase === "playing") this.switchTo(clientId, msg.to); break;
       case "a.pause": if (s && this.phase === "playing") this.setPaused(msg.on); break;
+      case "a.drill": if (s && this.phase === "playing" && this.opts.training && this.sim) this.drill(s, msg); break; // entraînement seulement : situation à rejouer
       case "a.rematch": this.voteRematch(clientId); break;
       case "a.opts": if (isHost && this.phase === "lobby") {
         if (HALVES.includes(msg.halfSeconds)) this.opts.halfSeconds = msg.halfSeconds;
@@ -169,6 +171,17 @@ export class ArenaRoom extends BaseRoom {
       case "a.start": if (isHost && this.phase === "lobby") this.start(); break;
       case "emote": this.emote(clientId, msg.e); break;
     }
+  }
+
+  // entraînement guidé : rejouer une situation — coup franc ou penalty pour soi, penalty contre soi (gardien)
+  drill(s, msg) {
+    const kind = msg.kind === "penalty" || msg.kind === "freekick" ? msg.kind : null;
+    if (!kind) return;
+    const me = this.sim.players[s.slot]; if (!me) return;
+    const taker = msg.for === "against"
+      ? this.sim.players.find(p => p.team !== me.team && !this.sim.isKeeper(p))
+      : me;
+    if (taker) this.sim.startSetPiece(kind, taker);
   }
 
   // changement de joueur en cours de match : vers un coéquipier piloté par un bot (jamais un humain)

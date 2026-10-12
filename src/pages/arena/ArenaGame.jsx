@@ -10,6 +10,7 @@ import { CamBar } from "../../ui/CamBar.jsx";
 import { useBindings } from "../../ui/bindings.js";
 import { ACHIEVEMENTS } from "../../../shared/progression.js";
 import { recordMatchResult } from "../../store/challenges.js";
+import { MODULES, newCtx, track, loadTraining, saveTraining } from "./training.js";
 import { speak, stopSpeaking } from "../../audio/voice.js";
 import { reducedFxOn } from "../../ui/reducedFx.js";
 import { Rematch } from "../../ui/Rematch.jsx";
@@ -20,8 +21,11 @@ export function ArenaGame({ room, init, end, onLeave }) {
   const { t, lang } = useI18n(); const { conn, settings, setSettings } = useSession(); const game = useGame();
   const hostRef = useRef(null); const viewRef = useRef(null);
   const [hud, setHud] = useState(null); const [feed, setFeed] = useState([]); const [banner, setBanner] = useState(null); const [emote, setEmote] = useState(null);
-  const [goals, setGoals] = useState({}); // entraînement guidé : objectifs atteints
-  const done = k => setGoals(g => (g[k] ? g : { ...g, [k]: true }));
+  const mod = room.opts.training ? room.opts.module || "bases" : null; // module d'entraînement actif
+  const modKeys = useRef(new Set(MODULES[mod || "bases"]));
+  const ctxRef = useRef(newCtx()); // suivi : situation arrêtée en cours, faute commise
+  const [goals, setGoals] = useState(() => (mod ? loadTraining(mod) : {})); // entraînement guidé : objectifs atteints (persistés)
+  const done = k => { if (!modKeys.current.has(k)) return; setGoals(g => { if (g[k]) return g; const n = { ...g, [k]: true }; saveTraining(mod, n); return n; }); };
   const slots = room.slots; const mySlot = room.you.slot;
   const mySlotRef = useRef(mySlot); mySlotRef.current = mySlot;
   const isTouch = typeof window !== "undefined" && matchMedia("(pointer: coarse)").matches;
@@ -46,7 +50,7 @@ export function ArenaGame({ room, init, end, onLeave }) {
       onHud: h => { setHud(h); const ms = mySlotRef.current; if (h.me) { if (h.players[ms] && (h.players[ms].flags & 1)) done("sprint"); if (h.me.hasBall && h.phase === "play") done("control"); } },
       onEvent: ev => {
         const ms = mySlotRef.current;
-        if (ev.slot === ms) ({ MY_PASS: "pass", SHOT: "shoot", TACKLE: "tackle", POWERUP: "power", GOAL: "score", SKILL: "skill" })[ev.type] && done(({ MY_PASS: "pass", SHOT: "shoot", TACKLE: "tackle", POWERUP: "power", GOAL: "score", SKILL: "skill" })[ev.type]);
+        if (mod) for (const k of track(mod, ev, ms, s => slots[s]?.team ?? -1, ctxRef.current)) done(k);
         if (ev.type === "EMOTE_KEY") { game.send({ t: "emote", e: ["👏", "🔥", "😱", "😂", "GG"][ev.n - 1] }); return; }
         if (ev.local) return;
         if (ev.type === "GOAL") { setBanner({ ev, at: Date.now() }); setTimeout(() => setBanner(null), 3000); if (ev.n) speak(narrText(ev.n, { joueur: getPlayer(init.slots[ev.slot]?.charId)?.nom || "" }, lang), lang, settingsRef.current.voice); }
@@ -137,7 +141,7 @@ export function ArenaGame({ room, init, end, onLeave }) {
         )}
         {spectator && !ended && <CamBar mode={specCam} follow={follow} slots={slots} onMode={m => { setSpecCam(m); viewRef.current?.setCam(m); setSettings({ specCam: m }); }} onFollow={s => { setFollow(s); viewRef.current?.setFollow(s); if (s >= 0) setSpecCam("player"); }} onZoom={d => viewRef.current?.zoomCam(d)} />}
         {hud && <MiniMap hud={hud} slots={slots} teams={T} mySlot={mySlot} />}
-        {room.opts.training && !ended && <Training goals={goals} t={t} keys={keys} pad={hud?.usingPad} />}
+        {room.opts.training && !ended && <Training module={mod} goals={goals} t={t} keys={keys} pad={hud?.usingPad} onDrill={d => conn?.send({ t: "a.drill", ...d })} />}
         {me?.charging && <div className="hud-charge" aria-label={t("arena.power")}><div style={{ width: `${me.charge * 100}%` }} /></div>}
         <div className="hud-feed" aria-live="polite">
           {feed.map(ev => <div key={ev.key} className="feed-item" style={{ borderLeftColor: ev.type === "GOAL" ? "var(--lime)" : ev.type === "POWERUP" ? "var(--gold)" : "var(--cyan)" }}><div className="meta"><span>{t("evtype." + ev.type)}</span><span className="muted">{ev.slot >= 0 ? nameOf(ev.slot) : ""}</span></div>{evText(ev)}</div>)}
@@ -196,19 +200,25 @@ export function ArenaGame({ room, init, end, onLeave }) {
   );
 }
 
-// entraînement guidé : liste d'objectifs
-const TRAINING = ["control", "sprint", "skill", "pass", "shoot", "tackle", "power", "switch", "score"];
+// entraînement guidé : objectifs du module choisi (W-039) ; « bases » conserve ses clés d'origine
 const TRAINING_ACTION = { sprint: "sprint", skill: "skill", pass: "pass", shoot: "shoot", tackle: "tackle", power: "pu1", switch: "switch" };
-function Training({ goals, t, keys, pad }) {
-  const n = TRAINING.filter(k => goals[k]).length;
+const DRILL_OF = { fk_frame: { kind: "freekick", for: "me" }, pen_score: { kind: "penalty", for: "me" }, pen_save: { kind: "penalty", for: "against" } };
+function Training({ module, goals, t, keys, pad, onDrill }) {
+  const list = MODULES[module] || MODULES.bases;
+  const n = list.filter(k => goals[k]).length;
   const one = a => (pad ? keys.padOf(a) : keys.keyOf(a));
   // tacle : touche dédiée, et touche de tir quand un adversaire a le ballon (touches contextuelles)
-  const keyOf = k => (k === "control" ? (pad ? t("controls.leftStick") : keys.moveKeys) : k === "tackle" && keys.controls.contextKeys ? `${one("tackle")} / ${one("shoot")}` : TRAINING_ACTION[k] ? one(TRAINING_ACTION[k]) : "");
+  const keyOf = k => (k === "control" ? (pad ? t("controls.leftStick") : keys.moveKeys) : k === "tackle" && keys.controls.contextKeys ? `${one("tackle")} / ${one("shoot")}` : module === "skills" ? one("skill") : module === "setpieces" ? one("shoot") : module === "defense" && k === "press" ? one("press") : module === "defense" && k === "tackle" ? one("tackle") : TRAINING_ACTION[k] ? one(TRAINING_ACTION[k]) : "");
+  const label = k => (module === "bases" ? t("training." + k, { key: keyOf(k) }) : t(`training.${module}.${k}`, { key: keyOf(k) }));
   return (
     <div className="training">
-      <div style={{ fontWeight: 800, color: "var(--lime)" }}>🎓 {t("training.title")} — {n}/{TRAINING.length}</div>
-      {TRAINING.map(k => <div key={k} style={{ opacity: goals[k] ? 0.55 : 1 }}>{goals[k] ? "✅" : "⬜"} {t("training." + k, { key: keyOf(k) })}</div>)}
-      {n === TRAINING.length && <div className="mt8" style={{ color: "var(--gold)", fontWeight: 800 }}>🏆 {t("training.done")}</div>}
+      <div style={{ fontWeight: 800, color: "var(--lime)" }}>🎓 {t("training.title")} — {t("training.mod." + module)} {n}/{list.length}</div>
+      {list.map(k => (
+        <div key={k} className="row nowrap" style={{ opacity: goals[k] ? 0.55 : 1 }}>
+          <span className="grow">{goals[k] ? "✅" : "⬜"} {label(k)}</span>
+          {DRILL_OF[k] && <button className="linkbtn" style={{ padding: "0 4px" }} onClick={() => onDrill?.(DRILL_OF[k])} title={t("training.replay")}>↻ {t("training.replay")}</button>}
+        </div>))}
+      {n === list.length && <div className="mt8" style={{ color: "var(--gold)", fontWeight: 800 }}>🏆 {t("training.done")}</div>}
     </div>
   );
 }

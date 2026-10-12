@@ -4,6 +4,7 @@ import { useSession } from "../../store/session.jsx";
 import { useGame } from "../../game/GameProvider.jsx";
 import { Card, Kicker, Seg, GuestName } from "../../ui/components.jsx";
 import { BOT_LEVELS } from "../../../shared/action/bot.js";
+import { MODULE_IDS } from "./training.js";
 import { useBindings } from "../../ui/bindings.js";
 
 export default function ArenaHub({ navigate }) {
@@ -13,6 +14,7 @@ export default function ArenaHub({ navigate }) {
   const [level, setLevel] = useState("normal");
   const [half, setHalf] = useState(180);
   const [code, setCode] = useState("");
+  const [mod, setMod] = useState("bases"); // module d'entraînement choisi
   const [rooms, setRooms] = useState([]);
   useEffect(() => { if (serverUp) { const f = () => api("/api/rooms").then(d => setRooms(d.rooms.filter(r => r.mode === "arena")), () => {}); f(); const h = setInterval(f, 5000); return () => clearInterval(h); } }, [serverUp]); // eslint-disable-line react-hooks/exhaustive-deps
   const opts = { botLevel: level, halfSeconds: half };
@@ -28,7 +30,9 @@ export default function ArenaHub({ navigate }) {
           <div className="label mt16">{t("ah.halfLength")}</div>
           <Seg value={half} onChange={setHalf} options={[60, 120, 180, 300].map(s => ({ value: s, label: `${s / 60} min` }))} />
           <button className="btn magenta block mt24 big" onClick={() => game.create("local", "arena", opts)}>▶ {t("ah.practice")}</button>
-          <button className="btn lime block mt8" onClick={() => game.create("local", "arena", { training: true })}>🎓 {t("ah.training")}</button>
+          <div className="label mt16">{t("ah.trainingModule")}</div>
+          <Seg value={mod} onChange={setMod} options={MODULE_IDS.map(id => ({ value: id, label: t("training.mod." + id) }))} />
+          <button className="btn lime block mt8" onClick={() => game.create("local", "arena", { training: true, module: mod })}>🎓 {t("ah.training")}</button>
           <p className="tiny muted mt8">{t("ah.practiceNote")}</p>
         </Card>
         <Card>

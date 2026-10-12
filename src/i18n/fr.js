@@ -150,6 +150,11 @@ export default {
   "ah.start": "Coup d'envoi !", "ah.dropIn": "Les places libres sont tenues par des bots ; d'autres joueurs pourront rejoindre en cours de match.", "ah.chooseChar": "Votre scientifique",
 
   "training.title": "Entraînement", "training.control": "Récupérer le ballon ({key})", "training.sprint": "Sprinter ({key})", "training.pass": "Faire une passe ({key})", "training.shoot": "Charger et tirer ({key}, maintenir)", "training.tackle": "Réussir un tacle ({key})", "training.power": "Déclencher un power-up ({key})", "training.score": "Marquer un but", "training.done": "Diplôme obtenu ! Vous êtes prêt pour les matchs en ligne.",
+  "training.mod.bases": "Bases", "training.mod.skills": "Gestes", "training.mod.setpieces": "Coups arrêtés", "training.mod.defense": "Défense", "ah.trainingModule": "Module d'entraînement",
+  "training.replay": "Rejouer",
+  "training.skills.cut": "Réussir le crochet ({key})", "training.skills.feint": "Réussir la feinte de corps ({key})", "training.skills.roulette": "Réussir la roulette ({key})", "training.skills.stepover": "Réussir le passement de jambes ({key})", "training.skills.nutmeg": "Réussir le petit pont ({key})", "training.skills.wallpass": "Réussir l'une-deux avec la paroi ({key})", "training.skills.wallkick": "Réussir l'appui mural ({key})",
+  "training.setpieces.fk_frame": "Cadrer un coup franc ({key})", "training.setpieces.pen_score": "Marquer un penalty ({key})", "training.setpieces.pen_save": "Arrêter un penalty en gardien",
+  "training.defense.tackle": "Récupérer le ballon par tacle ({key})", "training.defense.press": "Récupérer le ballon par pressing ({key})", "training.defense.nofoul": "Récupérer le ballon sans faute",
   "ah.training": "Entraînement guidé", "arena.replay": "RALENTI", "arena.replaySkip": "({pass} ou {menu} pour passer)", "arena.stamina": "Endurance", "arena.power": "Puissance du tir", "arena.clickToPlay": "Cliquez pour jouer (souris verrouillée)", "arena.kickoff": "Coup d'envoi !", "arena.ownGoal": "Contre son camp !", "arena.firewall": "Accès refusé ! Le pare-feu de {name} bloque le porteur.",
   "arena.menu": "Pause", "arena.resume": "Reprendre", "arena.camHint": "Touche {key} pour changer de caméra en jeu.", "arena.boardHint": "Relâchez {key} pour fermer.", "arena.player": "Joueur", "arena.rating": "Note", "arena.backToMenu": "Retour au menu",
 

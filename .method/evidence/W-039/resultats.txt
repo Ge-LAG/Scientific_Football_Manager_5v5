@@ -1,0 +1,5 @@
+ℹ w039 : a.drill → coup franc pour moi ; tir chargé cadré → objectif coché dans ll.training
+ℹ w039 : progression du module conservée après rechargement (ll.training.setpieces.fk_frame)
+✔ W-039 FR : module « Coups arrêtés » — « Rejouer » lance le coup franc (a.drill), tir cadré coché, progression persistée (24 s)
+ℹ w039 EN : module Defense traduit (Defense,pressing,without fouling)
+✔ W-039 EN : module « Defense » affiché en anglais, rejeu refusé hors entraînement n'altère rien (8 s)

@@ -6603,12 +6603,12 @@
         "apprentissage"
       ],
       "kind": "work",
-      "status": "ready",
-      "sha256": "b7946996b738ae7485e7f4552f3dcfc20107e5f6086e971818a9a43a6f9e2778",
-      "chars": 2055,
-      "size": 3674,
-      "mtime_ns": 1791836353712361427,
-      "revision": 1,
+      "status": "review",
+      "sha256": "401a4d947c45261a205c2298f48c60b9bffae01af3d9cc662debc3c86f1b95ba",
+      "chars": 3298,
+      "size": 5952,
+      "mtime_ns": 1791838782360812309,
+      "revision": 2,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -6650,13 +6650,70 @@
           "text": "Touches affichées selon les réglages (AZERTY/QWERTY/réaffectation) ; textes FR/EN ; npm test et build verts."
         }
       ],
-      "evidence": [],
-      "body_digest": "8fb144066cd8401397e2f6da8edd22263a90e3235c83a6f58f49dec906ac4886",
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/training.test.js",
+          "check": "node --test tests/training.test.js",
+          "by": "Devin (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A1",
+          "text": "Quatre modules (bases, skills, setpieces, defense) sélectionnables dans le hub Arène via « Module d'entraînement » ; la liste de « bases » est identique à l'ancienne (9 objectifs). Test « quatre modules sélectionnables » vert ; capture w039-fr-coupfranc.jpg ."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/training.test.js",
+          "check": "node --test tests/training.test.js",
+          "by": "Devin (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A2",
+          "text": "Détection pure dans src/pages/arena/training.js : SKILL par move (7 gestes, ok exigé), FREEKICK/PENALTY puis SHOT(onTarget)/GOAL/SAVE, TACKLE normal vs press, INTERCEPT/FOUL pour « sans faute ». 4 tests de détection verts sur événements synthétiques."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/training.test.js",
+          "check": "node --test tests/training.test.js + smoke w039 (serveur 8791)",
+          "by": "Devin (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A3",
+          "text": "a.drill validé côté serveur dans ArenaRoom.drill : ignoré hors entraînement (test « refusé hors salle » vert), kinds restreints à freekick/penalty, « against » choisit un tireur adverse non gardien. En fumée : clic « Rejouer » → phase setpiece, kind freekick, taker = mon slot."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-039/w039-fr-persiste.jpg",
+          "check": "smoke w039 (serveur 8791)",
+          "by": "Devin (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A4",
+          "text": "Progression par module dans ll.training : tir cadré réel → fk_frame sauvegardé ; après rechargement et nouveau coup d'envoi du même module, l'objectif reste coché (✅ affiché)."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-039/w039-en-defense.jpg",
+          "check": "npm test ; npm run build ; smoke w039 (serveur 8791)",
+          "by": "Devin (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A5",
+          "text": "Touches via useBindings() (skill/shoot/press/tackle selon préréglage, jamais de lettre figée) ; libellés FR/EN ajoutés aux deux catalogues (module Defense affiché en anglais). 177/177 tests verts, build vert, 2 étapes fumée ✔."
+        }
+      ],
+      "body_digest": "4bb53e4dcc646d7dcaa53ea2be557247111ea69b2971ccc9f509d0230153d246",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
-        "../docs/roadmap.html#roadmap"
+        "../docs/roadmap.html#roadmap",
+        "../../tests/training.test.js",
+        "../evidence/W-039/w039-fr-coupfranc.jpg",
+        "../../tests/training.test.js",
+        "../../tests/training.test.js",
+        "../evidence/W-039/w039-fr-persiste.jpg",
+        "../evidence/W-039/w039-en-defense.jpg"
       ],
       "anchors": [
         "W-039"
