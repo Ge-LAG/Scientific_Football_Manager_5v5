@@ -20,7 +20,8 @@ export default function ManagerRoomPage({ navigate }) {
   useEffect(() => {
     if (room?.mode === "manager" && room.phase === "lobby" && room.you.seat !== "spec" && sentClub.current !== room.code) { sentClub.current = room.code; game.send({ t: "m.club", club }); }
   }, [room, club]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (!game.joined && !room && !game.pending) navigate("/manager"); }, [game.joined, room, game.pending]); // eslint-disable-line react-hooks/exhaustive-deps
+  const leftTo = useRef(null); // destination choie à la sortie : le garde ne doit pas l'écraser
+  useEffect(() => { if (!game.joined && !room && !game.pending) navigate(leftTo.current ?? "/manager"); }, [game.joined, room, game.pending]); // eslint-disable-line react-hooks/exhaustive-deps
   // championnat solo : on enregistre le résultat une seule fois pour la journée jouée
   const recorded = useRef(null);
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function ManagerRoomPage({ navigate }) {
   }, [report, room]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!room || room.mode !== "manager") return <div className="page"><Spinner label={t("common.joining")} /></div>;
-  const leave = () => { game.leave(); navigate("/manager"); };
+  const leave = (to = "/manager") => { leftTo.current = to; game.leave(); navigate(to); };
   return (
     <div className="page" style={{ maxWidth: 1400 }}>
       <div className="row between mb16">

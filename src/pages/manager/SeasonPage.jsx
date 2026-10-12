@@ -1,28 +1,30 @@
-// Championnat du Labo (solo) : classement, calendrier, prochain adversaire. Sauvegardé sur l'appareil.
+// Championnat du Labo (solo) : carrière à 3 divisions, classement, calendrier, prochain adversaire. Sauvegardé sur l'appareil.
 import { useState } from "react";
 import { useI18n } from "../../i18n/index.jsx";
 import { useSession } from "../../store/session.jsx";
 import { useGame } from "../../game/GameProvider.jsx";
 import { Card, Kicker, Crest } from "../../ui/components.jsx";
-import { newSeason, nextFixture, standings, clubOf, ME } from "../../../shared/manager/season.js";
+import { newSeason, nextFixture, standings, clubOf, divisionOf, levelOf, seasonOutcome, endSeason, migrateSeason, DIVISIONS, ME } from "../../../shared/manager/season.js";
 import { DIFFICULTIES } from "../../../shared/manager/ai.js";
 
-export const loadSeason = () => { try { return JSON.parse(localStorage.getItem("ll.season") || "null"); } catch { return null; } };
+export const loadSeason = () => { try { return migrateSeason(JSON.parse(localStorage.getItem("ll.season") || "null")); } catch { return null; } };
 export const saveSeason = s => { try { if (s) localStorage.setItem("ll.season", JSON.stringify(s)); else localStorage.removeItem("ll.season"); } catch { /* stockage indisponible */ } };
 
 export default function SeasonPage({ navigate }) {
   const { t, lang } = useI18n(); const { club } = useSession(); const game = useGame();
   const [season, setSeason] = useState(loadSeason);
   const start = () => { const s = newSeason(); saveSeason(s); setSeason(s); };
-  const name = id => (id === ME ? club.name : clubOf(id).name);
+  const next = () => { const s = endSeason(season); saveSeason(s); setSeason(s); };
+  const name = id => (id === ME ? club.name : clubOf(id).name[lang]);
   const crestOf = id => (id === ME ? club : clubOf(id));
+  const div = season && divisionOf(season);
+  const outcome = season && seasonOutcome(season);
   const fx = season && nextFixture(season);
   const play = () => {
     const opp = clubOf(fx.opponent);
-    game.create("local", "manager", { bot: opp.level, autostart: true, speed: 1, botClub: { name: opp.name, crest: opp.crest, colors: opp.colors }, season: { id: season.id, day: season.day } });
+    game.create("local", "manager", { bot: levelOf(season), autostart: true, speed: 1, botClub: { name: opp.name[lang], crest: opp.crest, colors: opp.colors }, season: { id: season.id, day: season.day } });
   };
   const table = season ? standings(season) : [];
-  const champion = season?.done && table[0];
   return (
     <div className="page mid">
       <button className="linkbtn mb16" onClick={() => navigate("/manager")}>← {t("season.back")}</button>
@@ -33,11 +35,24 @@ export default function SeasonPage({ navigate }) {
       ) : (
         <div className="grid g2 split">
           <div className="col" style={{ gap: 16 }}>
-            {champion ? (
+            <Card>
+              <div className="row between nowrap">
+                <Kicker color="var(--cyan)">🧪 {t("season.division", { name: div.name[lang] })}</Kicker>
+                <span className="chip" style={{ color: "var(--muted)" }}>{DIFFICULTIES[levelOf(season)][lang]}</span>
+              </div>
+              {season.career?.seasons > 0 && <p className="tiny muted mt8">{t("career.summary", season.career)}</p>}
+            </Card>
+            {outcome ? (
               <Card elevated className="center" style={{ borderColor: "var(--gold)" }}>
-                <div style={{ fontSize: 56 }}>{champion.id === ME ? "🏆" : "🥈"}</div>
-                <div className="h2">{champion.id === ME ? t("season.champion") : t("season.championOther", { name: name(champion.id) })}</div>
-                <button className="btn gold mt16" onClick={start}>🔄 {t("season.again")}</button>
+                <div style={{ fontSize: 56 }}>{outcome.trophy ? "🏆" : outcome.champion ? "🥇" : outcome.promoted ? "⬆️" : outcome.relegated ? "⬇️" : "🔬"}</div>
+                <div className="h2">{outcome.winner === ME ? t("season.resChampion", { division: div.name[lang] }) : t("season.championOther", { name: name(outcome.winner), division: div.name[lang] })}</div>
+                <p className="small muted">
+                  {outcome.trophy ? t("season.resTrophy")
+                    : outcome.promoted ? t("season.resPromoted", { division: DIVISIONS[outcome.nextDivision].name[lang] })
+                    : outcome.relegated ? t("season.resRelegated", { division: DIVISIONS[outcome.nextDivision].name[lang] })
+                    : t("season.resStay", { division: div.name[lang] })}
+                </p>
+                <button className="btn gold mt16" onClick={next}>▶ {t("season.next")}</button>
               </Card>
             ) : fx && (
               <Card elevated>
@@ -47,7 +62,7 @@ export default function SeasonPage({ navigate }) {
                   <div className="h2">VS</div>
                   <div className="center"><Crest club={crestOf(fx.home ? fx.opponent : ME)} size={56} /><div className="small mt8" style={{ fontWeight: 800 }}>{name(fx.home ? fx.opponent : ME)}</div></div>
                 </div>
-                <p className="small muted center mb16">{t("season.level", { level: DIFFICULTIES[clubOf(fx.opponent).level][lang] })}</p>
+                <p className="small muted center mb16">{t("season.level", { level: DIFFICULTIES[levelOf(season)][lang] })}</p>
                 <button className="btn primary block big" onClick={play}>⚽ {t("season.play")}</button>
               </Card>
             )}

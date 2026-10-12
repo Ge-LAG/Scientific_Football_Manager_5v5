@@ -1,0 +1,4 @@
+ℹ w037 : victoire J5 → « Montée en Laboratoire », saison suivante en Laboratoire (division et palmarès persistés après rechargement)
+✔ W-037 FR : journée 5 en Paillasse jouée en ×4, montée en Laboratoire, carrière reprise après rechargement (88 s)
+ℹ w037 EN : palmarès « Lab career » avec historique (LAB CAREER,Promotions,rank 1)
+✔ W-037 EN : palmarès visible dans « My club », libellés anglais (2 s)

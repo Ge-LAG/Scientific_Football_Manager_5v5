@@ -111,9 +111,9 @@ export function ReportView({ report: msg, setup, me, navigate, onLeave }) {
         {!game.room?.opts?.season && (game.joined?.kind === "online"
           ? <Rematch rematch={game.room.rematch} onVote={() => game.send({ t: "m.rematch" })} onJoin={code => game.send({ t: "room.join", code })} />
           : <button className="btn primary" onClick={() => { onLeave(); if (game.joined?.kind === "local") setTimeout(() => game.create("local", "manager", { bot: setup.away.bot || setup.home.bot || "chercheur", autostart: true }), 50); }}>🔄 {t("report.again")}</button>)}
-        {game.room?.opts?.season && <button className="btn gold" onClick={() => { onLeave(); navigate("/manager/season"); }}>🏆 {t("season.backToSeason")}</button>}
+        {game.room?.opts?.season && <button className="btn gold" onClick={() => onLeave("/manager/season")}>🏆 {t("season.backToSeason")}</button>}
         <button className="btn ghost" onClick={share}>📋 {t("report.copy")}</button>
-        <button className="btn ghost" onClick={() => { onLeave(); navigate("/"); }}>🏠 {t("report.home")}</button>
+        <button className="btn ghost" onClick={() => onLeave("/")}>🏠 {t("report.home")}</button>
       </div>
     </div>
   );

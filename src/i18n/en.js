@@ -34,6 +34,9 @@ export default {
 
   "club.title": "My club", "club.lead": "Give your lab an identity: name, colours, crest and preferred tactics. They appear in matches and on your profile.",
   "club.name": "Club name", "club.primary": "Primary colour", "club.secondary": "Secondary colour", "club.crest": "Crest", "club.formation": "Formation", "club.strategy": "Preferred strategy", "club.save": "Save club", "club.saved": "Club saved!", "club.localNote": "Without an account, the club is kept on this device only.", "club.unlockAt": "Unlocked at grade {grade}", "club.unlockHint": "🔒 Extra crests and colours unlock as you rise through the grades (online matches with an account).", "club.preview": "Preview", "club.kit": "Home kit",
+  "club.career": "Lab career", "club.careerEmpty": "No season completed yet: start the Lab Championship.",
+  "career.seasons": "Seasons", "career.titles": "Titles", "career.promotions": "Promotions", "career.relegations": "Relegations", "career.trophies": "Institute trophies",
+  "career.rank": "rank {rank}", "career.champion": "champions: {name}", "career.summary": "Record: {seasons} seasons, {titles} titles, {promotions} promotions, {relegations} relegations, {trophies} trophies.",
 
   "account.loginTitle": "Sign in", "account.registerTitle": "Create an account", "account.lead": "A nickname and a password. That's it.", "account.login": "Sign in", "account.register": "Create account",
   "account.pseudo": "Nickname", "account.password": "Password", "account.confirm": "Confirm password",
@@ -82,11 +85,12 @@ export default {
   "settings.graphics": "Graphics", "settings.quality": "Quality", "settings.q.low": "Low", "settings.q.medium": "Medium", "settings.q.high": "High", "settings.qualityNote": "Auto detects your graphics card. Ultra adds ambient occlusion and MSAA anti-aliasing: best kept for dedicated graphics cards.",
   "settings.controls": "Controls", "settings.sensitivity": "Mouse sensitivity", "settings.invertY": "Invert vertical axis", "settings.camera": "Default camera", "settings.cam.near": "Close", "settings.cam.far": "Far", "settings.cam.broadcast": "TV", "settings.showHelp": "Show in-game controls help",
 
-  "season.title": "Lab Championship", "season.lead": "A 5-matchday solo season against 5 virtual clubs, from weakest to strongest. Each matchday: a new draft, a new match. Go for the title!",
-  "season.intro": "Six clubs, one champion. Your progress is saved on this device.", "season.start": "Start the season", "season.back": "Back to the Tactics Lab",
-  "season.matchday": "Matchday {n} / {total}", "season.level": "Opponent level: {level}", "season.play": "Play the matchday", "season.results": "Results", "season.noResults": "No match played yet.",
-  "season.table": "Table", "season.club": "Club", "season.pts": "Pts", "season.diff": "GD", "season.champion": "Lab Champions! The title is yours.", "season.championOther": "{name} win the title. Rematch?",
-  "season.again": "New season", "season.reset": "Abandon season", "season.resetConfirm": "Abandon the current season?", "season.backToSeason": "Back to the championship", "season.hubHint": "Solo career mode: table, fixtures, title.",
+  "season.title": "Lab Championship", "season.lead": "A solo career across three divisions (Bench → Laboratory → Institute): 5 matchdays per season, top 2 promoted, bottom club relegated. The Institute title earns the trophy!",
+  "season.intro": "Fifteen clubs, three divisions, one trophy. Your career is saved on this device.", "season.start": "Start the career", "season.back": "Back to the Tactics Lab",
+  "season.division": "Division {name}", "season.matchday": "Matchday {n} / {total}", "season.level": "Opponent level: {level}", "season.play": "Play the matchday", "season.results": "Results", "season.noResults": "No match played yet.",
+  "season.table": "Table", "season.club": "Club", "season.pts": "Pts", "season.diff": "GD", "season.resChampion": "{division} champions! The title is yours.", "season.championOther": "{name} win the {division} title.",
+  "season.resPromoted": "Promoted to {division}!", "season.resRelegated": "Relegated to {division}.", "season.resStay": "You stay in {division}.", "season.resTrophy": "Institute trophy secured — the Lab's ultimate honour!", "season.next": "Next season",
+  "season.reset": "Abandon career", "season.resetConfirm": "Abandon the current career? Season and record will be wiped.", "season.backToSeason": "Back to the championship", "season.hubHint": "Solo career mode: divisions, promotions, record.",
   "mh.lead": "Draft, pick your line-up, then run the match live. Every decision counts: strategy, power-up timing, substitutions.",
   "mh.vsBot": "Against a virtual manager", "mh.vsBotDesc": "Perfect for learning. Everything runs in your browser.", "mh.difficulty": "Level", "mh.speed": "Match speed", "mh.length": "Length",
   "mh.short": "Short", "mh.normal": "Normal", "mh.long": "Long", "mh.play": "Start", "mh.offlineOk": "Works even offline. No XP in solo.",

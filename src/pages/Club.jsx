@@ -4,12 +4,15 @@ import { useSession } from "../store/session.jsx";
 import { Card, Kicker, Crest, useToast } from "../ui/components.jsx";
 import { CLUB_COLORS, CREST_ICONS, CREST_UNLOCKS, COLOR_UNLOCKS, FORMATIONS, STRATEGIES } from "../../shared/data/content.js";
 import { gradeOf, GRADES } from "../../shared/progression.js";
+import { DIVISIONS, clubOf, ME } from "../../shared/manager/season.js";
+import { loadSeason } from "./manager/SeasonPage.jsx";
 
 export default function Club() {
   const { t, lang } = useI18n();
   const { club, setClub, user } = useSession();
   const toast = useToast();
   const [c, setC] = useState(club);
+  const [career] = useState(() => loadSeason()?.career || null); // palmarès de la carrière du Labo
   const g = gradeOf(user?.xp || 0).index;
   const lockTitle = grade => t("club.unlockAt", { grade: GRADES[grade][lang] });
   const up = patch => setC(x => ({ ...x, ...patch }));
@@ -47,6 +50,26 @@ export default function Club() {
           <div className="tiny muted">{t("club.kit")}</div>
         </Card>
       </div>
+      <Card>
+        <Kicker color="var(--gold)">🏆 {t("club.career")}</Kicker>
+        {!career || career.seasons === 0 ? <p className="small muted">{t("club.careerEmpty")}</p> : (
+          <>
+            <div className="row mb16" style={{ gap: 22, flexWrap: "wrap" }}>
+              {[["career.seasons", career.seasons], ["career.titles", career.titles], ["career.promotions", career.promotions], ["career.relegations", career.relegations], ["career.trophies", career.trophies]].map(([k, v]) => (
+                <div key={k} className="center"><div className="num" style={{ fontSize: 22, color: "var(--cyan)" }}>{v}</div><div className="tiny muted">{t(k)}</div></div>
+              ))}
+            </div>
+            <div className="col" style={{ gap: 6 }}>
+              {[...career.history].reverse().map((h, i) => (
+                <div key={i} className="row between small" style={{ borderBottom: "1px solid rgba(255,255,255,.05)", paddingBottom: 6 }}>
+                  <span>{DIVISIONS[h.division]?.name[lang]} — {h.trophy ? "🏆" : h.rank === 1 ? "🥇" : ""}{h.promoted ? " ▲" : ""}{h.relegated ? " ▼" : ""} {t("career.rank", { rank: h.rank })} <span className="tiny muted">({h.pts} {t("season.pts").toLowerCase()})</span></span>
+                  <span className="tiny muted">{t("career.champion", { name: h.champion === ME ? club.name : clubOf(h.champion)?.name[lang] })}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </Card>
     </div>
   );
 }

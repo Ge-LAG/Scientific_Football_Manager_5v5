@@ -6,6 +6,7 @@ import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import WebSocket from "ws";
+import { newSeason, recordDay } from "../shared/manager/season.js";
 
 const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8791";
 const OUT = process.argv[3] || "smoke-uat2";
@@ -425,6 +426,51 @@ if (run("td004")) {
     });
   }
   await evaluate(`localStorage.removeItem("ll.settings")`);
+}
+
+// ── Carrière du Labo (W-037) : division affichée, journée jouée en ×4, montée enchaînée, reprise après rechargement ──
+async function managerDayAtSpeed4(lang) {
+  const L = MLBL[lang];
+  await waitFor(has(L.auto), 40000); await realClickText(L.auto);
+  await waitFor(has(L.go), 60000); await sleep(400); await realClickText(L.go);
+  await waitFor(`!!document.querySelector(".mv-top") && !!window.__llGame?.room && window.__llGame.room.phase === "playing"`, 30000);
+  await sleep(500); await realClickText("×4");
+  await waitFor(`window.__llGame?.room?.phase === "ended"`, 240000);
+}
+if (run("w037")) {
+  await step("W-037 FR : journée 5 en Paillasse jouée en ×4, montée en Laboratoire, carrière reprise après rechargement", async () => {
+    // saison réelle produite par newSeason()/recordDay(), déjà à la 5e journée, joueur en tête
+    let s = newSeason(123456);
+    for (let i = 0; i < 4; i++) s = recordDay(s, 4, 0);
+    await prefs({ lang: "fr" });
+    await evaluate(`localStorage.setItem("ll.season", ${JSON.stringify(JSON.stringify(s))})`);
+    await go("#/manager/season");
+    await waitFor(has("Paillasse"), 15000);
+    await shot("w037-fr-paillasse");
+    await realClickText("Jouer la journée");
+    await managerDayAtSpeed4("fr");
+    await waitFor(has("Retour au championnat"), 60000);
+    await sleep(800); await realClickText("Retour au championnat");
+    await waitFor(has("Montée en Laboratoire"), 20000);
+    await shot("w037-fr-montee");
+    await realClickText("Saison suivante");
+    await waitFor(has("Laboratoire"), 15000);
+    const saved = await evaluate(`JSON.parse(localStorage.getItem("ll.season"))`);
+    if (saved.division !== 1 || saved.career.seasons !== 1 || saved.career.promotions !== 1 || saved.day !== 0) throw new Error("carrière mal enchaînée : " + JSON.stringify({ d: saved.division, day: saved.day, c: saved.career }));
+    await go("#/manager/season");
+    await waitFor(has("Laboratoire"), 15000);
+    await shot("w037-fr-laboratoire");
+    info("w037 : victoire J5 → « Montée en Laboratoire », saison suivante en Laboratoire (division et palmarès persistés après rechargement)");
+  });
+  await step("W-037 EN : palmarès visible dans « My club », libellés anglais", async () => {
+    await prefs({ lang: "en" });
+    await go("#/club"); await waitFor(has("Lab career"), 15000);
+    const got = await evaluate(`(document.body.innerText.match(/lab career|promotions|paillasse|rank 1/gi) || []).join(",")`);
+    if (!/lab career/i.test(got) || !/rank 1/i.test(got)) throw new Error("palmarès absent ou non traduit : " + got);
+    await shot("w037-en-club-palmares");
+    info(`w037 EN : palmarès « Lab career » avec historique (${got})`);
+    await evaluate(`localStorage.removeItem("ll.season")`);
+  });
 }
 
 console.log("\n" + results.map(r => r.join(" ")).join("\n"));

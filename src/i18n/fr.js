@@ -34,6 +34,9 @@ export default {
 
   "club.title": "Mon club", "club.lead": "Donnez une identité à votre labo : nom, couleurs, écusson et tactique préférée. Ils s'affichent en match et sur votre profil.",
   "club.name": "Nom du club", "club.primary": "Couleur principale", "club.secondary": "Couleur secondaire", "club.crest": "Écusson", "club.formation": "Formation", "club.strategy": "Stratégie préférée", "club.save": "Enregistrer le club", "club.saved": "Club enregistré !", "club.localNote": "Sans compte, le club est gardé sur cet appareil uniquement.", "club.unlockAt": "Débloqué au grade {grade}", "club.unlockHint": "🔒 Écussons et couleurs supplémentaires se débloquent en montant en grade (matchs en ligne avec un compte).", "club.preview": "Aperçu", "club.kit": "Maillot domicile",
+  "club.career": "Carrière du Labo", "club.careerEmpty": "Aucune saison terminée pour l'instant : lancez le Championnat du Labo.",
+  "career.seasons": "Saisons", "career.titles": "Titres", "career.promotions": "Montées", "career.relegations": "Descentes", "career.trophies": "Trophées de l'Institut",
+  "career.rank": "rang {rank}", "career.champion": "champion : {name}", "career.summary": "Palmarès : {seasons} saisons, {titles} titres, {promotions} montées, {relegations} descentes, {trophies} trophées.",
 
   "account.loginTitle": "Connexion", "account.registerTitle": "Créer un compte", "account.lead": "Un pseudo et un mot de passe. C'est tout.", "account.login": "Se connecter", "account.register": "Créer le compte",
   "account.pseudo": "Pseudo", "account.password": "Mot de passe", "account.confirm": "Confirmer le mot de passe",
@@ -82,11 +85,12 @@ export default {
   "settings.graphics": "Graphismes", "settings.quality": "Qualité", "settings.q.low": "Basse", "settings.q.medium": "Moyenne", "settings.q.high": "Haute", "settings.qualityNote": "Auto détecte votre carte graphique. Ultra ajoute l'occlusion ambiante et l'anticrénelage MSAA : à réserver aux cartes graphiques dédiées.",
   "settings.controls": "Contrôles", "settings.sensitivity": "Sensibilité de la souris", "settings.invertY": "Inverser l'axe vertical", "settings.camera": "Caméra par défaut", "settings.cam.near": "Proche", "settings.cam.far": "Éloignée", "settings.cam.broadcast": "Télé", "settings.showHelp": "Afficher l'aide des commandes en jeu",
 
-  "season.title": "Championnat du Labo", "season.lead": "Une saison solo de 5 journées contre 5 clubs virtuels, du plus faible au plus fort. Chaque journée : nouvelle draft, nouveau match. Visez le titre !",
-  "season.intro": "Six clubs, un seul champion. Votre progression est sauvegardée sur cet appareil.", "season.start": "Lancer la saison", "season.back": "Retour au Labo Tactique",
-  "season.matchday": "Journée {n} / {total}", "season.level": "Niveau de l'adversaire : {level}", "season.play": "Jouer la journée", "season.results": "Résultats", "season.noResults": "Aucun match joué pour l'instant.",
-  "season.table": "Classement", "season.club": "Club", "season.pts": "Pts", "season.diff": "Diff.", "season.champion": "Champions du Labo ! Le titre est à vous.", "season.championOther": "{name} remporte le titre. Revanche ?",
-  "season.again": "Nouvelle saison", "season.reset": "Abandonner la saison", "season.resetConfirm": "Abandonner la saison en cours ?", "season.backToSeason": "Retour au championnat", "season.hubHint": "Mode carrière solo : classement, calendrier, titre.",
+  "season.title": "Championnat du Labo", "season.lead": "Une carrière solo en trois divisions (Paillasse → Laboratoire → Institut) : 5 journées par saison, les 2 premiers montent, le dernier descend. Le titre de l'Institut donne le trophée !",
+  "season.intro": "Quinze clubs, trois divisions, un trophée. Votre carrière est sauvegardée sur cet appareil.", "season.start": "Lancer la carrière", "season.back": "Retour au Labo Tactique",
+  "season.division": "Division {name}", "season.matchday": "Journée {n} / {total}", "season.level": "Niveau de l'adversaire : {level}", "season.play": "Jouer la journée", "season.results": "Résultats", "season.noResults": "Aucun match joué pour l'instant.",
+  "season.table": "Classement", "season.club": "Club", "season.pts": "Pts", "season.diff": "Diff.", "season.resChampion": "Champions de {division} ! Le titre est à vous.", "season.championOther": "{name} remporte le titre de {division}.",
+  "season.resPromoted": "Montée en {division} !", "season.resRelegated": "Descente en {division}.", "season.resStay": "Maintien en {division}.", "season.resTrophy": "Trophée de l'Institut décroché : la consécration du Labo !", "season.next": "Saison suivante",
+  "season.reset": "Abandonner la carrière", "season.resetConfirm": "Abandonner la carrière en cours ? Saison et palmarès seront effacés.", "season.backToSeason": "Retour au championnat", "season.hubHint": "Mode carrière solo : divisions, montées, palmarès.",
   "mh.lead": "Draftez, composez, puis dirigez le match en direct. Chaque décision compte : stratégie, timing des power-ups, remplacements.",
   "mh.vsBot": "Contre un manager virtuel", "mh.vsBotDesc": "Idéal pour apprendre. Tout se joue dans votre navigateur.", "mh.difficulty": "Niveau", "mh.speed": "Vitesse du match", "mh.length": "Durée",
   "mh.short": "Courte", "mh.normal": "Normale", "mh.long": "Longue", "mh.play": "Lancer", "mh.offlineOk": "Fonctionne même hors ligne. Aucune XP en solo.",
