@@ -1,0 +1,15 @@
+
+✔ Accueil en français par défaut
+✔ Pages de contenu (scientifiques, fiche, power-ups, aide, club, classement)
+✔ Bascule en anglais
+ℹ Vue Stade 3D, canevas : ["1068x668x959x600xhidden","960x600x960x600xvisible","150x30x0x0xvisible"]
+ℹ Vue Stade 3D, caméra : {"cam":[-6.77,5.2,0.27],"mode":"auto","children":17,"ball":[15.200000000000001,0.11,2.6],"p0":[-19.200000000000003,1.1599999999999995]}
+ℹ Caméras 3D : goal, ball, player, tactical, free, tv, auto
+✔ Manager contre un bot : draft auto, composition, match, rapport
+ℹ Flèche haut : x -3.0 → 1.5
+ℹ Changement de joueur : 4 → 3
+ℹ Arène : 2 images/s (rendu logiciel SwiftShader, sans GPU)
+✔ Arène contre les bots : lobby, match 3D, déplacement
+✔ Réglages : contrôles (schéma, disposition, clavier visuel, réaffectation)
+✔ Vestiaire : apparence (mulet permanenté, tenue rockstar), aperçu 3D
+✔ Affichage mobile (390 px) sans défilement horizontal

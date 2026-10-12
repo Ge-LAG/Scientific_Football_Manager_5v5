@@ -1,0 +1,36 @@
+# Vérification navigateur à la demande (Actions → Smoke → Run workflow) : build, serveur de test
+# sur un port dédié, parcours mono-joueur et retest UAT-002 hors TD-004 ; captures en artefact.
+# Pas de déclenchement automatique : trop lent pour tourner sur chaque push.
+name: Smoke
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: "Serveur de test dédié (port 8791, données temporaires)"
+        run: |
+          PORT=8791 DATA_FILE="$RUNNER_TEMP/ll-smoke-data.json" node server/index.js &
+          for i in $(seq 1 60); do curl -fsS http://localhost:8791/api/health && break || sleep 1; done
+      - name: Smoke mono-joueur
+        run: node scripts/smoke-browser.mjs http://localhost:8791 smoke-out
+      - name: "Retest UAT-002 (hors TD-004, validation visuelle de Guillaume dans Edge)"
+        run: node scripts/smoke-uat2.mjs http://localhost:8791 smoke-uat2 td002,td003,td006,td007,td008,w033
+      - name: Captures en artefact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-captures
+          path: |
+            smoke-out/
+            smoke-uat2/
+          if-no-files-found: ignore

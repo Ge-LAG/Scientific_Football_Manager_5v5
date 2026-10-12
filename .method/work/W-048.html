@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Séries entre amis (au meilleur des 3 ou 5) · METHOD V6</title><link rel="stylesheet" href="../assets/method.css"></head>
+<body><header><a class="brand" href="../index.html">METHOD / V6</a><span>work · W-048</span></header><main>
+<article data-method data-revision="1" data-owner="SWE-2 (agent)" id="W-048" data-title="Séries entre amis (au meilleur des 3 ou 5)" data-summary="Prolonge la revanche : score de série affiché d'un match à l'autre, vainqueur de la série annoncé." data-tags="serie revanche amis meilleur des 3 score social en ligne arene manager" data-kind="work" data-status="ready" data-components="manager-online arena-sim ui i18n">
+<p class="eyebrow">work / W-048</p><h1>Séries entre amis (au meilleur des 3 ou 5)</h1>
+<dl><dt>Sprint</dt><dd>Sprint 9 (M8) — Le spectacle (ajout proposé le 2026-10-11 après l'audit du sprint 7)</dd>
+<dt>Résultat attendu</dt><dd>Au salon d'une partie privée en ligne (Arène ou Manager), l'hôte peut choisir « Match unique », « Au meilleur des 3 » ou « Au meilleur des 5 ». Les revanches enchaînées (W-035) portent alors le score de la série (par exemple 1–1), affiché au salon, pendant le match et sur l'écran de fin ; quand une équipe atteint la majorité, l'écran de fin annonce le vainqueur de la série et propose une nouvelle série.</dd>
+<dt>Pourquoi (PO)</dt><dd>La revanche (W-035) a rendu l'enchaînement facile ; une série donne un enjeu à la soirée entre collègues, sans attendre le tournoi (W-047, brouillon).</dd>
+<dt>Périmètre et points d'entrée</dt><dd>Option de salle dans <code>shared/rooms/arenaRoom.js</code> et <code>shared/rooms/managerRoom.js</code> (validée côté serveur) ; transmission du score de série à la salle de revanche via <code>rematchOpts</code> / <code>rematchPrepare</code> de <code>shared/rooms/base.js</code> ; affichage au salon, dans le HUD de l'Arène et le tableau du Manager, et sur les écrans de fin (<code>EndScreen</code>, <code>ReportView</code>, composant <code>src/ui/Rematch.jsx</code>) ; textes FR/EN.</dd>
+<dt>Hors périmètre</dt><dd>Classement ou ELO de série, séries publiques, tournoi (W-047).</dd>
+<dt>Dépendances</dt><dd>W-035 (revanche) ; W-034 (tests réseau).</dd>
+<dt>Vérification prévue</dt><dd>Tests de salle (score porté d'une revanche à l'autre, fin de série à la majorité, côtés conservés, nul en Arène sans point, option refusée en salle publique) ; étape du parcours en ligne : série au meilleur des 3 jouée à deux navigateurs en Manager rapide.</dd>
+<dt>Points d'attention</dt><dd>Le score de série vit côté serveur (jamais envoyé par le client) ; un joueur qui ne vote pas la revanche met fin à la série ; XP et ELO restent ceux de chaque match.</dd></dl>
+<h2>Critères d'acceptation</h2>
+<p data-criterion="A1">Choix « Match unique / Au meilleur des 3 / Au meilleur des 5 » au salon d'une partie privée en ligne, refusé en salle publique (test).</p>
+<p data-criterion="A2">Score de série conservé d'une revanche à l'autre et affiché au salon, pendant le match et sur l'écran de fin (tests de salle et parcours en ligne).</p>
+<p data-criterion="A3">Fin de série à la majorité : vainqueur annoncé, nouvelle série proposée ; un nul en Arène ne donne pas de point (test).</p>
+<p data-criterion="A4">Textes FR/EN ; npm test et build verts.</p>
+<p>Définition de fini commune : <a href="../docs/roadmap.html#roadmap">feuille de route, section « Définition de fini »</a>. Statut cible après livraison : <b>review</b> avec preuves (l'acceptation reste à Guillaume).</p>
+</article></main><footer>METHOD 6.1.0 · Canonical HTML · Read only the references needed for the task.</footer></body></html>

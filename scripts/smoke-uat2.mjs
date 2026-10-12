@@ -1,13 +1,13 @@
 // Retest navigateur des correctifs issus de la recette UAT-002 (TD-002, TD-003, TD-004, TD-006, TD-007, TD-008).
 // Chrome/Edge sans interface (protocole DevTools), clics et touches réels ; captures JPEG dans le dossier indiqué.
-// Usage : node scripts/smoke-uat2.mjs [url=http://localhost:8787] [dossier=smoke-uat2] [étapes=all|td002,td003…]
+// Usage : node scripts/smoke-uat2.mjs [url=SMOKE_URL|http://localhost:8791 (serveur de test ; jamais la recette 8787 par défaut)] [dossier=smoke-uat2] [étapes=all|td002,td003…]
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import WebSocket from "ws";
 
-const BASE = process.argv[2] || "http://localhost:8787";
+const BASE = process.argv[2] || process.env.SMOKE_URL || "http://localhost:8791";
 const OUT = process.argv[3] || "smoke-uat2";
 const ONLY = (process.argv[4] || "all").split(",");
 const run = k => ONLY.includes("all") || ONLY.includes(k);
@@ -19,7 +19,14 @@ if (!exe) { console.error("Aucun navigateur Chrome/Edge trouvé (variable CHROME
 const port = 9300 + Math.floor(Math.random() * 500);
 const profile = path.join(tmpdir(), "ll-uat2-" + Date.now());
 const chrome = spawn(exe, ["--headless=new", `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`, "--window-size=1366,900", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--autoplay-policy=no-user-gesture-required", "--no-first-run", "about:blank"], { stdio: "ignore" });
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+// SMOKE_SLOW (défaut 1) : un seul facteur qui multiplie toutes les attentes (waitFor et sleep),
+// pour les machines lentes sous rendu logiciel. Chargement de page : jusqu'à 60 s × facteur.
+const SLOW = Math.max(0.1, Number(process.env.SMOKE_SLOW) || 1);
+const waitMs = ms => ms * SLOW;
+const sleep = ms => new Promise(r => setTimeout(r, waitMs(ms)));
+const tick = ms => new Promise(r => setTimeout(r, ms)); // cadence de sondage : non multipliée volontairement
+const PAGELOAD = 60000;
+if (SLOW !== 1) console.log(`SMOKE_SLOW ×${SLOW} : toutes les attentes sont multipliées.`);
 
 async function target() {
   for (let i = 0; i < 50; i++) { try { const l = await (await fetch(`http://127.0.0.1:${port}/json`)).json(); const p = l.find(x => x.type === "page"); if (p) return p; } catch { /* démarrage */ } await sleep(200); }
@@ -39,7 +46,7 @@ const cmd = (method, params = {}) => new Promise(r => { const i = ++id; pending.
 const evaluate = async expr => { const r = await cmd("Runtime.evaluate", { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.exception?.description || "eval"); return r.result?.result?.value; };
 const shot = async name => { const r = await cmd("Page.captureScreenshot", { format: "jpeg", quality: 72 }); writeFileSync(path.join(OUT, name + ".jpg"), Buffer.from(r.result.data, "base64")); console.log("📸", name); };
 const has = (...needles) => `(${JSON.stringify(needles.map(n => n.toLowerCase()))}).some(n => (document.body?.innerText || "").toLowerCase().includes(n))`;
-const waitFor = async (expr, ms = 20000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await evaluate(expr)) return true; await sleep(250); } throw new Error("Attente dépassée : " + expr); };
+const waitFor = async (expr, ms = 20000) => { const t0 = Date.now(); while (Date.now() - t0 < waitMs(ms)) { if (await evaluate(expr)) return true; await tick(250); } throw new Error("Attente dépassée : " + expr); };
 const size = (width, height, mobile = false) => cmd("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile });
 // vrai clic souris (test de recouvrement : c'est l'élément au premier plan qui le reçoit)
 const mouse = async (x, y) => { for (const type of ["mouseMoved", "mousePressed", "mouseReleased"]) await cmd("Input.dispatchMouseEvent", { type, x, y, button: "left", clickCount: 1 }); };
@@ -55,7 +62,7 @@ const prefs = async ({ lang, settings }) => {
   await evaluate(`(() => { ${lang ? `localStorage.setItem("ll.lang", ${JSON.stringify(lang)});` : ""} ${settings ? `localStorage.setItem("ll.settings", JSON.stringify(Object.assign(JSON.parse(localStorage.getItem("ll.settings") || "{}"), ${JSON.stringify(settings)})));` : ""} })()`);
 };
 // chargement complet (paramètre unique) : la langue et les réglages sont relus depuis le stockage local
-const go = async hash => { await cmd("Page.navigate", { url: `${BASE}/?r=${Date.now()}${hash}` }); await waitFor(`document.readyState === "complete" && !!document.querySelector("header")`, 60000); await sleep(600); };
+const go = async hash => { await cmd("Page.navigate", { url: `${BASE}/?r=${Date.now()}${hash}` }); await waitFor(`document.readyState === "complete" && !!document.querySelector("header")`, PAGELOAD); await sleep(600); };
 
 const results = [];
 const info = s => { results.push(["ℹ", s]); console.log("ℹ", s); };
@@ -288,6 +295,83 @@ if (run("td008")) {
   });
 }
 
+// ── Menu tactile (W-033 / AC-004) : bouton ☰ — même menu qu'Échap ; pause réelle en solo ──
+// appui tactile réel (protocole DevTools) : vrai touchstart/touchend sur l'élément au premier plan
+const tapEl = async sel => {
+  const c = await centerOf(sel);
+  if (!c) throw new Error("élément introuvable : " + sel);
+  await cmd("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: Math.round(c.x), y: Math.round(c.y) }] });
+  await sleep(80);
+  await cmd("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+};
+const tapText = (text, scope = "button") => tapEl(`[...document.querySelectorAll(${JSON.stringify(scope)})].find(b => b.textContent.toLowerCase().includes(${JSON.stringify(text.toLowerCase())}) && !b.disabled)`);
+// géométrie du bouton ☰ : taille, aria-label, chevauchements avec le score et les boutons d'action
+const menuGeom = () => evaluate(`(() => { const b = document.querySelector(".touch-menu"); if (!b) return null; const r = b.getBoundingClientRect(); const ov = (a, c) => a.left < c.right && a.right > c.left && a.top < c.bottom && a.bottom > c.top; const top = document.querySelector(".hud-top")?.getBoundingClientRect(); const btns = [...document.querySelectorAll(".touch-btns button")].map(e => e.getBoundingClientRect()); return { w: +r.width.toFixed(1), h: +r.height.toFixed(1), aria: b.getAttribute("aria-label"), ovTop: top ? ov(r, top) : null, nOv: btns.filter(c => ov(r, c)).length }; })()`);
+const checkMenuBtn = async (want, tag) => {
+  const g = await menuGeom();
+  if (!g) throw new Error(tag + " : bouton ☰ absent (pointer: coarse non détecté ?)");
+  if (g.w < 44 || g.h < 44) throw new Error(tag + " : zone tactile < 44px : " + JSON.stringify(g));
+  if (g.aria !== want) throw new Error(tag + " : aria-label = " + JSON.stringify(g.aria));
+  if (g.ovTop || g.nOv > 0) throw new Error(tag + " : chevauchement : " + JSON.stringify(g));
+  return g;
+};
+
+if (run("w033")) {
+  await step("W-033 FR tactile 390×844 : ☰ visible ≥44px sans chevauchement, pause réelle, reprise sans saut", async () => {
+    await cmd("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
+    await size(390, 844, true); await prefs({ lang: "fr" });
+    await startArena("fr");
+    const g = await checkMenuBtn("Ouvrir le menu", "390×844");
+    info(`w033 390×844 : ☰ ${g.w}×${g.h}px aria « ${g.aria} », score et boutons dégagés`);
+    await shot("w033-fr-390-hud");
+    await tapEl(`document.querySelector(".touch-menu")`);
+    await waitFor(`!!document.querySelector(".hud-menu")`, 20000);
+    await waitFor(`window.__llGame.room.paused === true`, 20000);
+    const a = await simState(); await sleep(3000); const b = await simState();
+    if (a.tick !== b.tick || a.hudClock !== b.hudClock) throw new Error("le match avance pendant la pause tactile");
+    await shot("w033-fr-390-menu");
+    await tapText(LBL.fr.resume);
+    await waitFor(`!document.querySelector(".hud-menu") && window.__llGame.room.paused === false`, 10000);
+    await sleep(1500);
+    if ((await simState()).tick <= b.tick) throw new Error("pas de reprise après « Reprendre » tactile");
+    info("w033 solo : pause au toucher (chrono figé), reprise par « Reprendre », match reparti");
+    await key("Escape"); await waitFor(`!!document.querySelector(".hud-menu")`, 10000); await realClickText(LBL.fr.quit); await waitFor(has(LBL.fr.lvl), 20000);
+  });
+  await step("W-033 EN tablette 1024×768 : géométrie, aria « Open menu », pause solo", async () => {
+    await size(1024, 768, true); await prefs({ lang: "en" });
+    await startArena("en");
+    const g = await checkMenuBtn("Open menu", "1024×768");
+    info(`w033 1024×768 : ☰ ${g.w}×${g.h}px aria « ${g.aria} », score et boutons dégagés`);
+    await tapEl(`document.querySelector(".touch-menu")`);
+    await waitFor(`!!document.querySelector(".hud-menu") && window.__llGame.room.paused === true`, 20000);
+    await shot("w033-en-1024-menu");
+    await tapText(LBL.en.resume); await waitFor(`!document.querySelector(".hud-menu")`, 10000);
+    await key("Escape"); await waitFor(`!!document.querySelector(".hud-menu")`, 10000); await realClickText(LBL.en.quit); await waitFor(has(LBL.en.lvl), 20000);
+  });
+  await step("W-033 : en salle publique en ligne, ☰ ouvre « Menu — le match continue » (pas de pause)", async () => {
+    await size(1024, 768, true); await prefs({ lang: "en" });
+    await go("#/arena"); await waitFor(has(LBL.en.lvl));
+    await realClickText("Quick online match");
+    await waitFor(`[...document.querySelectorAll("button")].some(b => b.textContent.includes(${JSON.stringify(LBL.en.kickoff)}))`, 30000);
+    await realClickText(LBL.en.kickoff);
+    await waitFor(`!!document.querySelector(".arena-root canvas") && !!window.__ll3d?.latest`, 30000);
+    await waitFor(`window.__llGame?.room && window.__llGame.room.canPause === false`, 20000);
+    await tapEl(`document.querySelector(".touch-menu")`);
+    await waitFor(has("Menu — the match goes on"), 20000);
+    if (await evaluate(`window.__llGame.room.paused`)) throw new Error("salle publique suspendue à tort");
+    // le match continue pendant le menu (instantanés reçus, sans pause serveur)
+    const k0 = await evaluate(`window.__ll3d.latest.k`); await sleep(4000); const k1 = await evaluate(`window.__ll3d.latest.k`);
+    if (!(k1 > k0)) throw new Error("plus d'instantanés pendant le menu en ligne");
+    await shot("w033-en-1024-menu-live");
+    info(`w033 en ligne : menu ouvert par ☰, « Menu — the match goes on », ticks ${k0} → ${k1} pendant le menu`);
+    await tapText(LBL.en.resume); await waitFor(`!document.querySelector(".hud-menu")`, 10000);
+    await tapEl(`document.querySelector(".touch-menu")`); await waitFor(`!!document.querySelector(".hud-menu")`, 10000);
+    await realClickText(LBL.en.quit); await waitFor(has(LBL.en.lvl), 20000);
+    await cmd("Emulation.clearDeviceMetricsOverride");
+    await cmd("Emulation.setTouchEmulationEnabled", { enabled: false });
+  });
+}
+
 // ── Arène (TD-004, décision D-001) : caméra traversante d'origine près des deux buts et des parois ; vitres et filets estompés ──
 if (run("td004")) {
   const SCENES = [
@@ -298,7 +382,7 @@ if (run("td004")) {
   // (sous 1,4 i/s, deux relevés peuvent tomber entre deux images : on attend la position attendue, pas une simple immobilité)
   const settle = async (x, z, want) => {
     let hits = 0, c = null; const t0 = Date.now();
-    while (Date.now() - t0 < 90000) {
+    while (Date.now() - t0 < waitMs(90000)) {
       await sleep(700);
       const r = await evaluate(`(() => { const L = window.__ll3d.latest.p[window.__ll3d.mySlot]; const c = window.__ll3d.camera.position; return { d: Math.hypot(L[0] - ${x}, L[1] - ${z}), c: [c.x, c.y, c.z] }; })()`);
       c = r.c;

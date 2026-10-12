@@ -7,9 +7,39 @@ import { defaultStats } from '../shared/progression.js';
 const SAVE_DELAY = 1500;
 const MAX_MATCHES = 2000;
 const DEFAULT_TTL = 30 * 24 * 3600 * 1000;
+const BACKUP_KEEP = Math.max(1, Number(process.env.BACKUP_KEEP) || 7);
+const DAY_MS = 24 * 3600 * 1000;
 
 const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 const emptyData = () => ({ version: 1, users: {}, sessions: {}, matches: [] });
+const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// Copies quotidiennes : <dossier>/backups/<base>-AAAA-MM-JJ.json
+const backupBase = file => path.basename(file).replace(/\.[^.]+$/, "");
+const backupDirOf = file => path.join(path.dirname(path.resolve(file)), "backups");
+const backupRe = file => new RegExp(`^${escapeRe(backupBase(file))}-\\d{4}-\\d{2}-\\d{2}\\.json$`);
+
+// Copie datée du fichier de données ; une seule par jour, rotation sur `keep` copies.
+export async function runBackup(file, { now = new Date(), keep = BACKUP_KEEP } = {}) {
+  const dir = backupDirOf(file);
+  const date = now.toISOString().slice(0, 10);
+  const name = `${backupBase(file)}-${date}.json`;
+  await fsp.mkdir(dir, { recursive: true });
+  let created = false;
+  try { await fsp.access(path.join(dir, name)); }
+  catch { await writeAtomic(path.join(dir, name), await fsp.readFile(file)); created = true; }
+  const re = backupRe(file);
+  const copies = (await fsp.readdir(dir)).filter(f => re.test(f)).sort();
+  for (const f of copies.slice(0, Math.max(0, copies.length - keep))) await fsp.rm(path.join(dir, f), { force: true });
+  return { name, date, created };
+}
+
+// Nom de la dernière copie disponible pour ce fichier de données, ou null.
+export async function latestBackup(file) {
+  const re = backupRe(file);
+  const copies = await fsp.readdir(backupDirOf(file)).then(fs => fs.filter(f => re.test(f)).sort(), () => []);
+  return copies.at(-1) || null;
+}
 
 // Utilisateur public : sans secrets ni champs internes
 export function publicUser(user) {
@@ -28,7 +58,11 @@ export async function openDb(filePath) {
       const raw = await fsp.readFile(filePath, 'utf8');
       data = { ...emptyData(), ...JSON.parse(raw) };
     } catch (err) {
-      if (err.code !== 'ENOENT') throw err; // fichier corrompu : on refuse d'écraser
+      if (err.code !== 'ENOENT') {
+        // fichier corrompu : on refuse d'écraser et on indique la dernière copie
+        const last = await latestBackup(filePath);
+        throw Object.assign(new Error(`fichier de données illisible : ${path.basename(filePath)} — dernière copie : ${last ? `backups/${last}` : "aucune copie"}`), { cause: err });
+      }
       await writeAtomic(filePath, JSON.stringify(data));
     }
   }
@@ -164,12 +198,28 @@ export async function openDb(filePath) {
     matchCount: () => data.matches.length,
     dump: () => JSON.stringify(data), // debug / tests
     flush,
+    lastBackup: null, // date AAAA-MM-JJ de la dernière copie (jamais de chemin)
+    async backupNow(now = new Date()) {
+      if (memory) return null;
+      await flush(); // écrire l'état courant avant de copier
+      const r = await runBackup(filePath, { now });
+      db.lastBackup = r.date;
+      return r;
+    },
     async close() {
       closed = true;
       if (timer) { clearTimeout(timer); timer = null; }
+      if (backupTimer) { clearInterval(backupTimer); backupTimer = null; }
       await flush();
     },
   };
+  // copie quotidienne : au démarrage, puis toutes les 24 h (une par date)
+  let backupTimer = null;
+  if (!memory) {
+    try { await db.backupNow(); } catch (e) { console.error("[db] sauvegarde", e); }
+    backupTimer = setInterval(() => db.backupNow().catch(e => console.error("[db] sauvegarde", e)), DAY_MS);
+    backupTimer.unref?.();
+  }
   return db;
 }
 

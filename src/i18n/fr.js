@@ -123,6 +123,8 @@ export default {
   "report.tipFouls": "🟨 Beaucoup de fautes : le pressing coûte cher en cartons.", "report.tipPossession": "🧬 Peu de ballon : essayez « Réplication d'ADN » ou un créateur à forte Vision (Patrice, Joffrey).",
   "report.tipPowerups": "⚡ Aucun power-up utilisé : c'est l'arme de vos scientifiques !", "report.tipUnlucky": "📈 Vos xG dépassaient votre score : la chance tournera.", "report.tipGood": "✅ Performance solide : gardez cette composition !",
   "report.again": "Rejouer", "report.copy": "Copier le résumé", "report.home": "Accueil",
+  "rematch.vote": "Revanche", "rematch.voted": "Vote enregistré", "rematch.count": "{v}/{n}", "rematch.ready": "Revanche — salon {code}", "rematch.join": "Rejoindre",
+  "rematch.hint": "La revanche part quand tous les joueurs présents ont voté, ou 15 s après le premier vote",
 
   "ev.assist": "passe de {name}", "ev.sub": "🔄 {in} remplace {out}.", "ev.strategy": "🧪 Changement de stratégie : {strat}.", "ev.yellow": "🟨 Carton jaune pour {name}.", "ev.red": "🟥 Carton rouge pour {name} ! Exclusion de 2 minutes.",
   "ev.penalty": "Penalty ! Faute sur {name} dans la surface.", "ev.post": "POTEAU ! {name} a trouvé le montant.", "ev.block": "Tir de {name} contré !", "ev.return": "{name} entre pour compléter l'équipe après l'exclusion.",
@@ -285,6 +287,7 @@ export default {
   "arena.reserved": "Place réservée à un coéquipier déconnecté",
   "controls.press": "Pressing (maintenir) : harceler le porteur",
   "touch.press": "Pressing",
+  "touch.menu": "Ouvrir le menu",
   "skill.cut": "Crochet",
   "skill.feint": "Feinte de corps",
   "skill.roulette": "Roulette",

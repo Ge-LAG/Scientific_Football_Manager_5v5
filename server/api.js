@@ -147,7 +147,7 @@ export function createApi({ db, auth, getRooms, getOnline }) {
 
   // Table des routes : [méthode, motif, handler(ctx) -> [status, body] | body]
   const routes = [
-    ['GET', /^\/api\/health$/, () => ({ ok: true, uptime: Math.round((Date.now() - started) / 1000), users: db.userCount(), online: getOnline ? getOnline() : 0, rooms: getRooms ? getRooms().length : 0 })],
+    ['GET', /^\/api\/health$/, () => ({ ok: true, uptime: Math.round((Date.now() - started) / 1000), users: db.userCount(), online: getOnline ? getOnline() : 0, rooms: getRooms ? getRooms().length : 0, backup: db.lastBackup || null })],
     ['POST', /^\/api\/auth\/register$/, async ({ req }) => {
       const b = await readBody(req);
       return [201, await auth.register(b.pseudo, b.password)];

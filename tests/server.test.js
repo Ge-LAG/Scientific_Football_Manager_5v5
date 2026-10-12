@@ -99,6 +99,32 @@ test("Arène : deux humains, snapshots, départ remplacé par un bot, fin de mat
   A.ws.close();
 });
 
+test("Arène : reconnexion tardive (≥ 30 s) au même match — même place, pas de doublon", { timeout: 90000 }, async () => {
+  const A = await connect({ name: "Capitaine" }), B1 = await connect({ name: "Voyageur" });
+  const guestId = B1.welcome.guestId;
+  A.send({ t: "room.create", mode: "arena", opts: { halfSeconds: 60 } });
+  const j = await A.wait(m => m.t === "room.joined");
+  B1.send({ t: "room.join", code: j.code });
+  const jb = await B1.wait(m => m.t === "room.joined");
+  A.send({ t: "a.start" });
+  await A.wait(m => m.t === "a.init");
+  B1.ws.close();
+  // un bot prend le relais de la place libérée
+  await A.wait(m => m.t === "room.state" && m.slots[jb.seat].left === true && m.slots[jb.seat].human === false);
+  await new Promise(r => setTimeout(r, 31000)); // coupure de plus de 30 secondes
+  const B2 = await connect({ name: "Voyageur", guestId });
+  B2.send({ t: "room.join", code: j.code });
+  const jb2 = await B2.wait(m => m.t === "room.joined");
+  assert.equal(jb2.seat, jb.seat, "même place retrouvée");
+  const iInit = B2.msgs.findIndex(m => m.t === "a.init");
+  assert.ok(iInit >= 0, "l'état initial est renvoyé à la reconnexion");
+  const st = await B2.wait(m => m.t === "room.state" && m.slots[jb.seat].human === true);
+  assert.equal(st.slots[jb.seat].left, false, "la place n'est plus marquée « parti »");
+  assert.equal(st.slots.filter(s => s.human).length, 2, "aucun joueur dupliqué");
+  await B2.wait(m => m.t === "a.snap", 10000);
+  A.ws.close(); B2.ws.close();
+});
+
 test("partie rapide Manager : un manager virtuel remplace l'adversaire absent", { timeout: 60000 }, async () => {
   const A = await connect({ name: "Solo" });
   A.send({ t: "room.quick", mode: "manager" });

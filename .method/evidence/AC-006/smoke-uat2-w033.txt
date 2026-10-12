@@ -1,0 +1,7 @@
+ℹ w033 390×844 : ☰ 48×48px aria « Ouvrir le menu », score et boutons dégagés
+ℹ w033 solo : pause au toucher (chrono figé), reprise par « Reprendre », match reparti
+✔ W-033 FR tactile 390×844 : ☰ visible ≥44px sans chevauchement, pause réelle, reprise sans saut (28 s)
+ℹ w033 1024×768 : ☰ 48×48px aria « Open menu », score et boutons dégagés
+✔ W-033 EN tablette 1024×768 : géométrie, aria « Open menu », pause solo (19 s)
+ℹ w033 en ligne : menu ouvert par ☰, « Menu — the match goes on », ticks 110 → 188 pendant le menu
+✔ W-033 : en salle publique en ligne, ☰ ouvre « Menu — le match continue » (pas de pause) (20 s)

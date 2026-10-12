@@ -197,6 +197,7 @@ button { font: inherit; color: inherit; }
 .crosshair { position: absolute; left: 50%; top: 46%; width: 18px; height: 18px; transform: translate(-50%, -50%); border: 2px solid rgba(255, 255, 255, .5); border-radius: 50%; pointer-events: none; }
 .emotes { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 4px; }
 .emote-float { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); font-size: 30px; animation: pop .4s; pointer-events: none; }
+.touch-menu { position: absolute; left: 16px; top: 70px; width: 48px; height: 48px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .3); background: rgba(5, 8, 20, .6); color: var(--white); font-size: 22px; font-weight: 800; touch-action: none; }
 .touch-stick { position: absolute; left: 24px; bottom: 120px; width: 130px; height: 130px; border-radius: 50%; background: rgba(255, 255, 255, .06); border: 2px solid rgba(255, 255, 255, .2); touch-action: none; }
 .touch-stick .knob { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: rgba(0, 240, 255, .35); border: 2px solid var(--cyan); }
 .touch-btns { position: absolute; right: 20px; bottom: 140px; display: grid; grid-template-columns: repeat(2, 64px); gap: 10px; touch-action: none; }

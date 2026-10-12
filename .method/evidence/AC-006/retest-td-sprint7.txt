@@ -1,0 +1,34 @@
+ℹ pause FR : horloge 3:00, score 0-0, tick 82, recharges 49.667/-2.733
+ℹ reprise : +1.63 s de simulation pour 3.52 s réelles (pas de rattrapage des 31 s de pause)
+✔ TD-002 FR : Échap met le match solo en pause ≥ 30 s (temps, score, états, recharges figés), reprise sans saut (68 s)
+ℹ mi-temps après la reprise uniquement (horloge figée à 1.5666666666666913 s pendant 8 s)
+ℹ but imminent : score 0-0 figé pendant 6 s de pause → 1-0 juste après la reprise (phase goal)
+✔ TD-002 FR : pause à l'approche de la mi-temps puis d'un but (36 s)
+ℹ EN : horloge 2:59 figée 6 s, reprise OK ; aide en match : « Call for the ball » = B
+✔ TD-002 EN + TD-008 (aide en match) : pause, libellés anglais, appel de balle réaffecté sur B (27 s)
+ℹ TD-003 : toujours en composition après 62 s, départ uniquement sur « Prêt, coup d'envoi ! »
+ℹ td006-fr-886x620 : défilement 1387 → 66px ; score à y=70 (en-tête 62px), terrain 281–603 / 620px ; focus sur la zone du match : true
+✔ TD-003 FR + TD-006 FR (886×620) : préparation sans limite (≥ 62 s), puis coup d'envoi depuis le bas de page (78 s)
+ℹ td006-en-1366x768 : défilement 613 → 66px ; score à y=70 (en-tête 62px), terrain 281–751 / 768px ; focus sur la zone du match : true
+✔ TD-003 EN + TD-006 EN (1366×768) : libellé anglais, coup d'envoi recadré (16 s)
+ℹ td006-fr-390x844 : défilement 1296 → 58px ; score à y=127 (en-tête 119px), terrain 320–582 / 940px ; focus sur la zone du match : true
+✔ TD-006 FR mobile (390×844) : coup d'envoi recadré (19 s)
+ℹ td007-en-886x620-avant : 0/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky
+ℹ td007-en-886x620-avant : témoin — ancienne règle CSS réinjectée, 30 options masquées par l'aperçu (défaut de la recette reproduit)
+✔ TD-007 : témoin avec l'ancienne règle CSS (EN 886×620) — le recouvrement est bien détecté (18 s)
+ℹ td007-en-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static
+✔ TD-007 : Vestiaire EN 886×620 (cas de la recette) (19 s)
+ℹ td007-fr-886x620 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static
+✔ TD-007 : Vestiaire FR 886×620 (27 s)
+ℹ td007-fr-390x844 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static
+✔ TD-007 : Vestiaire FR 390×844 (mobile) (24 s)
+ℹ td007-en-768x1024 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position static
+✔ TD-007 : Vestiaire EN 768×1024 (tablette) (27 s)
+ℹ td007-fr-1366x768 : 30/30 options cliquées à la souris (point central au premier plan), clavier OK, aperçu en position sticky
+✔ TD-007 : Vestiaire FR 1366×768 (deux colonnes, aperçu collant) (31 s)
+ℹ td008-fr-azerty : tableau = Z, FAQ = Z (« Appuyez sur Z (ou R3 / ↑ à la manette) pour faire un appel d… »)
+ℹ td008-fr-qwerty : tableau = W, FAQ = W (« Appuyez sur W (ou R3 / ↑ à la manette) pour faire un appel d… »)
+ℹ td008-en-qwerty : tableau = W, FAQ = W (« Press W (or R3 / ↑ on a gamepad) to call for the ball: a vir… »)
+ℹ td008-en-remap-b : tableau = B, FAQ = B (« Press B (or R3 / ↑ on a gamepad) to call for the ball: a vir… »)
+ℹ td008-fr-remap-b : tableau = B, FAQ = B (« Appuyez sur B (ou R3 / ↑ à la manette) pour faire un appel d… »)
+✔ TD-008 : FAQ et tableau identiques (FR AZERTY, FR QWERTY, EN QWERTY, EN AZERTY + B, FR + B) ; synergies traduites (10 s)

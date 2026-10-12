@@ -123,6 +123,8 @@ export default {
   "report.tipFouls": "🟨 Lots of fouls: pressing costs cards.", "report.tipPossession": "🧬 Little of the ball: try \"DNA Replication\" or a high-Vision playmaker (Patrice, Joffrey).",
   "report.tipPowerups": "⚡ No power-up used: it's your scientists' secret weapon!", "report.tipUnlucky": "📈 Your xG exceeded your score: luck will turn.", "report.tipGood": "✅ Solid performance: keep this line-up!",
   "report.again": "Play again", "report.copy": "Copy summary", "report.home": "Home",
+  "rematch.vote": "Rematch", "rematch.voted": "Vote registered", "rematch.count": "{v}/{n}", "rematch.ready": "Rematch — room {code}", "rematch.join": "Join",
+  "rematch.hint": "The rematch starts once every player present has voted, or 15 s after the first vote",
 
   "ev.assist": "assisted by {name}", "ev.sub": "🔄 {in} replaces {out}.", "ev.strategy": "🧪 Strategy change: {strat}.", "ev.yellow": "🟨 Yellow card for {name}.", "ev.red": "🟥 Red card for {name}! Two-minute exclusion.",
   "ev.penalty": "Penalty! {name} fouled in the box.", "ev.post": "OFF THE POST! {name} hits the woodwork.", "ev.block": "{name}'s shot is blocked!", "ev.return": "{name} comes on to complete the team after the exclusion.",
@@ -285,6 +287,7 @@ export default {
   "arena.reserved": "Spot reserved for a disconnected teammate",
   "controls.press": "Press (hold): harass the ball carrier",
   "touch.press": "Press",
+  "touch.menu": "Open menu",
   "skill.cut": "Cut",
   "skill.feint": "Body feint",
   "skill.roulette": "Roulette",

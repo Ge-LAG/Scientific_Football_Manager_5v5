@@ -33,10 +33,13 @@ export class ManagerRoom extends BaseRoom {
     const id = BaseRoom.identity(client);
     this.addMember(client);
     let seat = SIDES.map(s => this.seats[s]).find(s => s.identity === id); // reconnexion
-    if (!seat && this.phase === "lobby") seat = SIDES.map(s => this.seats[s]).find(s => !s.memberId && !s.bot);
+    const wanted = this.rematchSeats?.get(id); // revanche : même côté et même club
+    if (!seat && this.phase === "lobby") seat = (wanted ? SIDES.map(s => this.seats[s]).find(s => s.side === wanted.side && !s.memberId && !s.bot) : null)
+      || SIDES.map(s => this.seats[s]).find(s => !s.memberId && !s.bot);
     if (seat) {
       Object.assign(seat, { memberId: client.id, identity: id, pseudo: client.pseudo, userId: client.userId || null, elo: client.elo ?? null, connected: true, left: false });
-      if (client.club && this.phase === "lobby") seat.club = sanitizeClub(client.club, seat.club);
+      if (wanted?.club && this.phase === "lobby") seat.club = sanitizeClub(wanted.club, seat.club);
+      else if (client.club && this.phase === "lobby") seat.club = sanitizeClub(client.club, seat.club);
       this.members.get(client.id).seat = seat.side;
       if (this.bots[seat.side] && this.phase === "playing") delete this.bots[seat.side]; // reprise en main
       if (this.phase !== "playing" && this.phase !== "ended") this.applyLooks(seat, client);
@@ -60,6 +63,7 @@ export class ManagerRoom extends BaseRoom {
       if (this.phase === "lobby") Object.assign(seat, { identity: null, pseudo: null, userId: null, elo: null, club: defaultClub(seat.side), looks: {} });
       else { seat.left = true; if (this.phase === "playing") this.bots[seat.side] = new BotManager(seat.side, "chercheur", this.rng); }
     }
+    if (this.phase === "ended") this.maybeRematch(); // un non-votant qui part peut compléter les voix
     this.broadcastState();
   }
 
@@ -69,7 +73,7 @@ export class ManagerRoom extends BaseRoom {
     const side = m.seat; const seat = side ? this.seats[side] : null; const isHost = clientId === this.hostId;
     switch (msg.t) {
       case "m.club": if (seat && this.phase === "lobby") { seat.club = sanitizeClub(msg.club, seat.club); this.broadcastState(); } break;
-      case "m.bot": if (isHost && this.phase === "lobby" && !this.seats.away.memberId) { this.opts.bot = DIFFICULTIES[msg.level] ? msg.level : null; this.broadcastState(); } break;
+      case "m.bot": if (isHost && this.phase === "lobby" && (!this.seats.home.memberId || !this.seats.away.memberId)) { this.opts.bot = DIFFICULTIES[msg.level] ? msg.level : null; this.broadcastState(); } break;
       case "m.start": if (isHost && this.phase === "lobby") this.startDraft(); break;
       case "m.pick": if (seat && this.phase === "draft") this.pick(side, msg.id); break;
       case "m.autopick": if (seat && this.phase === "draft" && this.draft.order[this.draft.turn] === side) this.pick(side, this.autoPickFor(side)); break;
@@ -79,11 +83,16 @@ export class ManagerRoom extends BaseRoom {
       case "m.cmd": if (seat && this.phase === "playing" && this.engine) this.engine.command(side, sanitizeCmd(msg.cmd)); break;
       case "m.speed": if (isHost && this.soloVsBot() && [1, 2, 4].includes(msg.speed)) { this.opts.speed = msg.speed; if (this.engine) this.engine.halftimeTicks = 100 * msg.speed; this.restartLoop(); this.broadcastState(); } break;
       case "m.pause": if (isHost && this.soloVsBot() && this.phase === "playing") { this.paused = !!msg.paused; this.broadcastState(); } break;
+      case "m.rematch": this.voteRematch(clientId); break;
       case "emote": this.emote(clientId, msg.e); break;
     }
   }
 
   soloVsBot() { return !!(this.seats.away.bot || this.seats.home.bot); }
+
+  // revanche : même durée, même niveau de bot pour un siège vide ; pas de salle publique ni de saison
+  rematchOpts() { const o = this.opts; return { speed: o.speed, halfTicks: o.halfTicks, bot: o.bot }; }
+  rematchSeat(clientId) { const m = this.members.get(clientId); return { side: m?.seat || null, club: this.seats[m?.seat]?.club || null }; }
 
   // apparences choisies par le manager pour SES scientifiques (visibles par l'adversaire en 3D)
   applyLooks(seat, client) {
@@ -104,8 +113,15 @@ export class ManagerRoom extends BaseRoom {
   // ── Draft ────────────────────────────────────────────────
   startDraft() {
     if (this.phase !== "lobby") return;
-    if (!this.seats.home.memberId && !this.seats.home.bot) return;
-    if (!this.seats.away.memberId) { const lvl = this.opts.bot || "chercheur"; Object.assign(this.seats.away, { bot: lvl, pseudo: null, club: this.opts.botClub ? sanitizeClub(this.opts.botClub, botClub(lvl, this.rng)) : botClub(lvl, this.rng) }); this.opts.bot = lvl; }
+    if (!this.seats.home.memberId && !this.seats.away.memberId) return; // personne ne joue
+    // tout siège sans humain est pris par un manager virtuel (l'hôte a pu partir d'un côté ou de l'autre)
+    for (const side of SIDES) {
+      const s = this.seats[side];
+      if (s.memberId || s.bot) continue;
+      const lvl = this.opts.bot || "chercheur";
+      Object.assign(s, { bot: lvl, pseudo: null, club: this.opts.botClub ? sanitizeClub(this.opts.botClub, botClub(lvl, this.rng)) : botClub(lvl, this.rng) });
+      this.opts.bot = lvl;
+    }
     // deux clubs identiques (clubs par défaut) : l'équipe extérieure est différenciée
     const H = this.seats.home.club, Aw = this.seats.away.club;
     if (Aw.colors[0].toLowerCase() === H.colors[0].toLowerCase()) Aw.colors = [H.colors[0].toLowerCase() === "#ff00e5" ? "#00F0FF" : "#FF00E5", Aw.colors[1]];
@@ -242,6 +258,7 @@ export class ManagerRoom extends BaseRoom {
       t: "room.state", code: this.code, mode: "manager", phase: this.phase, opts: this.publicOpts(), paused: this.paused,
       you: { seat: m?.seat || "spec", host: clientId === this.hostId }, seats,
       draft: this.draft && { turn: this.draft.turn, order: this.draft.order, available: this.draft.available, remainingMs: Math.max(0, this.draft.deadline - Date.now()) },
+      rematch: this.rematchState(clientId),
       setupRemainingMs: this.phase === "setup" ? (this.setupDeadline ? Math.max(0, this.setupDeadline - Date.now()) : null) : 0,
       spectators: [...this.members.values()].filter(x => !x.seat).map(x => x.client.pseudo),
     };
