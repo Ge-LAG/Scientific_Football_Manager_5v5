@@ -33,6 +33,10 @@ test("serveur : a.rematch / m.rematch → une voix par identité, en fin de matc
     assert.equal(last(a, "room.state").rematch.code, "NEW0", `${t} : code diffusé`);
     room.close();
   }
+  // délai de la revanche : 15 s après le premier vote (décision de Guillaume du 12/10), annoncé en FR/EN
+  assert.equal(new ArenaRoom({ code: "D1", opts: {} }).rematchDelayMs, 15000);
+  assert.equal(new ManagerRoom({ code: "D2", opts: {} }).rematchDelayMs, 15000);
+  assert.match(fr["rematch.hint"], /15 s/); assert.match(en["rematch.hint"], /15 s/);
 });
 
 test("client : bouton visible uniquement en ligne, vote et jonction par code", () => {

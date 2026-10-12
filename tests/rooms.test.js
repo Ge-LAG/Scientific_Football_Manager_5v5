@@ -210,7 +210,7 @@ test("revanche Arène : après le délai, part avec les seuls votants ; les autr
   enter(a, room); enter(b, room); enter(c, room);
   room.handle("a1", { t: "a.start" });
   await endArena(room);
-  room.rematchDelayMs = 60; // délai simulé (30 s en jeu)
+  room.rematchDelayMs = 60; // délai simulé (15 s en jeu)
   room.handle("a1", { t: "a.rematch" });
   assert.equal(roomOf(lobby, "a1"), room);
   await until(() => roomOf(lobby, "a1") !== room, 3000);

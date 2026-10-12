@@ -1622,11 +1622,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "349543c95b9cd184a87f731438affb0ff75484f44d1cedcf7cc284fe9f2bcc65",
-      "chars": 4479,
-      "size": 6750,
-      "mtime_ns": 1791755924423761800,
-      "revision": 5,
+      "sha256": "eb47ebdb771fec707ad7d1e5ddda49448a7a527597493c46398006ef63c85aef",
+      "chars": 4710,
+      "size": 7013,
+      "mtime_ns": 1791834946735201300,
+      "revision": 6,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1649,7 +1649,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "6d54aea8a7a07f8d76c72ca8c61bd604fb75aadfc7c8394477a26f42b6da77e1",
+      "evidence_digest": "5f49aaef8fde801283d633cdd9c12099c0d88e08442280843588115057098463",
       "criteria": [
         {
           "id": "A1",
@@ -1692,7 +1692,7 @@
           "text": "Chez A, Échap affiche « Menu — le match continue » ; la salle refuse la pause ; le match avance chez A et chez B (menu ouvert chez A : ticks A 459 → 524, B 459 → 524 en 6 s). Salle publique et spectateur : pause refusée (test). Capture du menu ."
         }
       ],
-      "body_digest": "72771247dfe159a84e724a6ecb2bf4cc0335abd9c136153448ff5b0128f03905",
+      "body_digest": "21696a215fa78d17544e0711ba1e9f10d76ea9dfc654484fc8c87514c0d1ddc0",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1730,11 +1730,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "4394dc216cc0be8c6ae3d10cea748709c3a3156891a6975d69ca3285e5a13e15",
-      "chars": 2547,
-      "size": 4386,
-      "mtime_ns": 1791755924833255900,
-      "revision": 4,
+      "sha256": "cc1f76e14411d447b07a8c6d9f633aa5c7a4c809dceed74cb4026e83a6a4044a",
+      "chars": 2778,
+      "size": 4649,
+      "mtime_ns": 1791834947043827000,
+      "revision": 5,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1755,7 +1755,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "3412304bbf2ad35aa945fa6e863e009930741b42d063020c1cc0ab91f2e7f6be",
+      "evidence_digest": "972f71c2a77fb50f22ea5b39f326ff980b38b55326abcd5e391a5727b80c1f39",
       "criteria": [
         {
           "id": "A1",
@@ -1784,7 +1784,7 @@
           "text": "TD-003 : toujours en composition après 62 s, départ uniquement sur « Prêt, coup d'envoi ! » Libellés « Sans limite de temps » / « No time limit ». Captures : FR , EN ."
         }
       ],
-      "body_digest": "12571b44ca2ed8af21ee9235b421a3027e8463b328be7312d77d06d94deb580b",
+      "body_digest": "e47791b198c3ceff73be899b5aa2884661714e37c850a8f02739b3255a670665",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -1964,11 +1964,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "a82f905cd9240745cfd0f27265feed219a25defd182467d45370a5f45f33e4a6",
-      "chars": 2935,
-      "size": 4627,
-      "mtime_ns": 1791755925302634900,
-      "revision": 4,
+      "sha256": "66618b2c366cf8c32a8d1391e39bed7d4a6abd24ac2b7053417544aa50978a05",
+      "chars": 3166,
+      "size": 4890,
+      "mtime_ns": 1791834947345142800,
+      "revision": 5,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -1989,7 +1989,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "3b050eff8e539440e22ba1c40190bde0ac99d0f74f3f63888201d4c339310942",
+      "evidence_digest": "a009b5b2f3adf7fd864c47f23a9ae0e0e3ab71d565606f474ab49ecf5fe0d33b",
       "criteria": [
         {
           "id": "A1",
@@ -2008,7 +2008,7 @@
           "text": "td006-fr-886x620 : défilement 1387 → 66px ; score à y=70 (en-tête 62px), terrain 281–603 / 620px ; focus sur la zone du match : true ; td006-en-1366x768 : défilement 613 → 66px ; score à y=70 (en-tête 62px), terrain 281–751 / 768px ; focus sur la zone du match : true ; td006-fr-390x844 : défilement 1349 → 58px ; score à y=127 (en-tête 119px), terrain 320–597 / 992px ; focus sur la zone du match : true Captures : 886×620 , 1366×768 EN , mobile ."
         }
       ],
-      "body_digest": "2e1a098509748ab2f947a499fc40c83c439cbfaa5b988033af5a1dad1e3bee8f",
+      "body_digest": "7e7f926e3c63f4b45fe3cab8cba5463e254311fd7292c79f8936416e6ca488d7",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -2115,11 +2115,11 @@
       ],
       "kind": "finding",
       "status": "accepted",
-      "sha256": "0421ef2b1165516c8a19902863858462ec9cdcfbafd0a0d641fbe4f2e20f93cc",
-      "chars": 4682,
-      "size": 7002,
-      "mtime_ns": 1791755926221353100,
-      "revision": 4,
+      "sha256": "fdafe619097fa88272681dced930a72a48c9994d12d738280c1491b5bccc63d2",
+      "chars": 4913,
+      "size": 7265,
+      "mtime_ns": 1791834947664917100,
+      "revision": 5,
       "owner": "Claude (agent)",
       "reviewed": "",
       "review_by": "",
@@ -2142,7 +2142,7 @@
       ],
       "candidate": "lab-league-v3 : cd223fd (tests et script de retest adaptés à D-001, non commités)",
       "environment": "Windows 11 ; Node 26 ; npm test ; Chrome sans interface (rendu logiciel SwiftShader) ; serveur local 127.0.0.1:8791, données de test jetables",
-      "evidence_digest": "c19055252c32ed5246f0647092bc48b2c4df54a06ca136b036423d7ee5ae9f26",
+      "evidence_digest": "a395a5a9e9c47be43b6dfa149c095f15f12413996bee65c38ee8d9444419cef4",
       "criteria": [
         {
           "id": "A1",
@@ -2185,7 +2185,7 @@
           "text": "Chaque fragment de domaine des synergies a sa traduction anglaise, présente mot pour mot dans les domaines affichés par le filtre de la liste des scientifiques (ex. « Physics » ↔ « Physics & Mechanics », « Physics & Chemistry ») ; la page Aide anglaise n'affiche plus aucun terme français (« Computer Science / Cybersecurity », « Biology / Medicine / Agri-Food »…). Capture ."
         }
       ],
-      "body_digest": "cd681d5160a2ca0d5c811272954d7fd5f35fd54e6cbd3d72461e5bc1290840c7",
+      "body_digest": "6fd8465e549a194f49181930ce479ac246d274bb4d340215a8f83eceea022022",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -6017,11 +6017,11 @@
       ],
       "kind": "work",
       "status": "review",
-      "sha256": "88130a2cb539b7ae384861538a2f1d338b109dd897db6f0bdcd002f5c94c1fd5",
-      "chars": 4231,
-      "size": 7171,
-      "mtime_ns": 1791755450856593600,
-      "revision": 3,
+      "sha256": "513705697f37fc40a2a0525382e0e0a932c62e5c5762895f1cb9d98d6fb267e5",
+      "chars": 4640,
+      "size": 7812,
+      "mtime_ns": 1791834794269233900,
+      "revision": 4,
       "owner": "SWE-2 (agent)",
       "reviewed": "",
       "review_by": "",
@@ -6052,7 +6052,7 @@
         },
         {
           "id": "A3",
-          "text": "Après 30 s, la revanche part avec les seuls votants ; les autres voient le code et peuvent la rejoindre."
+          "text": "Après 15 s (décision de Guillaume du 12/10/2026 ; 30 s initialement), la revanche part avec les seuls votants ; les autres voient le code et peuvent la rejoindre."
         },
         {
           "id": "A4",
@@ -6123,9 +6123,19 @@
           "waiver": "",
           "for": "A1",
           "text": "Écran de fin d'Arène chez les deux joueurs avec « Revanche » et compteur ; double vote → revanche Arène : PM2TQP → AP4HJR, A équipe 0, B équipe 1."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/rematch.test.js",
+          "check": "node --test tests/rematch.test.js tests/rooms.test.js",
+          "by": "Claude (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A3",
+          "text": "Délai par défaut de 15 s en Arène et en Manager (test), annoncé « 15 s » dans l'info-bulle FR/EN ; départ avec les seuls votants à l'échéance (test de salle, délai simulé). 14/14."
         }
       ],
-      "body_digest": "aa48be5577fa52e088dc7e9ff0e2fc8fd3756e45b15601036f1926349f31bfc6",
+      "body_digest": "0293db6b9a127a3274bcf556dcd0fa40b3a6f645e9f395c4b841fde85bf6146e",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
@@ -6137,7 +6147,8 @@
         "../evidence/W-035/smoke-online.txt",
         "../docs/roadmap.html#roadmap",
         "../records/AC-006.html#AC-006",
-        "../evidence/AC-006/smoke-online.txt"
+        "../evidence/AC-006/smoke-online.txt",
+        "../../tests/rematch.test.js"
       ],
       "anchors": [
         "W-035"

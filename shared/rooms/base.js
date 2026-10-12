@@ -13,9 +13,9 @@ export class BaseRoom {
     this.members = new Map(); // clientId → { client, seat }
     this.hostId = null; this.phase = "lobby"; this.createdAt = Date.now(); this.closed = false;
     this.timers = [];
-    // revanche en ligne : une voix par humain présent ; la salle part quand tous ont voté ou 30 s après le premier vote
+    // revanche en ligne : une voix par humain présent ; la salle part quand tous ont voté ou 15 s après le premier vote (décision du PO, 12/10)
     this.rematch = { votes: new Set(), code: null, voting: false };
-    this.rematchDelayMs = 30000;
+    this.rematchDelayMs = 15000;
   }
 
   // identité stable d'un membre (compte ou invité) pour la reconnexion
