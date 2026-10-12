@@ -473,6 +473,47 @@ if (run("w037")) {
   });
 }
 
+// ── Défis du jour (W-038) : carte d'accueil, progression enregistrée en fin de match Manager, série affichée ──
+if (run("w038")) {
+  const today = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
+  // état semé : défi Manager « possession » atteignable à coup sûr (n=30), défi Arène filtré par mode
+  const seedDefs = { v: 1, date: today, defs: [
+    { id: `${today}:a`, mode: "arena", kind: "a_win", n: 1 },
+    { id: `${today}:m`, mode: "manager", kind: "m_possession", n: 30 },
+    { id: `${today}:s`, mode: "science", kind: "sci_domain_match", n: 1, domaine: "Physique" },
+  ], progress: {}, streak: { count: 0, last: null } };
+  await step("W-038 FR : carte « Défis du jour », progression après match Manager, série incrémentée", async () => {
+    await prefs({ lang: "fr" });
+    await evaluate(`localStorage.setItem("ll.challenges", ${JSON.stringify(JSON.stringify(seedDefs))})`);
+    await go("#/");
+    await waitFor(has("Défis du jour"), 15000);
+    await waitFor(has("possession"), 10000);
+    await shot("w038-fr-accueil");
+    await go("#/manager"); await waitFor(`!!document.querySelector("button")`); await sleep(300);
+    await realClickText("Courte"); await realClickText("Lancer");
+    await managerDayAtSpeed4("fr");
+    const st = await evaluate(`JSON.parse(localStorage.getItem("ll.challenges"))`);
+    const pm = st?.progress?.[`${today}:m`];
+    if (!pm || !(pm.n > 0)) throw new Error("progression Manager absente : " + JSON.stringify(st?.progress));
+    if (!pm.done || st.streak?.count !== 1 || st.streak?.last !== today) throw new Error("défi non coché / série non incrémentée : " + JSON.stringify({ pm, streak: st.streak }));
+    if (st.progress[`${today}:a`]) throw new Error("le match Manager a touché le défi Arène");
+    await go("#/");
+    await waitFor(has("jour(s) de suite"), 15000);
+    await shot("w038-fr-serie");
+    info(`w038 : match Manager → défi « possession » coché (${pm.n}/30), série 1 jour affichée`);
+  });
+  await step("W-038 EN : carte « Daily challenges » traduite", async () => {
+    await prefs({ lang: "en" });
+    await go("#/");
+    await waitFor(has("Daily challenges"), 15000);
+    const got = await evaluate(`(document.body.innerText.match(/daily challenges|possession|physics|win a match/gi) || []).join(",")`);
+    if (!/daily challenges/i.test(got)) throw new Error("carte absente : " + got);
+    await shot("w038-en-home");
+    info(`w038 EN : carte traduite (${got})`);
+    await evaluate(`localStorage.removeItem("ll.challenges")`);
+  });
+}
+
 console.log("\n" + results.map(r => r.join(" ")).join("\n"));
 if (logs.length) console.log("\nConsole :\n" + [...new Set(logs)].slice(0, 30).join("\n"));
 writeFileSync(path.join(OUT, "resultats.txt"), results.map(r => r.join(" ")).join("\n") + (logs.length ? "\n\nConsole :\n" + [...new Set(logs)].slice(0, 30).join("\n") : "") + "\n");

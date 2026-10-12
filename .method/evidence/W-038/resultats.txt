@@ -1,0 +1,4 @@
+ℹ w038 : match Manager → défi « possession » coché (30/30), série 1 jour affichée
+✔ W-038 FR : carte « Défis du jour », progression après match Manager, série incrémentée (58 s)
+ℹ w038 EN : carte traduite (DAILY CHALLENGES,win a match,possession,Physics)
+✔ W-038 EN : carte « Daily challenges » traduite (2 s)

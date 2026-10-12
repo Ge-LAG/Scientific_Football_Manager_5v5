@@ -3,8 +3,10 @@ import { useI18n } from "../i18n/index.jsx";
 import { useSession } from "../store/session.jsx";
 import { useGame } from "../game/GameProvider.jsx";
 import { Card, Avatar, Kicker } from "../ui/components.jsx";
-import { PLAYERS, pText } from "../../shared/data/content.js";
+import { PLAYERS, pText, domainWord, STRATEGY_BY_ID } from "../../shared/data/content.js";
+import { DIFFICULTIES } from "../../shared/manager/ai.js";
 import { gradeOf } from "../../shared/progression.js";
+import { currentChallenges, streakOf, localDate } from "../store/challenges.js";
 
 export default function Home({ navigate }) {
   const { t, lang } = useI18n();
@@ -50,6 +52,8 @@ export default function Home({ navigate }) {
         </Card>
       </div>
 
+      <div className="mt24"><ChallengesCard t={t} lang={lang} /></div>
+
       <div className="grid g3 mt24 split">
         <Card>
           <Kicker>{t("home.joinTitle")}</Kicker>
@@ -93,5 +97,34 @@ export default function Home({ navigate }) {
         ))}
       </div>
     </div>
+  );
+}
+
+// Défis du jour (W-038) : trois défis tirés de la date, progression et série de jours.
+function ChallengesCard({ t, lang }) {
+  const st = currentChallenges();
+  const streak = streakOf(st, localDate());
+  const icon = { arena: "🏟️", manager: "🧪", science: "🔬" };
+  const label = def => t(`chal.${def.kind}`, {
+    n: def.n,
+    domaine: def.domaine ? domainWord(def.domaine, lang) : undefined,
+    strategy: def.strategy ? STRATEGY_BY_ID[def.strategy]?.nom[lang] : undefined,
+    level: def.level ? DIFFICULTIES[def.level]?.[lang] : undefined,
+  });
+  return (
+    <Card>
+      <div className="row between nowrap mb8">
+        <Kicker color="var(--gold)">🎯 {t("chal.title")}</Kicker>
+        {streak > 0 && <span className="chip" style={{ color: "var(--coral)" }}>🔥 {t("chal.streak", { n: streak })}</span>}
+      </div>
+      <div className="grid g3 split" style={{ gap: 10 }}>
+        {st.defs.map(def => { const p = st.progress[def.id] || { n: 0, done: false }; return (
+          <div key={def.id} className="row nowrap small" style={{ opacity: p.done ? 0.7 : 1 }}>
+            <span style={{ width: 24, fontSize: 18 }}>{p.done ? "✅" : icon[def.mode]}</span>
+            <span className="grow" style={{ textDecoration: p.done ? "line-through" : "none" }}>{label(def)}</span>
+            <span className="num tiny muted">{p.n}/{def.n || 1}</span>
+          </div>); })}
+      </div>
+    </Card>
   );
 }

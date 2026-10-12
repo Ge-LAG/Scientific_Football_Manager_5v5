@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { useI18n } from "../../i18n/index.jsx";
 import { useGame } from "../../game/GameProvider.jsx";
 import { useToast, Card, Kicker, Avatar } from "../../ui/components.jsx";
 import { getPlayer, STRATEGY_BY_ID } from "../../../shared/data/content.js";
+import { recordMatchResult } from "../../store/challenges.js";
 import { ACHIEVEMENTS } from "../../../shared/progression.js";
 import { TICKS_PER_MIN } from "../../../shared/manager/engine.js";
 import { eventText } from "./MatchView.jsx";
@@ -35,6 +37,17 @@ export function ReportView({ report: msg, setup, me, navigate, onLeave }) {
   const result = my.score > opp.score ? "W" : my.score < opp.score ? "L" : "D";
   const resColor = { W: "var(--lime)", L: "var(--coral)", D: "var(--gold)" }[result];
   const prog = msg.progression?.[mySide];
+  // défis du jour : enregistrer le résultat (spectateur : rien à mesurer)
+  useEffect(() => {
+    if (me === "spec") return;
+    const dom = id => getPlayer(id)?.domaine;
+    recordMatchResult({
+      mode: "manager", win: my.score > opp.score, goalsFor: my.score, onTarget: my.stats.onTarget, possession: my.stats.possession,
+      strategy: my.strategy, bot: setup?.[oppSide]?.bot || null,
+      domaines: (setup?.[mySide]?.lineup || []).map(dom).filter(Boolean),
+      scorerDomaines: r.players.filter(p => p.side === mySide && p.stats.goals > 0).map(p => dom(p.id)).filter(Boolean),
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const mvp = getPlayer(r.mvp);
   const goals = r.events.filter(e => e.type === "GOAL");
   const players = [...r.players].sort((a, b) => b.rating - a.rating);

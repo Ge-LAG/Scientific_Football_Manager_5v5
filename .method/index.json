@@ -6486,13 +6486,13 @@
         "manager"
       ],
       "kind": "work",
-      "status": "ready",
-      "sha256": "3662d8dc12560e66b3e9b2983c23a64fc598ddbc1a37a335bf4ddcecf01b847a",
-      "chars": 1991,
-      "size": 3265,
-      "mtime_ns": 1791836353712361427,
-      "revision": 1,
-      "owner": "SWE-2 (agent)",
+      "status": "review",
+      "sha256": "871d81ff02a15f11953f68e7c75832058ca8df3147096768adcfbf936b410f5a",
+      "chars": 2911,
+      "size": 5055,
+      "mtime_ns": 1791838072074533953,
+      "revision": 2,
+      "owner": "Devin (agent)",
       "reviewed": "",
       "review_by": "",
       "review_trigger": "",
@@ -6528,12 +6528,57 @@
           "text": "Aucun impact sur XP/ELO ; textes FR/EN ; npm test et build verts."
         }
       ],
-      "evidence": [],
-      "body_digest": "bc0ec23641ae5f3bff1b50f1548ad7d35edb50ae972266fb3b322ab63eb9cd6e",
+      "evidence": [
+        {
+          "result": "pass",
+          "ref": "../../tests/challenges.test.js",
+          "check": "node --test tests/challenges.test.js",
+          "by": "Devin (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A1",
+          "text": "generate(AAAA-MM-JJ) (shared/challenges.js, graine FNV-1a de la date + makeRng) : même date → trois défis identiques (un Arène, un Manager, un scientifique), 7 dates → ≥6 kinds et ≥12 défis distincts. Verts."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-038/w038-fr-serie.jpg",
+          "check": "node scripts/smoke-uat2.mjs http://localhost:8791 .method/evidence/W-038 w038",
+          "by": "Devin (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A2",
+          "text": "Smoke : match Manager complet (×4) → ll.challenges montre le défi coché sans action du joueur ; le défi Arène n'est pas touché par un match Manager (filtrage par mode). Câblage : recordMatchResult dans EndScreen (a.end, stats du slot joueur) et ReportView (m.report, score/stats/buts par domaine)."
+        },
+        {
+          "result": "pass",
+          "ref": "../evidence/W-038/w038-fr-serie.jpg",
+          "check": "node --test tests/challenges.test.js",
+          "by": "Devin (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A3",
+          "text": "Série testée : jour réussi → +1, trou d'un jour → remise à zéro, affichée tant qu'elle est vivante (veille incluse) ; smoke : « 1 jour(s) de suite » visible sur l'accueil après le match."
+        },
+        {
+          "result": "pass",
+          "ref": "../../tests/challenges.test.js",
+          "check": "npm test && npm run build",
+          "by": "Devin (agent)",
+          "date": "2026-10-12",
+          "waiver": "",
+          "for": "A4",
+          "text": "Aucune récompense XP/ELO (badge + série uniquement, solo local ll.challenges) ; clés chal.* identiques FR/EN (paramètres n/domaine/strategy/level, domaines traduits via domainWord) ; npm test 171/171 vert, build vert."
+        }
+      ],
+      "body_digest": "19612da96758d0dd58638a6e2f8259b963a42ae7bd65e982ded3470d3f70af4e",
       "has_placeholder": false,
       "links": [
         "../assets/method.css",
         "../index.html",
+        "../../tests/challenges.test.js",
+        "../evidence/W-038/w038-fr-serie.jpg",
+        "../evidence/W-038/w038-fr-serie.jpg",
+        "../../tests/challenges.test.js",
         "../docs/roadmap.html#roadmap"
       ],
       "anchors": [

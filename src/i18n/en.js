@@ -38,6 +38,13 @@ export default {
   "career.seasons": "Seasons", "career.titles": "Titles", "career.promotions": "Promotions", "career.relegations": "Relegations", "career.trophies": "Institute trophies",
   "career.rank": "rank {rank}", "career.champion": "champions: {name}", "career.summary": "Record: {seasons} seasons, {titles} titles, {promotions} promotions, {relegations} relegations, {trophies} trophies.",
 
+  "chal.title": "Daily challenges", "chal.streak": "{n}-day streak",
+  "chal.a_goals": "Arena: score {n} goals", "chal.a_assists": "Arena: make {n} assist(s)", "chal.a_saves": "Arena: make {n} saves", "chal.a_tackles": "Arena: complete {n} tackles",
+  "chal.a_powerups": "Arena: trigger {n} power-ups", "chal.a_win": "Arena: win a match", "chal.a_mvp": "Arena: finish MVP of a match",
+  "chal.m_win": "Manager: win a match", "chal.m_goals": "Manager: score {n} goals", "chal.m_shots": "Manager: put {n} shots on target",
+  "chal.m_possession": "Manager: finish with {n}% possession", "chal.m_strategy_win": "Manager: win with the \"{strategy}\" strategy", "chal.m_beat_bot": "Manager: beat a {level} bot",
+  "chal.sci_domain_match": "Science: play a match with a {domaine} scientist", "chal.sci_domain_score": "Science: score a goal with a {domaine} scientist", "chal.sci_domains3_win": "Science: win in Manager with 3 different domains on the pitch",
+
   "account.loginTitle": "Sign in", "account.registerTitle": "Create an account", "account.lead": "A nickname and a password. That's it.", "account.login": "Sign in", "account.register": "Create account",
   "account.pseudo": "Nickname", "account.password": "Password", "account.confirm": "Confirm password",
   "account.privacy": "No personal data: no email, no name, no date of birth. Your password is hashed (scrypt) and never stored in plain text. You can delete your account at any time from your profile.",

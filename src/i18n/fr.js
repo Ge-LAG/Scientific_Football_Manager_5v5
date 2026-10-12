@@ -38,6 +38,13 @@ export default {
   "career.seasons": "Saisons", "career.titles": "Titres", "career.promotions": "Montées", "career.relegations": "Descentes", "career.trophies": "Trophées de l'Institut",
   "career.rank": "rang {rank}", "career.champion": "champion : {name}", "career.summary": "Palmarès : {seasons} saisons, {titles} titres, {promotions} montées, {relegations} descentes, {trophies} trophées.",
 
+  "chal.title": "Défis du jour", "chal.streak": "{n} jour(s) de suite",
+  "chal.a_goals": "Arène : marquer {n} buts", "chal.a_assists": "Arène : délivrer {n} passe(s) décisive(s)", "chal.a_saves": "Arène : réaliser {n} arrêts", "chal.a_tackles": "Arène : réussir {n} tacles",
+  "chal.a_powerups": "Arène : déclencher {n} power-ups", "chal.a_win": "Arène : gagner un match", "chal.a_mvp": "Arène : terminer MVP d'un match",
+  "chal.m_win": "Manager : gagner un match", "chal.m_goals": "Manager : marquer {n} buts", "chal.m_shots": "Manager : cadrer {n} tirs",
+  "chal.m_possession": "Manager : terminer avec {n} % de possession", "chal.m_strategy_win": "Manager : gagner en stratégie « {strategy} »", "chal.m_beat_bot": "Manager : battre un bot {level}",
+  "chal.sci_domain_match": "Science : jouer un match avec un scientifique du domaine {domaine}", "chal.sci_domain_score": "Science : marquer un but avec un scientifique du domaine {domaine}", "chal.sci_domains3_win": "Science : gagner en Manager avec 3 domaines différents alignés",
+
   "account.loginTitle": "Connexion", "account.registerTitle": "Créer un compte", "account.lead": "Un pseudo et un mot de passe. C'est tout.", "account.login": "Se connecter", "account.register": "Créer le compte",
   "account.pseudo": "Pseudo", "account.password": "Mot de passe", "account.confirm": "Confirmer le mot de passe",
   "account.privacy": "Aucune donnée personnelle : ni e-mail, ni nom, ni date de naissance. Le mot de passe est chiffré (scrypt) et jamais stocké en clair. Vous pouvez supprimer votre compte à tout moment depuis votre profil.",

@@ -9,6 +9,7 @@ import { getPlayer, getPowerUp, narrText, puText } from "../../../shared/data/co
 import { CamBar } from "../../ui/CamBar.jsx";
 import { useBindings } from "../../ui/bindings.js";
 import { ACHIEVEMENTS } from "../../../shared/progression.js";
+import { recordMatchResult } from "../../store/challenges.js";
 import { speak, stopSpeaking } from "../../audio/voice.js";
 import { reducedFxOn } from "../../ui/reducedFx.js";
 import { Rematch } from "../../ui/Rematch.jsx";
@@ -240,6 +241,14 @@ function Scoreboard({ slots, hud, teams, keyBoard }) {
 
 function EndScreen({ end, slots, mySlot, onLeave, again, rematch, onRematch, onJoinRematch }) {
   const { t, lang } = useI18n();
+  // défis du jour : enregistrer mes stats de fin de match (spectateur : rien à mesurer)
+  useEffect(() => {
+    if (mySlot == null) return;
+    const s = end.slots?.[mySlot], st = end.stats?.[mySlot];
+    if (!s || !st) return;
+    const dom = getPlayer(s.charId)?.domaine;
+    recordMatchResult({ mode: "arena", win: end.score[s.team] > end.score[1 - s.team], mvp: end.mvp === mySlot, goals: st.goals, assists: st.assists, saves: st.saves, tackles: st.tackles, powerups: st.powerups, domaines: dom ? [dom] : [], scorerDomaines: st.goals > 0 && dom ? [dom] : [] });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const myTeam = mySlot != null ? slots[mySlot].team : 0;
   const res = end.score[myTeam] > end.score[1 - myTeam] ? "W" : end.score[myTeam] < end.score[1 - myTeam] ? "L" : "D";
   const prog = end.progression?.[mySlot];
